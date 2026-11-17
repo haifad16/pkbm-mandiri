@@ -43,6 +43,13 @@
                     <i class="bi bi-award-fill text-base"></i>
                     <span>Rekap Nilai &amp; Leger Mapel</span>
                 </button>
+                <button onclick="switchGuruTab('remedial')" id="tab-remedial" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition">
+                    <div class="flex items-center gap-3">
+                        <i class="bi bi-arrow-repeat text-base"></i>
+                        <span>Izin Ujian Ulang (Remedial)</span>
+                    </div>
+                    <span id="remedial-badge-guru" class="hidden px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-500 text-white">0</span>
+                </button>
                 <a href="./index.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition">
                     <i class="bi bi-globe text-base"></i>
                     <span>Lihat Halaman Utama</span>
@@ -266,6 +273,48 @@
                                 </tr>
                             </thead>
                             <tbody id="teacher-ledger-body" class="divide-y divide-slate-100">
+                                <!-- Loaded dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 5: PERSETUJUAN UJIAN ULANG & REMEDIAL -->
+            <div id="section-remedial" class="space-y-6 hidden">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h1 class="text-2xl font-black text-slate-900">Persetujuan Ujian Ulang &amp; Remedial Siswa</h1>
+                        <p class="text-xs text-slate-500 mt-0.5">Siswa hanya diperbolehkan mengerjakan ujian 1 kali. Di bawah ini adalah permohonan siswa yang meminta izin mengulang.</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="renderRemedialGuruTable()" class="px-3.5 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-bold transition flex items-center gap-1.5">
+                            <i class="bi bi-arrow-clockwise"></i> Segarkan Permohonan
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="p-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-700 flex items-center gap-2">
+                            <i class="bi bi-person-lines-fill text-blue-600"></i> Antrean Permohonan Remedial Siswa
+                        </span>
+                        <span class="text-[11px] text-slate-500" id="remedial-table-count">0 Permohonan</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase">
+                                <tr>
+                                    <th class="py-3 px-4">Nama Siswa &amp; NIK</th>
+                                    <th class="py-3 px-4">Rombel / Paket</th>
+                                    <th class="py-3 px-4">Mata Pelajaran</th>
+                                    <th class="py-3 px-4 text-center">Skor Lama</th>
+                                    <th class="py-3 px-4">Alasan Murid</th>
+                                    <th class="py-3 px-4">Status &amp; Verifikator</th>
+                                    <th class="py-3 px-4 text-center">Aksi Guru</th>
+                                </tr>
+                            </thead>
+                            <tbody id="remedial-table-body" class="divide-y divide-slate-100">
                                 <!-- Loaded dynamically -->
                             </tbody>
                         </table>
@@ -551,16 +600,21 @@ KUNCI JAWABAN:
 
         // Tab Navigation
         function switchGuruTab(tab) {
-            ['buat-soal', 'bank-soal', 'koreksi', 'rekap-nilai'].forEach(t => {
-                document.getElementById('section-' + t).classList.add('hidden');
-                document.getElementById('tab-' + t).className = "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition";
+            ['buat-soal', 'bank-soal', 'koreksi', 'rekap-nilai', 'remedial'].forEach(t => {
+                const sec = document.getElementById('section-' + t);
+                const btn = document.getElementById('tab-' + t);
+                if (sec) sec.classList.add('hidden');
+                if (btn) btn.className = "w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition";
             });
-            document.getElementById('section-' + tab).classList.remove('hidden');
-            document.getElementById('tab-' + tab).className = "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-emerald-600 text-white transition";
+            const activeSec = document.getElementById('section-' + tab);
+            const activeBtn = document.getElementById('tab-' + tab);
+            if (activeSec) activeSec.classList.remove('hidden');
+            if (activeBtn) activeBtn.className = "w-full flex items-center justify-between px-3 py-2.5 rounded-xl bg-emerald-600 text-white transition";
 
             if (tab === 'bank-soal') renderBankSoal();
             if (tab === 'koreksi') renderKoreksiTable();
             if (tab === 'rekap-nilai') renderTeacherLedger();
+            if (tab === 'remedial') renderRemedialGuruTable();
         }
 
         // Dynamic Question Builder State
@@ -1096,6 +1150,170 @@ KUNCI JAWABAN:
             link.download = `Rekap_Nilai_Tutor_PKBM_Mandiri.csv`;
             link.click();
         }
+
+        // ==========================================
+        // PERSETUJUAN UJIAN ULANG / REMEDIAL GURU
+        // ==========================================
+        function updateRemedialBadgeGuru() {
+            const permits = JSON.parse(localStorage.getItem('pkbm_remedial_permits') || '[]');
+            const pending = permits.filter(p => p.status === 'pending');
+            const badge = document.getElementById('remedial-badge-guru');
+            if (badge) {
+                if (pending.length > 0) {
+                    badge.classList.remove('hidden');
+                    badge.innerText = `${pending.length} Menunggu`;
+                } else {
+                    badge.classList.add('hidden');
+                }
+            }
+        }
+
+        function renderRemedialGuruTable() {
+            updateRemedialBadgeGuru();
+            const permits = JSON.parse(localStorage.getItem('pkbm_remedial_permits') || '[]');
+            const tbody = document.getElementById('remedial-table-body');
+            const countLabel = document.getElementById('remedial-table-count');
+
+            if (countLabel) countLabel.innerText = `${permits.length} Permohonan`;
+
+            if (!tbody) return;
+
+            if (permits.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="py-10 text-center text-slate-400">
+                            <i class="bi bi-inbox text-3xl block mb-2 text-slate-300"></i>
+                            Belum ada permohonan ujian ulang atau remedial dari siswa.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = permits.map((p, idx) => {
+                let statusBadge = '';
+                if (p.status === 'approved') {
+                    statusBadge = `
+                        <div>
+                            <span class="px-2.5 py-0.5 rounded-full font-bold text-[10px] bg-emerald-100 text-emerald-800 border border-emerald-300">
+                                Disetujui ✓
+                            </span>
+                            <div class="text-[10px] text-slate-400 mt-0.5">Oleh: ${p.disetujui_oleh || 'Tutor'}</div>
+                        </div>
+                    `;
+                } else if (p.status === 'rejected') {
+                    statusBadge = `
+                        <div>
+                            <span class="px-2.5 py-0.5 rounded-full font-bold text-[10px] bg-rose-100 text-rose-800 border border-rose-300">
+                                Ditolak ✕
+                            </span>
+                            <div class="text-[10px] text-rose-600 mt-0.5 italic">"${p.catatan_petugas || 'Tidak memenuhi syarat'}"</div>
+                        </div>
+                    `;
+                } else if (p.status === 'used') {
+                    statusBadge = `
+                        <div>
+                            <span class="px-2.5 py-0.5 rounded-full font-bold text-[10px] bg-slate-100 text-slate-700 border border-slate-300">
+                                Sudah Dikerjakan Ulang
+                            </span>
+                            <div class="text-[10px] text-slate-400 mt-0.5">${p.tanggal_digunakan || ''}</div>
+                        </div>
+                    `;
+                } else {
+                    statusBadge = `
+                        <span class="px-2.5 py-0.5 rounded-full font-bold text-[10px] bg-amber-100 text-amber-800 border border-amber-300 animate-pulse">
+                            Menunggu Persetujuan
+                        </span>
+                    `;
+                }
+
+                let actionHtml = '';
+                if (p.status === 'pending') {
+                    actionHtml = `
+                        <div class="flex items-center justify-center gap-1.5">
+                            <button onclick="setujuiRemedialGuru('${p.id}')" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] shadow transition flex items-center gap-1">
+                                <i class="bi bi-check-lg"></i> Setujui
+                            </button>
+                            <button onclick="tolakRemedialGuru('${p.id}')" class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-bold text-[11px] shadow transition flex items-center gap-1">
+                                <i class="bi bi-x-lg"></i> Tolak
+                            </button>
+                        </div>
+                    `;
+                } else if (p.status === 'approved') {
+                    actionHtml = `
+                        <span class="text-[11px] text-emerald-700 font-bold flex items-center justify-center gap-1">
+                            <i class="bi bi-check-circle-fill"></i> Izin Aktif
+                        </span>
+                    `;
+                } else {
+                    actionHtml = `
+                        <button onclick="setujuiRemedialGuru('${p.id}')" class="px-2.5 py-1 rounded-lg bg-slate-200 hover:bg-emerald-600 hover:text-white text-slate-700 font-bold text-[10px] transition">
+                            Izinkan Ulang
+                        </button>
+                    `;
+                }
+
+                return `
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="py-3 px-4">
+                            <div class="font-bold text-slate-900">${p.nama}</div>
+                            <div class="font-mono text-[11px] text-slate-500">${p.nik}</div>
+                        </td>
+                        <td class="py-3 px-4 font-semibold text-blue-700">${p.rombel || p.paket}</td>
+                        <td class="py-3 px-4">
+                            <div class="font-bold text-slate-800">${p.mapel}</div>
+                            <div class="text-[10px] text-slate-400">${p.judul}</div>
+                        </td>
+                        <td class="py-3 px-4 text-center font-black text-rose-600">${p.skor_sebelumnya !== undefined ? p.skor_sebelumnya : '-'}</td>
+                        <td class="py-3 px-4 max-w-xs">
+                            <div class="text-slate-700 italic bg-slate-50 p-2 rounded-lg border border-slate-100 text-[11px]">"${p.alasan}"</div>
+                            <div class="text-[10px] text-slate-400 mt-1">${p.tanggal_pengajuan}</div>
+                        </td>
+                        <td class="py-3 px-4">${statusBadge}</td>
+                        <td class="py-3 px-4 text-center">${actionHtml}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function setujuiRemedialGuru(id) {
+            let permits = JSON.parse(localStorage.getItem('pkbm_remedial_permits') || '[]');
+            const idx = permits.findIndex(p => p.id === id);
+            if (idx === -1) return;
+
+            const p = permits[idx];
+            if (!confirm(`Apakah Anda yakin ingin menyetujui ujian ulang (remedial) untuk siswa:\n\nNama: ${p.nama}\nMata Pelajaran: ${p.mapel}\n\nSetelah disetujui, siswa dapat mengerjakan ujian ini kembali sebanyak 1 kali.`)) return;
+
+            p.status = 'approved';
+            p.disetujui_oleh = user.nama || 'Tutor Pembina';
+            p.tanggal_persetujuan = new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+            localStorage.setItem('pkbm_remedial_permits', JSON.stringify(permits));
+            alert(`PERSETUJUAN BERHASIL!\nSiswa ${p.nama} kini telah diizinkan untuk mengerjakan ulang ujian ${p.mapel}.`);
+            renderRemedialGuruTable();
+        }
+
+        function tolakRemedialGuru(id) {
+            let permits = JSON.parse(localStorage.getItem('pkbm_remedial_permits') || '[]');
+            const idx = permits.findIndex(p => p.id === id);
+            if (idx === -1) return;
+
+            const p = permits[idx];
+            const alasan = prompt(`Tuliskan alasan penolakan ujian ulang untuk ${p.nama}:`, 'Nilai sudah mencukupi batas kelulusan KKM.');
+            if (alasan === null) return;
+
+            p.status = 'rejected';
+            p.disetujui_oleh = user.nama || 'Tutor Pembina';
+            p.catatan_petugas = (alasan || 'Permohonan belum memenuhi syarat').trim();
+            p.tanggal_persetujuan = new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+            localStorage.setItem('pkbm_remedial_permits', JSON.stringify(permits));
+            alert(`Permohonan ujian ulang siswa ${p.nama} telah ditolak.`);
+            renderRemedialGuruTable();
+        }
+
+        // Jalankan badge check saat halaman dimuat
+        updateRemedialBadgeGuru();
 
         // ==========================================
         // SMART EXAM PARSER & UPLOAD (WORD / PDF / TEKS)

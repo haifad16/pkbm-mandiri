@@ -204,6 +204,48 @@
 
     </main>
 
+    <!-- Modal Ajukan Izin Remedial / Ujian Ulang -->
+    <div id="modal-ajukan-remedial" class="hidden fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden space-y-4 p-6">
+            <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-10 h-10 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-lg font-bold">
+                        <i class="bi bi-arrow-repeat"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-black text-slate-900 text-sm">Permohonan Ujian Ulang (Remedial)</h3>
+                        <p class="text-[11px] text-slate-500" id="rem-modal-mapel">-</p>
+                    </div>
+                </div>
+                <button type="button" onclick="tutupModalAjukanRemedial()" class="w-8 h-8 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-600 flex items-center justify-center">
+                    <i class="bi bi-x-lg text-sm"></i>
+                </button>
+            </div>
+            <div class="space-y-3 text-xs">
+                <div class="p-3.5 bg-blue-50 border border-blue-200 rounded-2xl text-blue-900 space-y-1">
+                    <div class="font-bold flex items-center gap-1.5"><i class="bi bi-shield-lock-fill text-blue-600"></i> Ketentuan Ujian PKBM Mandiri:</div>
+                    <p class="text-[11px] text-blue-800 leading-relaxed">
+                        Siswa hanya diberikan <strong>1 kesempatan ujian</strong>. Untuk mengulang (remedial), Anda wajib mengirim permohonan dan menunggu persetujuan resmi dari Guru Pembina atau Admin.
+                    </p>
+                </div>
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex items-center justify-between">
+                    <span class="text-slate-600 font-semibold">Skor Ujian Sebelumnya:</span>
+                    <span class="font-black text-rose-600 text-sm" id="rem-modal-skor">-</span>
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Alasan Pengajuan Remedial *</label>
+                    <textarea id="rem-modal-alasan" rows="3" class="w-full p-3 border rounded-xl bg-white text-xs outline-none focus:ring-2 focus:ring-amber-500" placeholder="Tuliskan alasan Anda, contoh: Nilai saya belum mencapai batas KKM 75, mohon izin untuk mengulang ujian..."></textarea>
+                </div>
+            </div>
+            <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-200">
+                <button type="button" onclick="tutupModalAjukanRemedial()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition">Batal</button>
+                <button type="button" onclick="kirimPermohonanRemedial()" class="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-amber-600/20 transition">
+                    <i class="bi bi-send-fill"></i> Kirim Permohonan ke Guru
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const userJson = sessionStorage.getItem('current_user');
         if (!userJson) {
@@ -297,28 +339,160 @@
                     return;
                 }
 
-                container.innerHTML = filteredExams.map(e => `
-                    <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex flex-col justify-between hover:shadow-lg transition">
-                        <div>
-                            <div class="flex items-center justify-between text-xs mb-3">
-                                <span class="px-2.5 py-0.5 rounded-full font-bold bg-blue-50 text-blue-700">${e.paket}</span>
-                                <span class="text-slate-600 font-semibold bg-slate-100 px-2 py-0.5 rounded-md text-[11px]">${e.tingkat_kelas}</span>
-                            </div>
-                            <h4 class="font-bold text-slate-900 text-base mb-1">${e.mapel}</h4>
-                            <p class="text-xs text-slate-500 mb-4">${e.judul}</p>
-                            <div class="text-[11px] text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-slate-100 flex items-center justify-between">
-                                <span><i class="bi bi-question-circle mr-1"></i> ${e.questions.length} Butir Soal</span>
-                                <span class="text-emerald-600 font-bold"><i class="bi bi-shield-check"></i> Sesuai Kelas Anda</span>
-                            </div>
-                        </div>
-                        <div class="pt-6">
+                const studentScores = JSON.parse(localStorage.getItem('pkbm_scores_' + user.nik) || '[]');
+                const permits = JSON.parse(localStorage.getItem('pkbm_remedial_permits') || '[]');
+
+                container.innerHTML = filteredExams.map(e => {
+                    const scoreRecord = studentScores.find(s => String(s.exam_id) === String(e.id));
+                    const permit = permits.find(p => String(p.exam_id) === String(e.id) && String(p.nik) === String(user.nik));
+                    const safeJudul = (e.judul || '').replace(/'/g, "\\'");
+                    const safeMapel = (e.mapel || '').replace(/'/g, "\\'");
+
+                    let statusBadgeHtml = '';
+                    let actionBtnHtml = '';
+
+                    if (!scoreRecord) {
+                        // Belum pernah dikerjakan (1x kesempatan)
+                        statusBadgeHtml = `
+                            <span class="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded text-[10px] border border-emerald-200 flex items-center gap-1">
+                                <i class="bi bi-shield-check"></i> 1x Kesempatan Ujian
+                            </span>
+                        `;
+                        actionBtnHtml = `
                             <a href="./ujian.html?exam_id=${e.id}" class="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow transition">
                                 <i class="bi bi-play-circle-fill"></i> Mulai Kerjakan Ujian
                             </a>
+                        `;
+                    } else if (permit && permit.status === 'approved') {
+                        // Izin remedial disetujui guru/admin!
+                        const approver = permit.disetujui_oleh || 'Guru/Admin';
+                        statusBadgeHtml = `
+                            <span class="text-emerald-800 font-bold bg-emerald-100 px-2.5 py-0.5 rounded-full text-[10px] border border-emerald-300 flex items-center gap-1 shadow-sm">
+                                <i class="bi bi-patch-check-fill text-emerald-600"></i> Remedial Disetujui (${approver})
+                            </span>
+                        `;
+                        actionBtnHtml = `
+                            <a href="./ujian.html?exam_id=${e.id}" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-600/25 transition">
+                                <i class="bi bi-arrow-repeat"></i> Mulai Ujian Ulang (Remedial)
+                            </a>
+                        `;
+                    } else if (permit && permit.status === 'pending') {
+                        // Permohonan sedang ditinjau
+                        statusBadgeHtml = `
+                            <span class="text-amber-800 font-bold bg-amber-50 px-2.5 py-0.5 rounded-full text-[10px] border border-amber-300 flex items-center gap-1">
+                                <i class="bi bi-hourglass-split animate-spin text-amber-600"></i> Menunggu Persetujuan Guru
+                            </span>
+                        `;
+                        actionBtnHtml = `
+                            <button disabled class="w-full py-3 rounded-xl bg-slate-100 text-slate-400 font-bold text-xs flex items-center justify-center gap-1.5 cursor-not-allowed border border-slate-200">
+                                <i class="bi bi-clock-history"></i> Menunggu Konfirmasi Guru/Admin
+                            </button>
+                        `;
+                    } else if (permit && permit.status === 'rejected') {
+                        // Ditolak
+                        const prevScore = scoreRecord.skor_akhir !== undefined ? scoreRecord.skor_akhir : (scoreRecord.skor_pg || scoreRecord.skor);
+                        statusBadgeHtml = `
+                            <span class="text-rose-800 font-bold bg-rose-50 px-2 py-0.5 rounded text-[10px] border border-rose-200 flex items-center gap-1">
+                                <i class="bi bi-x-circle-fill text-rose-500"></i> Izin Remedial Ditolak
+                            </span>
+                        `;
+                        actionBtnHtml = `
+                            <div class="space-y-1.5">
+                                <div class="text-[10px] text-rose-600 font-medium italic">Catatan: "${permit.catatan_petugas || 'Nilai sudah mencukupi'}"</div>
+                                <button type="button" onclick="bukaModalAjukanRemedial(${e.id}, '${safeJudul}', '${safeMapel}', ${prevScore})" class="w-full py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow transition">
+                                    <i class="bi bi-arrow-repeat"></i> Ajukan Izin Ulang
+                                </button>
+                            </div>
+                        `;
+                    } else {
+                        // Sudah selesai dikerjakan 1 kali
+                        const prevScore = scoreRecord.skor_akhir !== undefined ? scoreRecord.skor_akhir : (scoreRecord.skor_pg || scoreRecord.skor);
+                        statusBadgeHtml = `
+                            <span class="text-slate-700 font-bold bg-slate-100 px-2 py-0.5 rounded text-[10px] border border-slate-200 flex items-center gap-1">
+                                <i class="bi bi-check-circle-fill text-blue-600"></i> Selesai (Nilai: ${prevScore})
+                            </span>
+                        `;
+                        actionBtnHtml = `
+                            <button type="button" onclick="bukaModalAjukanRemedial(${e.id}, '${safeJudul}', '${safeMapel}', ${prevScore})" class="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow transition">
+                                <i class="bi bi-arrow-repeat"></i> Minta Izin Ujian Ulang (Remedial)
+                            </button>
+                        `;
+                    }
+
+                    return `
+                        <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex flex-col justify-between hover:shadow-lg transition">
+                            <div>
+                                <div class="flex items-center justify-between text-xs mb-3">
+                                    <span class="px-2.5 py-0.5 rounded-full font-bold bg-blue-50 text-blue-700">${e.paket}</span>
+                                    <span class="text-slate-600 font-semibold bg-slate-100 px-2 py-0.5 rounded-md text-[11px]">${e.tingkat_kelas}</span>
+                                </div>
+                                <h4 class="font-bold text-slate-900 text-base mb-1">${e.mapel}</h4>
+                                <p class="text-xs text-slate-500 mb-4">${e.judul}</p>
+                                <div class="text-[11px] text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-slate-100 flex items-center justify-between">
+                                    <span><i class="bi bi-question-circle mr-1"></i> ${e.questions.length} Butir Soal</span>
+                                    ${statusBadgeHtml}
+                                </div>
+                            </div>
+                            <div class="pt-6">
+                                ${actionBtnHtml}
+                            </div>
                         </div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
             });
+
+        // Helper Modal Ajukan Remedial
+        let currentRemedialTarget = null;
+
+        function bukaModalAjukanRemedial(examId, judul, mapel, skorLama) {
+            currentRemedialTarget = { examId, judul, mapel, skorLama };
+            document.getElementById('rem-modal-mapel').innerText = `${judul} (${mapel})`;
+            document.getElementById('rem-modal-skor').innerText = `${skorLama || 0} / 100`;
+            document.getElementById('rem-modal-alasan').value = 'Ingin memperbaiki nilai (remedial) agar memenuhi standar kelulusan KKM.';
+            document.getElementById('modal-ajukan-remedial').classList.remove('hidden');
+        }
+
+        function tutupModalAjukanRemedial() {
+            document.getElementById('modal-ajukan-remedial').classList.add('hidden');
+            currentRemedialTarget = null;
+        }
+
+        function kirimPermohonanRemedial() {
+            if (!currentRemedialTarget) return;
+            const alasan = document.getElementById('rem-modal-alasan').value.trim();
+            if (!alasan) {
+                alert('Silakan tuliskan alasan permohonan ujian ulang.');
+                return;
+            }
+
+            let permits = JSON.parse(localStorage.getItem('pkbm_remedial_permits') || '[]');
+            // Hapus permit lama untuk ujian & siswa yang sama jika ada
+            permits = permits.filter(p => !(String(p.exam_id) === String(currentRemedialTarget.examId) && String(p.nik) === String(user.nik)));
+            
+            const newPermit = {
+                id: 'rem_' + Date.now(),
+                nik: user.nik,
+                nama: user.nama,
+                rombel: user.rombel,
+                paket: user.paket,
+                exam_id: currentRemedialTarget.examId,
+                judul: currentRemedialTarget.judul,
+                mapel: currentRemedialTarget.mapel,
+                skor_sebelumnya: currentRemedialTarget.skorLama,
+                alasan: alasan,
+                status: 'pending',
+                tanggal_pengajuan: new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
+                disetujui_oleh: null,
+                catatan_petugas: null
+            };
+
+            permits.unshift(newPermit);
+            localStorage.setItem('pkbm_remedial_permits', JSON.stringify(permits));
+
+            alert(`PERMOHONAN BERHASIL DIKIRIM!\n\nPermohonan ujian ulang untuk "${currentRemedialTarget.mapel}" telah masuk ke antrean persetujuan Guru Pengajar dan Admin.\n\nSilakan tunggu hingga Guru atau Admin menyetujui permohonan Anda.`);
+            tutupModalAjukanRemedial();
+            location.reload();
+        }
 
         // Load completed exam scores from local storage
         function loadScores() {

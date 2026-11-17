@@ -115,6 +115,15 @@
                 <span class="font-bold text-slate-600" id="q-counter">Memuat butir soal...</span>
             </div>
 
+            <!-- Remedial Notification Banner (Shown only if taking an approved remedial) -->
+            <div id="remedial-session-notice" class="hidden p-3.5 bg-emerald-50 border-2 border-emerald-300 rounded-2xl flex items-center justify-between text-xs text-emerald-950 font-bold shadow-sm">
+                <span class="flex items-center gap-2">
+                    <i class="bi bi-patch-check-fill text-emerald-600 text-lg"></i>
+                    <span>Sesi Ujian Ulang (Remedial) Disetujui oleh: <strong id="remedial-approver-name" class="underline">Guru / Admin</strong>. Skor baru akan menggantikan skor sebelumnya.</span>
+                </span>
+                <span class="px-2.5 py-1 rounded-full bg-emerald-200 text-emerald-900 text-[10px] font-black uppercase tracking-wider">1x Kesempatan</span>
+            </div>
+
             <!-- Form Pertanyaan -->
             <form id="exam-form" class="space-y-8">
                 <div id="questions-list" class="space-y-8 divide-y divide-slate-100">
@@ -194,6 +203,7 @@
         let currentExam = null;
         let shuffledQuestions = [];
         let examCompleted = false;
+        let approvedPermit = null;
         const SALT = 'PKBM_MANDIRI_SALT_2026_';
 
         // Web Crypto SHA-256 Helper
@@ -218,13 +228,35 @@
                 const rawParamId = urlParams.get('exam_id');
                 currentExam = allExams.find(e => e.id == examId || (rawParamId && String(e.id) === String(rawParamId))) || allExams[0];
 
-                // Validasi Keamanan: Pastikan siswa tidak mengerjakan ujian paket lain
+                // 1. Validasi Keamanan: Pastikan siswa tidak mengerjakan ujian paket lain
                 const studentPaket = (user.paket || '').trim().toLowerCase();
                 const examPaket = (currentExam.paket || '').trim().toLowerCase();
                 if (examPaket && !examPaket.includes('semua') && studentPaket && !examPaket.includes(studentPaket)) {
                     alert(`Akses Ditolak: Naskah ujian ini khusus untuk ${currentExam.paket}, sedangkan Anda terdaftar di ${user.paket}. Anda akan diarahkan ke dashboard.`);
                     window.location.href = './siswa.html';
                     return;
+                }
+
+                // 2. Validasi Keamanan: Batasi Siswa hanya boleh mengerjakan 1 kali saja
+                const studentScores = JSON.parse(localStorage.getItem('pkbm_scores_' + user.nik) || '[]');
+                const existingScore = studentScores.find(s => String(s.exam_id) === String(currentExam.id));
+
+                const allPermits = JSON.parse(localStorage.getItem('pkbm_remedial_permits') || '[]');
+                approvedPermit = allPermits.find(p => String(p.exam_id) === String(currentExam.id) && String(p.nik) === String(user.nik) && p.status === 'approved');
+
+                if (existingScore && !approvedPermit) {
+                    const prevScoreVal = existingScore.skor_akhir !== undefined ? existingScore.skor_akhir : (existingScore.skor_pg || existingScore.skor);
+                    alert(`AKSES DITOLAK: Ujian Hanya Boleh Dikerjakan 1 Kali Saja!\n\nAnda sudah menyelesaikan ujian "${currentExam.judul}" sebelumnya pada tanggal ${existingScore.tanggal} dengan perolehan skor: ${prevScoreVal} / 100.\n\nSiswa dilarang mengulang ujian tanpa persetujuan resmi. Silakan ajukan permohonan izin remedial di dashboard siswa dan tunggu persetujuan dari Guru Pembina atau Admin.`);
+                    window.location.href = './siswa.html';
+                    return;
+                }
+
+                if (approvedPermit) {
+                    const remedialNotice = document.getElementById('remedial-session-notice');
+                    if (remedialNotice) {
+                        remedialNotice.classList.remove('hidden');
+                        document.getElementById('remedial-approver-name').innerText = approvedPermit.disetujui_oleh || 'Guru / Admin';
+                    }
                 }
 
                 document.getElementById('exam-title').innerText = currentExam.judul;
@@ -391,6 +423,17 @@
                 allScores.unshift(masterScoreRecord);
             }
             localStorage.setItem('pkbm_master_scores', JSON.stringify(allScores));
+
+            // Jika pengerjaan ini menggunakan izin remedial yang telah disetujui, tandai izin sudah dipakai
+            if (approvedPermit) {
+                let allPermits = JSON.parse(localStorage.getItem('pkbm_remedial_permits') || '[]');
+                const pIdx = allPermits.findIndex(p => p.id === approvedPermit.id);
+                if (pIdx !== -1) {
+                    allPermits[pIdx].status = 'used';
+                    allPermits[pIdx].tanggal_digunakan = new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                    localStorage.setItem('pkbm_remedial_permits', JSON.stringify(allPermits));
+                }
+            }
 
             // Hapus draft autosave setelah sukses submit
             try {

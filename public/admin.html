@@ -383,6 +383,39 @@
                     </div>
                 </div>
 
+                <!-- Antrean Permohonan Ujian Ulang / Remedial Siswa -->
+                <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-3">
+                        <div class="flex items-center gap-2">
+                            <h3 class="font-bold text-sm text-slate-900 flex items-center gap-2">
+                                <i class="bi bi-arrow-repeat text-amber-600"></i> Persetujuan Ujian Ulang (Remedial) Siswa
+                            </h3>
+                            <span id="admin-rem-count-badge" class="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-800 border border-amber-300">0 Menunggu</span>
+                        </div>
+                        <button onclick="loadAdminRemedialPermits()" class="text-xs text-blue-600 font-bold hover:underline flex items-center gap-1">
+                            <i class="bi bi-arrow-clockwise"></i> Segarkan Permohonan
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-50 text-slate-500 font-bold">
+                                <tr>
+                                    <th class="py-2.5 px-3">Nama Siswa &amp; NIK</th>
+                                    <th class="py-2.5 px-3">Rombel / Paket</th>
+                                    <th class="py-2.5 px-3">Mata Pelajaran</th>
+                                    <th class="py-2.5 px-3 text-center">Skor Lama</th>
+                                    <th class="py-2.5 px-3">Alasan Permohonan</th>
+                                    <th class="py-2.5 px-3">Status</th>
+                                    <th class="py-2.5 px-3 text-center">Aksi Admin</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-remedial-body" class="divide-y divide-slate-100">
+                                <!-- Loaded dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
                 <!-- Master Scores Table -->
                 <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-3">
@@ -1985,6 +2018,7 @@
         let currentMasterScores = [];
 
         function loadMasterScores() {
+            loadAdminRemedialPermits();
             if (window.listenNilaiUjianRealtime && !masterScoresUnsubscribe) {
                 masterScoresUnsubscribe = window.listenNilaiUjianRealtime((scores) => {
                     currentMasterScores = scores;
@@ -2059,6 +2093,124 @@
                 csv += `"${s.nama}","'${s.nik}","${s.mapel}","${s.paket}","${s.skor_pg || s.skor}","${s.skor_akhir || s.skor}","${s.tanggal}"\r\n`;
             });
             downloadCsv(csv, "Leger_Nilai_CBT_PKBM_Mandiri.csv");
+        }
+
+        // ==================== REMEDIAL & IZIN UJIAN ULANG ====================
+        function loadAdminRemedialPermits() {
+            const permits = JSON.parse(localStorage.getItem('pkbm_remedial_permits') || '[]');
+            const tbody = document.getElementById('admin-remedial-body');
+            const badge = document.getElementById('admin-rem-count-badge');
+            
+            const pending = permits.filter(p => p.status === 'pending');
+            if (badge) {
+                badge.innerText = `${pending.length} Menunggu`;
+                badge.className = pending.length > 0 ? "px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-100 text-rose-800 border border-rose-300 animate-pulse" : "px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 border border-emerald-300";
+            }
+
+            if (!tbody) return;
+
+            if (permits.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-400 font-semibold">Belum ada permohonan ujian ulang atau remedial dari siswa.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = permits.map(p => {
+                let statusBadge = '';
+                if (p.status === 'approved') {
+                    statusBadge = `
+                        <div>
+                            <span class="px-2 py-0.5 rounded font-bold text-[10px] bg-emerald-100 text-emerald-800 border border-emerald-300">Disetujui ✓</span>
+                            <div class="text-[10px] text-slate-400 mt-0.5">Oleh: ${p.disetujui_oleh || 'Admin'}</div>
+                        </div>
+                    `;
+                } else if (p.status === 'rejected') {
+                    statusBadge = `
+                        <div>
+                            <span class="px-2 py-0.5 rounded font-bold text-[10px] bg-rose-100 text-rose-800 border border-rose-300">Ditolak ✕</span>
+                            <div class="text-[10px] text-rose-600 mt-0.5 italic">"${p.catatan_petugas || 'Ditolak'}"</div>
+                        </div>
+                    `;
+                } else if (p.status === 'used') {
+                    statusBadge = `
+                        <span class="px-2 py-0.5 rounded font-bold text-[10px] bg-slate-100 text-slate-700 border border-slate-300">Sudah Ujian Ulang</span>
+                    `;
+                } else {
+                    statusBadge = `
+                        <span class="px-2 py-0.5 rounded font-bold text-[10px] bg-amber-100 text-amber-800 border border-amber-300 animate-pulse">Menunggu Persetujuan</span>
+                    `;
+                }
+
+                let actionHtml = '';
+                if (p.status === 'pending') {
+                    actionHtml = `
+                        <div class="flex items-center justify-center gap-1">
+                            <button onclick="setujuiRemedialAdmin('${p.id}')" class="px-2.5 py-1 rounded bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] transition">Setujui</button>
+                            <button onclick="tolakRemedialAdmin('${p.id}')" class="px-2.5 py-1 rounded bg-rose-600 hover:bg-rose-700 text-white font-bold text-[10px] transition">Tolak</button>
+                        </div>
+                    `;
+                } else if (p.status === 'approved') {
+                    actionHtml = `<span class="text-[10px] text-emerald-700 font-bold">Izin Aktif</span>`;
+                } else {
+                    actionHtml = `<button onclick="setujuiRemedialAdmin('${p.id}')" class="px-2 py-0.5 rounded bg-slate-200 hover:bg-emerald-600 hover:text-white text-slate-700 font-bold text-[10px] transition">Izinkan Ulang</button>`;
+                }
+
+                return `
+                    <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+                        <td class="py-2.5 px-3">
+                            <div class="font-bold text-slate-900">${p.nama}</div>
+                            <div class="font-mono text-[10px] text-slate-400">${maskNik(p.nik)}</div>
+                        </td>
+                        <td class="py-2.5 px-3 font-semibold text-blue-700">${p.rombel || p.paket}</td>
+                        <td class="py-2.5 px-3">
+                            <div class="font-bold text-slate-800">${p.mapel}</div>
+                            <div class="text-[10px] text-slate-400">${p.judul}</div>
+                        </td>
+                        <td class="py-2.5 px-3 text-center font-black text-rose-600">${p.skor_sebelumnya !== undefined ? p.skor_sebelumnya : '-'}</td>
+                        <td class="py-2.5 px-3 max-w-xs">
+                            <div class="text-slate-700 italic bg-slate-50 p-1.5 rounded border border-slate-100 text-[10px]">"${p.alasan}"</div>
+                            <div class="text-[9px] text-slate-400 mt-0.5">${p.tanggal_pengajuan}</div>
+                        </td>
+                        <td class="py-2.5 px-3">${statusBadge}</td>
+                        <td class="py-2.5 px-3 text-center">${actionHtml}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function setujuiRemedialAdmin(id) {
+            let permits = JSON.parse(localStorage.getItem('pkbm_remedial_permits') || '[]');
+            const idx = permits.findIndex(p => p.id === id);
+            if (idx === -1) return;
+
+            const p = permits[idx];
+            if (!confirm(`Setujui ujian ulang untuk ${p.nama} (${p.mapel})?`)) return;
+
+            p.status = 'approved';
+            p.disetujui_oleh = 'Admin PKBM Mandiri';
+            p.tanggal_persetujuan = new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+            localStorage.setItem('pkbm_remedial_permits', JSON.stringify(permits));
+            alert(`Persetujuan berhasil! Siswa ${p.nama} kini dapat menempuh ujian ulang.`);
+            loadAdminRemedialPermits();
+        }
+
+        function tolakRemedialAdmin(id) {
+            let permits = JSON.parse(localStorage.getItem('pkbm_remedial_permits') || '[]');
+            const idx = permits.findIndex(p => p.id === id);
+            if (idx === -1) return;
+
+            const p = permits[idx];
+            const alasan = prompt(`Tuliskan alasan penolakan ujian ulang untuk ${p.nama}:`, 'Nilai sudah mencukupi batas kelulusan.');
+            if (alasan === null) return;
+
+            p.status = 'rejected';
+            p.disetujui_oleh = 'Admin PKBM Mandiri';
+            p.catatan_petugas = (alasan || 'Permohonan belum memenuhi syarat').trim();
+            p.tanggal_persetujuan = new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+            localStorage.setItem('pkbm_remedial_permits', JSON.stringify(permits));
+            alert(`Permohonan ujian ulang ${p.nama} ditolak.`);
+            loadAdminRemedialPermits();
         }
 
         // ==================== TUTOR & GURU ====================
