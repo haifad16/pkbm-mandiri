@@ -223,6 +223,12 @@
         if (user.role !== 'admin' && user.role !== 'guru') {
             window.location.href = './login.html';
         }
+        // Proteksi batas waktu sesi aktif (30 menit)
+        if (user.auth_time && (Date.now() - user.auth_time > 1800000)) {
+            alert('Sesi Anda telah kedaluwarsa demi keamanan. Silakan login kembali.');
+            sessionStorage.removeItem('current_user');
+            window.location.href = './login.html';
+        }
         document.getElementById('admin-user-name').innerText = user.nama || 'Petugas PKBM';
 
         let allStudents = [];
@@ -405,3 +411,4 @@
     </script>
 </body>
 </html>
+

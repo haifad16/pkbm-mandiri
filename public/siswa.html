@@ -191,6 +191,12 @@
             window.location.href = './login.html';
         }
         const user = JSON.parse(userJson || '{}');
+        // Proteksi batas waktu sesi aktif (30 menit)
+        if (user.auth_time && (Date.now() - user.auth_time > 1800000)) {
+            alert('Sesi Anda telah berakhir demi keamanan. Silakan login kembali dengan NIK Anda.');
+            sessionStorage.removeItem('current_user');
+            window.location.href = './login.html';
+        }
 
         // Populate biodata
         document.getElementById('user-display-name').innerText = user.nama || 'Siswa PKBM';
@@ -271,3 +277,4 @@
     </script>
 </body>
 </html>
+

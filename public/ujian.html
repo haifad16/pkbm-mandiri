@@ -3,42 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ujian CBT Online - PKBM Mandiri</title>
+    <title>Ujian CBT Online Terproteksi - PKBM Mandiri</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="./assets/css/style.css">
     <style>
-        /* Anti-Cheat: Cegah blok teks dan klik kanan */
+        /* Anti-Cheat: Cegah blok teks dan copy */
         body {
             user-select: none;
             -webkit-user-select: none;
         }
+        /* Watermark Transparan Anti-Foto / Anti-Bocor */
+        .watermark-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 50;
+            opacity: 0.04;
+            display: flex;
+            flex-wrap: wrap;
+            align-content: space-around;
+            justify-content: space-around;
+            font-size: 16px;
+            font-weight: 900;
+            color: #000;
+            transform: rotate(-25deg);
+        }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col antialiased" oncontextmenu="return false;">
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col antialiased relative" oncontextmenu="return false;">
+
+    <!-- Background Watermark Container -->
+    <div id="security-watermark" class="watermark-bg"></div>
 
     <!-- Topbar Ujian -->
-    <header class="bg-white border-b border-slate-200 py-3.5 px-4 sm:px-8 sticky top-0 z-30 shadow-sm">
+    <header class="bg-white border-b border-slate-200 py-3 px-4 sm:px-8 sticky top-0 z-40 shadow-sm">
         <div class="max-w-5xl mx-auto flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center text-xl shadow">
-                    <i class="bi bi-pencil-square"></i>
+                    <i class="bi bi-shield-lock-fill"></i>
                 </div>
                 <div>
                     <h2 class="font-extrabold text-slate-900 text-sm sm:text-base leading-tight" id="exam-title">Memuat Ujian...</h2>
-                    <span class="text-xs text-slate-500" id="exam-subtitle">CBT Ujian Mandiri PKBM Mandiri</span>
+                    <span class="text-xs text-slate-500" id="exam-subtitle">Sistem CBT Terproteksi PKBM Mandiri</span>
                 </div>
             </div>
 
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-3">
+                <!-- Strike / Peringatan Counter -->
+                <div id="strike-badge" class="hidden px-2.5 py-1 bg-rose-100 text-rose-700 text-xs font-bold rounded-lg border border-rose-200">
+                    <i class="bi bi-exclamation-triangle-fill mr-1"></i> Pelanggaran: <span id="strike-count">0</span>/3
+                </div>
                 <span class="px-3 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-full">
-                    <i class="bi bi-shield-check"></i> Waktu Fleksibel
+                    <i class="bi bi-check-circle-fill"></i> Ujian Aktif
                 </span>
             </div>
         </div>
     </header>
 
-    <main class="max-w-4xl mx-auto px-4 py-8 w-full flex-grow">
+    <main class="max-w-4xl mx-auto px-4 py-8 w-full flex-grow relative z-10">
         
         <!-- Result Modal / Card (Hidden by default) -->
         <div id="result-box" class="hidden bg-white rounded-3xl p-8 border border-slate-200 shadow-2xl text-center space-y-6">
@@ -60,7 +86,7 @@
             <div class="p-4 bg-blue-50 text-blue-800 rounded-2xl border border-blue-100 text-xs max-w-md mx-auto text-left flex items-start gap-3">
                 <i class="bi bi-info-circle-fill text-blue-600 text-base mt-0.5"></i>
                 <div>
-                    <strong>Catatan Penilaian:</strong> Nilai Pilihan Ganda telah dihitung secara instan oleh sistem. Jawaban soal Esai Anda telah tersimpan dan akan diperiksa oleh guru untuk penilaian akhir rapor.
+                    <strong>Catatan Penilaian:</strong> Nilai Pilihan Ganda telah dihitung secara aman oleh sistem menggunakan verifikasi enkripsi. Jawaban soal Esai Anda telah tersimpan dan akan diperiksa oleh guru untuk penilaian akhir rapor.
                 </div>
             </div>
 
@@ -77,13 +103,13 @@
         <!-- Exam Workspace Container -->
         <div id="exam-workspace" class="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200 shadow-xl space-y-8">
             
-            <!-- Anti-Cheat Notice -->
-            <div class="p-3.5 bg-amber-50 border border-amber-200 rounded-2xl flex items-center justify-between text-xs text-amber-800">
+            <!-- Security Status Bar -->
+            <div class="p-3.5 bg-blue-50 border border-blue-200 rounded-2xl flex items-center justify-between text-xs text-blue-900">
                 <span class="flex items-center gap-2">
-                    <i class="bi bi-shield-lock-fill text-amber-600 text-base"></i>
-                    <strong>Mode Ujian Aktif:</strong> Soal diacak otomatis, dilarang copy-paste jawaban.
+                    <i class="bi bi-shield-check text-blue-600 text-base"></i>
+                    <strong>Keamanan Terenkripsi Aktif:</strong> Dilarang berpindah tab browser atau mengambil tangkapan layar.
                 </span>
-                <span class="font-bold text-slate-600" id="q-counter">Soal 1 dari 5</span>
+                <span class="font-bold text-slate-600" id="q-counter">Memuat butir soal...</span>
             </div>
 
             <!-- Form Pertanyaan -->
@@ -114,12 +140,49 @@
         }
         const user = JSON.parse(userJson || '{}');
 
-        // Prevent copy/paste
+        // 1. Watermark Security (Render Nama & NIK Murid secara transparan di seluruh layar)
+        const wmText = `${user.nama || 'SISWA'} (${user.nik || 'PKBM-MANDIRI'}) &bull; `;
+        const wmContainer = document.getElementById('security-watermark');
+        if (wmContainer) {
+            let wmHtml = '';
+            for (let i = 0; i < 40; i++) {
+                wmHtml += `<span>${wmText}</span>`;
+            }
+            wmContainer.innerHTML = wmHtml;
+        }
+
+        // 2. Anti-Cheat: Blokir shortcut inspeksi & copy
         document.addEventListener('copy', (e) => e.preventDefault());
         document.addEventListener('paste', (e) => e.preventDefault());
         document.addEventListener('keydown', (e) => {
-            if ((e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'v' || e.key === 'u')) {
+            // Blokir F12, Ctrl+U, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+S, Ctrl+P
+            if (e.key === 'F12' || 
+                (e.ctrlKey && (e.key === 'u' || e.key === 's' || e.key === 'p' || e.key === 'c' || e.key === 'v')) ||
+                (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C'))) {
                 e.preventDefault();
+                alert('Tindakan ini diblokir demi keamanan ujian!');
+                return false;
+            }
+        });
+
+        // 3. Tab-Switch / Focus-Loss Detection (Deteksi buka tab baru / minimize)
+        let strikeCount = 0;
+        const maxStrikes = 3;
+        const strikeBadge = document.getElementById('strike-badge');
+        const strikeText = document.getElementById('strike-count');
+
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden && !examCompleted) {
+                strikeCount++;
+                if (strikeBadge) strikeBadge.classList.remove('hidden');
+                if (strikeText) strikeText.innerText = strikeCount;
+
+                if (strikeCount >= maxStrikes) {
+                    alert('PERINGATAN AKHIR: Anda terdeteksi 3 kali meninggalkan halaman ujian! Sistem otomatis mengunci dan mengirimkan jawaban Anda.');
+                    submitExamAuto();
+                } else {
+                    alert(`PERINGATAN KECURANGAN (#${strikeCount}/${maxStrikes}):\nAnda terdeteksi berpindah tab atau membuka aplikasi lain! Tetaplah di halaman ujian hingga selesai.`);
+                }
             }
         });
 
@@ -127,6 +190,16 @@
         const examId = parseInt(urlParams.get('exam_id') || '1');
         let currentExam = null;
         let shuffledQuestions = [];
+        let examCompleted = false;
+        const SALT = 'PKBM_MANDIRI_SALT_2026_';
+
+        // Web Crypto SHA-256 Helper
+        async function sha256(message) {
+            const msgBuffer = new TextEncoder().encode(message);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
 
         // Shuffle helper
         function shuffle(array) {
@@ -141,7 +214,7 @@
                 document.getElementById('exam-title').innerText = currentExam.judul;
                 document.getElementById('exam-subtitle').innerText = `${currentExam.mapel} (${currentExam.paket} - ${currentExam.tingkat_kelas})`;
 
-                // Acak soal
+                // Acak urutan butir soal
                 shuffledQuestions = shuffle([...currentExam.questions]);
                 document.getElementById('q-counter').innerText = `Total: ${shuffledQuestions.length} Butir Soal`;
 
@@ -184,7 +257,7 @@
                                 </div>
                             </div>
                             <div class="pl-11">
-                                <textarea name="jawaban_${q.id}" rows="4" required placeholder="Tuliskan uraian jawaban Anda di sini..." class="w-full p-4 rounded-2xl border border-slate-300 text-xs focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
+                                <textarea name="jawaban_${q.id}" rows="4" placeholder="Tuliskan uraian jawaban Anda di sini..." class="w-full p-4 rounded-2xl border border-slate-300 text-xs focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
                             </div>
                         </div>
                     `;
@@ -192,28 +265,40 @@
             }).join('');
         }
 
-        // Submit exam
-        document.getElementById('exam-form').addEventListener('submit', function(e) {
+        // Submit form
+        document.getElementById('exam-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             if (!confirm('Apakah Anda yakin ingin menyelesaikan dan mengirim jawaban ujian ini?')) return;
+            await processSubmission();
+        });
 
-            const formData = new FormData(this);
+        async function submitExamAuto() {
+            await processSubmission();
+        }
+
+        async function processSubmission() {
+            examCompleted = true;
+            const form = document.getElementById('exam-form');
+            const formData = new FormData(form);
+
             let totalPg = 0;
             let correctPg = 0;
 
-            shuffledQuestions.forEach(q => {
+            for (const q of shuffledQuestions) {
                 if (q.jenis === 'pg') {
                     totalPg++;
                     const studentAns = formData.get('jawaban_' + q.id);
-                    if (studentAns === q.kunci) {
-                        correctPg++;
+                    if (studentAns) {
+                        const calculatedHash = await sha256(q.id + '_' + studentAns + '_' + SALT);
+                        if (calculatedHash === q.answer_hash) {
+                            correctPg++;
+                        }
                     }
                 }
-            });
+            }
 
             const score = totalPg > 0 ? Math.round((correctPg / totalPg) * 100) : 100;
 
-            // Simpan riwayat ujian
             const examRecord = {
                 exam_id: currentExam.id,
                 judul: currentExam.judul,
@@ -221,16 +306,17 @@
                 paket: currentExam.paket,
                 skor_pg: score,
                 skor_akhir: score,
+                strikes: strikeCount,
                 tanggal: new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'short', day: 'numeric' })
             };
 
-            // Simpan di riwayat siswa
+            // Simpan ke riwayat siswa
             let studentScores = JSON.parse(localStorage.getItem('pkbm_scores_' + user.nik) || '[]');
             studentScores = studentScores.filter(s => s.exam_id !== currentExam.id);
             studentScores.push(examRecord);
             localStorage.setItem('pkbm_scores_' + user.nik, JSON.stringify(studentScores));
 
-            // Simpan di rekap admin
+            // Simpan ke master ledger admin
             let allScores = JSON.parse(localStorage.getItem('pkbm_master_scores') || '[]');
             allScores.push({
                 nama: user.nama,
@@ -239,6 +325,7 @@
                 mapel: currentExam.mapel,
                 paket: currentExam.paket,
                 skor: score,
+                strikes: strikeCount,
                 tanggal: examRecord.tanggal
             });
             localStorage.setItem('pkbm_master_scores', JSON.stringify(allScores));
@@ -248,9 +335,9 @@
             document.getElementById('result-box').classList.remove('hidden');
             document.getElementById('final-score').innerText = score;
             document.getElementById('res-meta').innerText = `${currentExam.judul} - ${currentExam.mapel}`;
-            document.getElementById('score-detail').innerText = `${correctPg} dari ${totalPg} butir soal pilihan ganda benar`;
+            document.getElementById('score-detail').innerText = `${correctPg} dari ${totalPg} butir soal pilihan ganda benar (Pelanggaran: ${strikeCount})`;
             window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
+        }
     </script>
 </body>
 </html>
