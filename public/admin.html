@@ -2319,6 +2319,8 @@
             fetch('./data/exams.json?v=' + Date.now())
                 .then(res => res.json())
                 .then(exams => {
+                    const customExams = JSON.parse(localStorage.getItem('pkbm_custom_exams') || '[]');
+                    const allExams = [...customExams, ...exams];
                     let docContent = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
                     <head><title>Arsip Bank Soal PKBM Mandiri</title></head>
                     <body style='font-family:Arial, sans-serif;'>
@@ -2327,11 +2329,13 @@
                         <hr/>
                         <h3 style='text-align:center;'>ARSIP NASKAH BANK SOAL &amp; KUNCI JAWABAN (PAKET A, B, C)</h3>`;
 
-                    exams.forEach(e => {
+                    allExams.forEach(e => {
                         docContent += `<h3>${e.judul} (${e.mapel} - ${e.paket} - ${e.tingkat_kelas})</h3><ol>`;
                         e.questions.forEach(q => {
                             if (q.jenis === 'pg') {
-                                docContent += `<li><b>${q.pertanyaan}</b><br/>A. ${q.opsi_a}<br/>B. ${q.opsi_b}<br/>C. ${q.opsi_c}<br/>D. ${q.opsi_d}</li><br/>`;
+                                let optStr = `A. ${q.opsi_a}<br/>B. ${q.opsi_b}<br/>C. ${q.opsi_c}<br/>D. ${q.opsi_d}`;
+                                if (q.opsi_e) optStr += `<br/>E. ${q.opsi_e}`;
+                                docContent += `<li><b>${q.pertanyaan}</b><br/>${optStr}</li><br/>`;
                             } else {
                                 docContent += `<li><b>[ESAI] ${q.pertanyaan}</b></li><br/>`;
                             }
