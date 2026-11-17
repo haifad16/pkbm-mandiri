@@ -767,10 +767,10 @@
             <div class="p-4 sm:p-5 border-t border-slate-100 bg-slate-50 flex flex-wrap items-center justify-between gap-3">
                 <div class="flex items-center gap-2">
                     <button onclick="cetakLembarVerifikasiPpdb()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow transition">
-                        <i class="bi bi-printer"></i> Cetak Berkas PPDB
+                        <i class="bi bi-printer"></i> Cetak Lembar Verifikasi PPDB
                     </button>
-                    <button onclick="mintaBerkasLengkapViaWa()" class="px-3.5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow transition">
-                        <i class="bi bi-whatsapp"></i> Minta Berkas via WA
+                    <button onclick="tutupDetailPendaftar()" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs transition">
+                        Tutup Jendela
                     </button>
                 </div>
                 <div class="flex items-center gap-2">
@@ -1365,17 +1365,10 @@
                     `;
                 } else {
                     return `
-                        <div class="p-3 bg-slate-50 border border-dashed border-slate-300 rounded-2xl text-center space-y-2 flex flex-col justify-between">
-                            <div>
-                                <i class="bi ${item.icon} text-2xl text-slate-400 block mb-1"></i>
-                                <span class="font-bold text-slate-700 text-xs block">${item.title}</span>
-                                <span class="text-[10px] text-slate-400 italic">Belum diunggah</span>
-                            </div>
-                            ${cleanHp ? `
-                                <button onclick="mintaBerkasSpesifikViaWa('${item.title}')" class="w-full py-1.5 bg-slate-200 hover:bg-emerald-100 hover:text-emerald-800 text-slate-600 font-bold rounded-lg text-[10px] flex items-center justify-center gap-1 transition">
-                                    <i class="bi bi-whatsapp"></i> Minta via WA
-                                </button>
-                            ` : ''}
+                        <div class="p-4 bg-slate-50 border border-dashed border-slate-200 rounded-2xl text-center space-y-1.5 flex flex-col justify-center items-center py-6">
+                            <i class="bi ${item.icon} text-2xl text-slate-300 block mb-0.5"></i>
+                            <span class="font-bold text-slate-600 text-xs block">${item.title}</span>
+                            <span class="text-[10px] text-slate-400 bg-slate-200/60 px-2 py-0.5 rounded-full font-semibold">Tidak Dilampirkan (Opsional)</span>
                         </div>
                     `;
                 }
@@ -1395,23 +1388,6 @@
             dl.href = imgSrc;
             dl.download = `Berkas_${title.replace(/\s+/g, '_')}_PKBM_Mandiri.jpg`;
             document.getElementById('modal-lightbox-berkas').classList.remove('hidden');
-        }
-
-        function mintaBerkasLengkapViaWa() {
-            if (!activePendaftarData || !activePendaftarData.hp) {
-                alert('Calon siswa ini tidak mencantumkan nomor WhatsApp.');
-                return;
-            }
-            const cleanHp = activePendaftarData.hp.replace(/[^0-9]/g, '');
-            const text = encodeURIComponent(`Halo Calon Siswa PKBM Mandiri a.n. ${activePendaftarData.nama} (${activePendaftarData.no}), mohon bantuannya untuk mengirimkan foto Kartu Keluarga (KK) dan Akta Kelahiran asli melalui WhatsApp ini guna melengkapi verifikasi administrasi PPDB. Terima kasih. - Panitia PPDB PKBM Mandiri`);
-            window.open(`https://wa.me/${cleanHp}?text=${text}`, '_blank');
-        }
-
-        function mintaBerkasSpesifikViaWa(jenisBerkas) {
-            if (!activePendaftarData || !activePendaftarData.hp) return;
-            const cleanHp = activePendaftarData.hp.replace(/[^0-9]/g, '');
-            const text = encodeURIComponent(`Halo ${activePendaftarData.nama} (${activePendaftarData.no}), mohon kirimkan foto/scan ${jenisBerkas} melalui chat WhatsApp ini untuk verifikasi pendaftaran di PKBM Mandiri. Terima kasih.`);
-            window.open(`https://wa.me/${cleanHp}?text=${text}`, '_blank');
         }
 
         function cetakLembarVerifikasiPpdb() {
