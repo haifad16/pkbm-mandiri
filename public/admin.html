@@ -235,8 +235,11 @@
                         <button onclick="exportToExcel()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow transition">
                             <i class="bi bi-file-earmark-excel"></i> Ekspor Excel
                         </button>
-                        <button onclick="resetTahunAjaran()" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow transition">
-                            <i class="bi bi-arrow-repeat"></i> Kenaikan Kelas
+                        <button onclick="bukaPanduanKenaikanKelas()" class="px-3.5 py-2.5 bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 text-indigo-700 rounded-xl text-xs font-bold flex items-center gap-1.5 transition" title="Panduan Kenaikan Siswa Mandiri">
+                            <i class="bi bi-arrow-up-circle-fill"></i> Naik Kelas Siswa
+                        </button>
+                        <button onclick="resetTahunAjaran()" class="px-3.5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold flex items-center gap-1.5 transition" title="Kenaikan Kelas Massal Seluruh Siswa">
+                            <i class="bi bi-arrow-repeat"></i> Kenaikan Massal
                         </button>
                         <button onclick="window.print()" class="px-3 py-2.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition">
                             <i class="bi bi-printer"></i> Cetak
@@ -647,14 +650,99 @@
                 <!-- Injected via JS -->
             </div>
 
-            <div class="pt-4 border-t flex items-center justify-between">
-                <button onclick="cetakKtpPelajarLangsung()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow">
-                    <i class="bi bi-person-vcard"></i> Buka KTP Pelajar Digital
-                </button>
+            <div class="pt-4 border-t flex flex-wrap items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                    <button onclick="bukaModalNaikKelasDariDetail()" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow transition">
+                        <i class="bi bi-arrow-up-circle-fill"></i> Naik Kelas Siswa Ini
+                    </button>
+                    <button onclick="cetakKtpPelajarLangsung()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow transition">
+                        <i class="bi bi-person-vcard"></i> KTP Pelajar
+                    </button>
+                </div>
                 <button onclick="document.getElementById('modal-detail').classList.add('hidden')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs">
                     Tutup
                 </button>
             </div>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL: NAIK KELAS & MUTASI SISWA PERORANGAN ==================== -->
+    <div id="modal-naik-kelas" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl space-y-5 animate-in fade-in zoom-in duration-200">
+            <!-- Header -->
+            <div class="flex items-center justify-between border-b pb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-2xl bg-indigo-600 text-white font-black text-xl flex items-center justify-center shadow-md shadow-indigo-500/20">
+                        <i class="bi bi-arrow-up-circle-fill"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-extrabold text-slate-900 text-base">Kenaikan Kelas Perorangan</h3>
+                        <p class="text-xs text-slate-500">Proses kenaikan/mutasi kelas 1 siswa secara mandiri</p>
+                    </div>
+                </div>
+                <button type="button" onclick="tutupModalNaikKelas()" class="text-slate-400 hover:text-slate-700 text-xl"><i class="bi bi-x-lg"></i></button>
+            </div>
+
+            <!-- Student Summary Card -->
+            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <span class="text-[10px] uppercase tracking-wider font-extrabold text-slate-400">Nama Siswa</span>
+                        <div class="text-sm font-black text-slate-900" id="nk-nama">-</div>
+                    </div>
+                    <span id="nk-paket-badge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-700">Paket B</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200/60 text-xs">
+                    <div>
+                        <span class="text-slate-400">NIK (Terproteksi):</span>
+                        <div class="font-bold text-slate-700 font-mono" id="nk-nik">-</div>
+                    </div>
+                    <div>
+                        <span class="text-slate-400">Rombel Saat Ini:</span>
+                        <div class="font-bold text-indigo-700" id="nk-rombel-lama">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Kenaikan Kelas -->
+            <form id="form-naik-kelas" onsubmit="prosesSimpanNaikKelas(event)" class="space-y-4 text-xs">
+                <input type="hidden" id="nk-index" value="-1">
+
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Keputusan Akademik / Kenaikan</label>
+                    <select id="nk-status-aksi" onchange="onPerubahanAksiNaikKelas()" class="w-full px-3 py-2.5 border rounded-xl font-semibold outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
+                        <option value="naik_reguler">⭐ Naik ke Tingkat Berikutnya (Rekomendasi Otomatis)</option>
+                        <option value="mutasi_rombel">🔄 Pindah Kelompok Rombel / Mutasi Kelas</option>
+                        <option value="lulus">🎓 Nyatakan Lulus (Alumni / Tamat Belajar)</option>
+                        <option value="tinggal_kelas">⏸️ Tetap di Tingkat Ini (Tinggal Kelas / Remedial)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Rombel / Kelas Tujuan</label>
+                    <div class="relative">
+                        <input type="text" id="nk-rombel-baru" list="list-rombel-tersedia" required placeholder="Contoh: Paket B Kelas 8 (1)" class="w-full px-3 py-2.5 border rounded-xl font-bold text-indigo-700 outline-none focus:ring-2 focus:ring-indigo-500 bg-indigo-50/30">
+                        <datalist id="list-rombel-tersedia">
+                            <!-- Populated dynamically via JS -->
+                        </datalist>
+                    </div>
+                    <p class="text-[11px] text-slate-500 mt-1" id="nk-info-rekomendasi">Rekomendasi otomatis berdasarkan kurikulum jenjang paket.</p>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Keterangan / Tahun Ajaran Baru (Opsional)</label>
+                    <input type="text" id="nk-keterangan" placeholder="Contoh: Kenaikan TA 2026/2027 - Tuntas Modul" class="w-full px-3 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+
+                <div class="pt-3 border-t flex items-center justify-end gap-2">
+                    <button type="button" onclick="tutupModalNaikKelas()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold">
+                        Batal
+                    </button>
+                    <button type="submit" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold shadow-md shadow-indigo-600/20 flex items-center gap-1.5 transition">
+                        <i class="bi bi-check-circle-fill"></i> Simpan Kenaikan Kelas
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -1043,6 +1131,7 @@
             } else {
                 tbody.innerHTML = sliceData.map((s, idx) => {
                     const globalIdx = allStudents.findIndex(x => x.nik === s.nik);
+                    const isAlumni = s.status === 'alumni' || (s.rombel && (s.rombel.toLowerCase().includes('alumni') || s.rombel.toLowerCase().includes('lulus')));
                     return `
                     <tr class="hover:bg-slate-50 transition border-b border-slate-100">
                         <td class="py-3 px-4 text-center text-slate-400 font-mono">${startIdx + idx + 1}</td>
@@ -1052,12 +1141,18 @@
                         </td>
                         <td class="py-3 px-4 font-mono font-bold text-blue-700">${maskNik(s.nik)}</td>
                         <td class="py-3 px-4"><span class="px-2 py-0.5 rounded-md font-bold ${s.jk === 'L' ? 'bg-sky-50 text-sky-700' : 'bg-pink-50 text-pink-700'}">${s.jk}</span></td>
-                        <td class="py-3 px-4 font-semibold text-slate-700">${s.rombel || s.paket}</td>
+                        <td class="py-3 px-4 font-semibold text-slate-700">
+                            ${s.rombel || s.paket}
+                            ${isAlumni ? '<span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-100 text-amber-800 ml-1">Lulus</span>' : ''}
+                        </td>
                         <td class="py-3 px-4"><span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${s.paket === 'Paket C' ? 'bg-purple-100 text-purple-800' : (s.paket === 'Paket B' ? 'bg-blue-100 text-blue-800' : 'bg-emerald-100 text-emerald-800')}">${s.paket}</span></td>
                         <td class="py-3 px-4 text-center">
                             <div class="inline-flex items-center gap-1">
                                 <button onclick="lihatDetailSiswa(${globalIdx})" title="Lihat Detail Biodata" class="p-1.5 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 text-xs font-bold transition">
                                     <i class="bi bi-eye-fill"></i>
+                                </button>
+                                <button onclick="bukaModalNaikKelasSiswa(${globalIdx})" title="Naik Kelas / Mutasi Siswa Ini (1-Klik)" class="p-1.5 rounded-lg bg-indigo-50 text-indigo-700 hover:bg-indigo-100 text-xs font-bold transition">
+                                    <i class="bi bi-arrow-up-circle-fill"></i>
                                 </button>
                                 <button onclick="bukaModalEditSiswa(${globalIdx})" title="Edit Data Murid" class="p-1.5 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 text-xs font-bold transition">
                                     <i class="bi bi-pencil-fill"></i>
@@ -1218,10 +1313,13 @@
         }
 
         // ==================== DETAIL & KTP PELAJAR ====================
+        let activeStudentDetailIndex = -1;
+
         function lihatDetailSiswa(idx) {
             const s = allStudents[idx];
             if (!s) return;
             activeStudentDetail = s;
+            activeStudentDetailIndex = idx;
 
             document.getElementById('det-avatar').innerText = (s.nama || 'A').charAt(0);
             document.getElementById('det-nama').innerText = s.nama;
@@ -1272,6 +1370,190 @@
                 auth_time: Date.now()
             }));
             window.open('./siswa.html', '_blank');
+        }
+
+        // ==================== KENAIKAN KELAS & MUTASI SISWA PERORANGAN ====================
+        let activeNaikKelasSiswa = null;
+
+        function hitungRekomendasiNaikKelas(rombel, paket) {
+            rombel = (rombel || '').trim();
+            paket = (paket || '').trim();
+
+            // Cek Paket B (Kelas 7, 8, 9)
+            const matchB = rombel.match(/Paket\s*B\s*Kelas\s*(\d+)(.*)/i);
+            if (matchB) {
+                const k = parseInt(matchB[1]);
+                const suf = matchB[2] || '';
+                if (k === 7) return { isFinal: false, nextRombel: 'Paket B Kelas 8' + suf, status: 'aktif', text: 'Naik ke Kelas 8 (Tingkat 3 Derajat 3)' };
+                if (k === 8) return { isFinal: false, nextRombel: 'Paket B Kelas 9' + suf, status: 'aktif', text: 'Naik ke Kelas 9 (Tingkat 4 Derajat 4 - Akhir)' };
+                if (k >= 9) return { isFinal: true, nextRombel: 'Lulus (Alumni Paket B)', status: 'alumni', text: 'Lulus Pendidikan Kesetaraan Paket B (Setara SMP)' };
+            }
+
+            // Cek Paket C (Kelas 10, 11, 12)
+            const matchC = rombel.match(/Paket\s*C\s*Kelas\s*(\d+)(.*)/i);
+            if (matchC) {
+                const k = parseInt(matchC[1]);
+                const suf = matchC[2] || '';
+                if (k === 10) return { isFinal: false, nextRombel: 'Paket C Kelas 11' + suf, status: 'aktif', text: 'Naik ke Kelas 11 (Tingkat 5 Derajat 5)' };
+                if (k === 11) return { isFinal: false, nextRombel: 'Paket C Kelas 12' + suf, status: 'aktif', text: 'Naik ke Kelas 12 (Tingkat 6 Derajat 6 - Akhir)' };
+                if (k >= 12) return { isFinal: true, nextRombel: 'Lulus (Alumni Paket C)', status: 'alumni', text: 'Lulus Pendidikan Kesetaraan Paket C (Setara SMA)' };
+            }
+
+            // Cek Paket A (Kelas 1 - 6)
+            const matchA = rombel.match(/Paket\s*A\s*Kelas\s*(\d+)(.*)/i);
+            if (matchA) {
+                const k = parseInt(matchA[1]);
+                const suf = matchA[2] || '';
+                if (k < 6) return { isFinal: false, nextRombel: 'Paket A Kelas ' + (k + 1) + suf, status: 'aktif', text: 'Naik ke Kelas ' + (k + 1) };
+                if (k >= 6) return { isFinal: true, nextRombel: 'Lulus (Alumni Paket A)', status: 'alumni', text: 'Lulus Pendidikan Kesetaraan Paket A (Setara SD)' };
+            }
+
+            // Fallback default berdasarkan paket
+            if (paket === 'Paket B') return { isFinal: false, nextRombel: 'Paket B Kelas 8 (1)', status: 'aktif', text: 'Naik ke Paket B Kelas 8' };
+            if (paket === 'Paket C') return { isFinal: false, nextRombel: 'Paket C Kelas 11 (1)', status: 'aktif', text: 'Naik ke Paket C Kelas 11' };
+            if (paket === 'Paket A') return { isFinal: false, nextRombel: 'Paket A Kelas 2', status: 'aktif', text: 'Naik ke Paket A Kelas 2' };
+
+            return { isFinal: false, nextRombel: rombel, status: 'aktif', text: 'Sesuaikan rombel secara manual' };
+        }
+
+        function bukaModalNaikKelasSiswa(idx) {
+            const s = allStudents[idx];
+            if (!s) return;
+            activeNaikKelasSiswa = s;
+
+            document.getElementById('nk-index').value = idx;
+            document.getElementById('nk-nama').innerText = s.nama || '-';
+            document.getElementById('nk-nik').innerText = maskNik(s.nik || '');
+            document.getElementById('nk-paket-badge').innerText = s.paket || 'Paket B';
+            document.getElementById('nk-rombel-lama').innerText = s.rombel || s.paket || '-';
+
+            isiDatalistRombel();
+
+            const rek = hitungRekomendasiNaikKelas(s.rombel, s.paket);
+            const selectAksi = document.getElementById('nk-status-aksi');
+            const inputRombelBaru = document.getElementById('nk-rombel-baru');
+            const infoRekomendasi = document.getElementById('nk-info-rekomendasi');
+
+            if (rek.isFinal) {
+                selectAksi.value = 'lulus';
+                inputRombelBaru.value = rek.nextRombel;
+                infoRekomendasi.innerHTML = `<span class="text-amber-600 font-bold"><i class="bi bi-mortarboard-fill"></i> ${rek.text}</span>`;
+            } else {
+                selectAksi.value = 'naik_reguler';
+                inputRombelBaru.value = rek.nextRombel;
+                infoRekomendasi.innerHTML = `<span class="text-emerald-600 font-bold"><i class="bi bi-check-circle-fill"></i> Rekomendasi: ${rek.text}</span>`;
+            }
+
+            document.getElementById('nk-keterangan').value = `Kenaikan Kelas TA ${new Date().getFullYear()}/${new Date().getFullYear() + 1}`;
+            document.getElementById('modal-naik-kelas').classList.remove('hidden');
+        }
+
+        function bukaModalNaikKelasDariDetail() {
+            document.getElementById('modal-detail').classList.add('hidden');
+            if (activeStudentDetailIndex !== undefined && activeStudentDetailIndex >= 0) {
+                bukaModalNaikKelasSiswa(activeStudentDetailIndex);
+            }
+        }
+
+        function tutupModalNaikKelas() {
+            document.getElementById('modal-naik-kelas').classList.add('hidden');
+        }
+
+        function onPerubahanAksiNaikKelas() {
+            if (!activeNaikKelasSiswa) return;
+            const aksi = document.getElementById('nk-status-aksi').value;
+            const inputRombel = document.getElementById('nk-rombel-baru');
+            const info = document.getElementById('nk-info-rekomendasi');
+            const rek = hitungRekomendasiNaikKelas(activeNaikKelasSiswa.rombel, activeNaikKelasSiswa.paket);
+
+            if (aksi === 'naik_reguler') {
+                inputRombel.value = rek.nextRombel;
+                info.innerHTML = `<span class="text-emerald-600 font-bold"><i class="bi bi-check-circle-fill"></i> Rekomendasi: ${rek.text}</span>`;
+            } else if (aksi === 'lulus') {
+                inputRombel.value = `Lulus (Alumni ${activeNaikKelasSiswa.paket || 'PKBM'})`;
+                info.innerHTML = `<span class="text-amber-600 font-bold"><i class="bi bi-mortarboard-fill"></i> Siswa dinyatakan tuntas belajar dan dialihkan ke status Alumni.</span>`;
+            } else if (aksi === 'tinggal_kelas') {
+                inputRombel.value = activeNaikKelasSiswa.rombel || activeNaikKelasSiswa.paket;
+                info.innerHTML = `<span class="text-rose-600 font-bold"><i class="bi bi-exclamation-triangle-fill"></i> Siswa tetap berada di tingkat yang sama untuk mengulang materi.</span>`;
+            } else if (aksi === 'mutasi_rombel') {
+                info.innerHTML = `<span class="text-blue-600 font-bold"><i class="bi bi-arrow-left-right"></i> Silakan ketik atau pilih rombel baru dari daftar tujuan mutasi.</span>`;
+            }
+        }
+
+        function prosesSimpanNaikKelas(e) {
+            e.preventDefault();
+            const idx = parseInt(document.getElementById('nk-index').value);
+            const s = allStudents[idx];
+            if (!s) return;
+
+            const aksi = document.getElementById('nk-status-aksi').value;
+            const rombelBaru = document.getElementById('nk-rombel-baru').value.trim();
+            const keterangan = document.getElementById('nk-keterangan').value.trim();
+
+            if (!rombelBaru) {
+                alert('Harap masukkan rombel/kelas tujuan.');
+                return;
+            }
+
+            const rombelLama = s.rombel || s.paket;
+            s.rombel = rombelBaru;
+
+            if (aksi === 'lulus') {
+                s.status = 'alumni';
+            } else if (s.status === 'alumni' && aksi !== 'lulus') {
+                s.status = 'aktif';
+            }
+
+            // Catat log riwayat akademik
+            if (!s.riwayat_kelas) s.riwayat_kelas = [];
+            s.riwayat_kelas.push({
+                tanggal: new Date().toISOString().split('T')[0],
+                dari: rombelLama,
+                ke: rombelBaru,
+                aksi: aksi,
+                keterangan: keterangan
+            });
+
+            // Simpan ke storage kustom admin
+            localStorage.setItem('pkbm_students_custom', JSON.stringify(allStudents));
+
+            tutupModalNaikKelas();
+            finishLoadStudents();
+
+            alert(`✅ KENAIKAN KELAS BERHASIL DISIMPAN!\n\nNama Siswa: ${s.nama}\nSemula: ${rombelLama}\nKini: ${rombelBaru}\nStatus: ${s.status === 'alumni' ? 'Lulus (Alumni)' : 'Aktif'}\n\nPerubahan telah langsung diperbarui di database sekolah.`);
+        }
+
+        function isiDatalistRombel() {
+            const dl = document.getElementById('list-rombel-tersedia');
+            if (!dl || dl.children.length > 0) return;
+
+            const rombelSet = new Set();
+            allStudents.forEach(s => {
+                if (s.rombel) rombelSet.add(s.rombel);
+            });
+
+            [
+                'Paket A Kelas 1', 'Paket A Kelas 2', 'Paket A Kelas 3', 'Paket A Kelas 4', 'Paket A Kelas 5', 'Paket A Kelas 6',
+                'Paket B Kelas 7 (1)', 'Paket B Kelas 7 (2)', 'Paket B Kelas 7 (3)', 'Paket B Kelas 7 (4)',
+                'Paket B Kelas 8 (1)', 'Paket B Kelas 8 (2)', 'Paket B Kelas 8 (3)', 'Paket B Kelas 8 (4)',
+                'Paket B Kelas 9 (1)', 'Paket B Kelas 9 (2)', 'Paket B Kelas 9 (3)',
+                'Paket C Kelas 10 (1)', 'Paket C Kelas 10 (2)', 'Paket C Kelas 10 (3)', 'Paket C Kelas 10 (4)', 'Paket C Kelas 10 (5)',
+                'Paket C Kelas 11 (1)', 'Paket C Kelas 11 (2)', 'Paket C Kelas 11 (3)',
+                'Paket C Kelas 12 (1)', 'Paket C Kelas 12 (2)', 'Paket C Kelas 12 (3)',
+                'Lulus (Alumni Paket A)', 'Lulus (Alumni Paket B)', 'Lulus (Alumni Paket C)'
+            ].forEach(r => rombelSet.add(r));
+
+            dl.innerHTML = Array.from(rombelSet).sort().map(r => `<option value="${r}"></option>`).join('');
+        }
+
+        function bukaPanduanKenaikanKelas() {
+            alert("📌 CARA MENAIKKAN KELAS SISWA SATU PER SATU (MANDIRI):\n\n" +
+                  "1. Cari nama atau NIK siswa di kolom pencarian.\n" +
+                  "2. Pada kolom Aksi (paling kanan tabel), klik tombol ungu berlogo panah naik (⬆️).\n" +
+                  "3. Sistem otomatis menghitung dan merekomendasikan kenaikan ke kelas berikutnya (contoh: Kelas 7 -> Kelas 8, atau Kelas 9/12 -> Lulus/Alumni).\n" +
+                  "4. Anda juga dapat memilih opsi mutasi kelompok rombel atau tinggal kelas jika diperlukan.\n" +
+                  "5. Klik tombol 'Simpan Kenaikan Kelas'.\n\n" +
+                  "💡 Kenaikan diproses langsung untuk siswa yang dipilih saja tanpa memengaruhi siswa lainnya.");
         }
 
         // ==================== PPDB ONLINE HANDLER (REAL-TIME CLOUD) ====================
@@ -1958,21 +2240,42 @@
         }
 
         function resetTahunAjaran() {
-            if (confirm('KENAIKAN KELAS MASSAL TAHUN AJARAN BARU:\nApakah Anda yakin ingin menaikkan seluruh rombel siswa (contoh: Kelas 7 -> Kelas 8, Kelas 8 -> Kelas 9, Kelas 10 -> Kelas 11, Kelas 11 -> Kelas 12)?')) {
+            if (confirm("⚠️ KONFIRMASI KENAIKAN KELAS MASSAL TAHUN AJARAN BARU:\n\nPerhatian: Opsi ini akan menaikkan rombel SELURUH 556 siswa secara bersamaan.\n\n💡 CATATAN PENTING:\nJika Anda ingin menaikkan siswa satu per satu secara mandiri, silakan klik 'Batal / Cancel', lalu gunakan tombol ungu (ikon ⬆️) pada kolom Aksi masing-masing siswa.\n\nApakah Anda tetap ingin menjalankan kenaikan kelas massal untuk seluruh siswa?")) {
+                let countNaik = 0, countLulus = 0;
                 allStudents.forEach(s => {
                     if (s.rombel) {
-                        s.rombel = s.rombel
-                            .replace(/Kelas 11/i, 'Kelas 12')
-                            .replace(/Kelas 10/i, 'Kelas 11')
-                            .replace(/Kelas 8/i, 'Kelas 9')
-                            .replace(/Kelas 7/i, 'Kelas 8')
-                            .replace(/Kelas 5/i, 'Kelas 6')
-                            .replace(/Kelas 2/i, 'Kelas 3');
+                        // Siswa tingkat akhir dipindahkan ke status Alumni / Lulus
+                        if (/Kelas 12/i.test(s.rombel)) {
+                            s.rombel = 'Lulus (Alumni Paket C)';
+                            s.status = 'alumni';
+                            countLulus++;
+                        } else if (/Kelas 9/i.test(s.rombel)) {
+                            s.rombel = 'Lulus (Alumni Paket B)';
+                            s.status = 'alumni';
+                            countLulus++;
+                        } else if (/Kelas 6/i.test(s.rombel)) {
+                            s.rombel = 'Lulus (Alumni Paket A)';
+                            s.status = 'alumni';
+                            countLulus++;
+                        } else {
+                            // Tingkat reguler naik 1 jenjang
+                            s.rombel = s.rombel
+                                .replace(/Kelas 11/i, 'Kelas 12')
+                                .replace(/Kelas 10/i, 'Kelas 11')
+                                .replace(/Kelas 8/i, 'Kelas 9')
+                                .replace(/Kelas 7/i, 'Kelas 8')
+                                .replace(/Kelas 5/i, 'Kelas 6')
+                                .replace(/Kelas 4/i, 'Kelas 5')
+                                .replace(/Kelas 3/i, 'Kelas 4')
+                                .replace(/Kelas 2/i, 'Kelas 3')
+                                .replace(/Kelas 1/i, 'Kelas 2');
+                            countNaik++;
+                        }
                     }
                 });
                 localStorage.setItem('pkbm_students_custom', JSON.stringify(allStudents));
                 finishLoadStudents();
-                alert('BERHASIL!\nKenaikan kelas massal berhasil dijalankan. Seluruh rombel siswa telah diperbarui.');
+                alert(`✅ PROSES SELESAI!\n\nKenaikan kelas massal berhasil dijalankan:\n- ${countNaik} siswa berhasil naik ke tingkat berikutnya.\n- ${countLulus} siswa tingkat akhir dialihkan ke status Lulus (Alumni).`);
             }
         }
 
