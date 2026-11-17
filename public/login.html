@@ -8,6 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="./assets/css/style.css">
+    <!-- Pangkalan Data 556 Murid Langsung (Anti-Cache / Zero-Latency) -->
+    <script src="./assets/js/students_data.js?v=20261117_5"></script>
 </head>
 <body class="bg-slate-900 text-slate-800 min-h-screen flex flex-col justify-center items-center p-4 antialiased relative">
     
@@ -17,6 +19,12 @@
 
     <div class="w-full max-w-md bg-white rounded-3xl p-6 sm:p-8 shadow-2xl relative z-10 space-y-6">
         
+        <!-- Refresh Button (PWA / Mobile Cache Clear) -->
+        <button type="button" onclick="hardRefreshApp()" title="Muat Ulang / Bersihkan Cache Aplikasi" class="absolute top-5 right-5 text-slate-400 hover:text-blue-600 text-xs flex items-center gap-1.5 py-1.5 px-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 transition">
+            <i class="bi bi-arrow-clockwise"></i>
+            <span class="text-[10px] font-semibold">Segarkan</span>
+        </button>
+
         <!-- Header Brand -->
         <div class="text-center space-y-2">
             <img src="./assets/img/logo.jpg" alt="Logo PKBM Mandiri" class="w-20 h-20 object-contain rounded-3xl mx-auto shadow-md bg-white p-1 border border-slate-200">
@@ -59,10 +67,11 @@
                 <label class="block text-xs font-bold text-slate-700 mb-1">Nomor Induk Kependudukan (NIK)</label>
                 <div class="relative">
                     <i class="bi bi-person-vcard absolute left-3.5 top-3 text-slate-400 text-base"></i>
-                    <input type="text" id="nik-input" maxlength="16" required placeholder="Masukkan 16 digit NIK Anda" class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                    <input type="text" id="nik-input" maxlength="20" required placeholder="Masukkan 16 digit NIK Anda" class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-blue-500 outline-none font-mono">
                 </div>
-                <div class="text-[11px] text-slate-400 mt-1.5 flex items-center gap-1">
-                    <i class="bi bi-shield-check text-blue-500"></i> Siswa cukup login menggunakan 16 digit NIK resmi
+                <div class="text-[11px] text-slate-400 mt-1.5 flex items-center justify-between">
+                    <span class="flex items-center gap-1"><i class="bi bi-shield-check text-blue-500"></i> Login cukup dengan 16 digit NIK</span>
+                    <span id="data-status-badge" class="text-[10px] text-emerald-600 font-semibold">Memuat database...</span>
                 </div>
             </div>
 
@@ -72,11 +81,18 @@
             </button>
 
             <!-- Sample Hint -->
-            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 text-[11px] text-slate-500">
-                <span class="font-bold text-slate-700">Contoh NIK Siswa Aktif:</span>
-                <div class="flex items-center justify-between mt-1">
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 text-[11px] text-slate-500 space-y-1.5">
+                <div class="font-bold text-slate-700 flex items-center justify-between">
+                    <span>Contoh NIK Siswa Aktif:</span>
+                    <span class="text-[10px] text-emerald-700 font-bold bg-emerald-100/80 px-2 py-0.5 rounded-md">556 Siswa Aktif</span>
+                </div>
+                <div class="flex items-center justify-between">
                     <span><code>6303120801110002</code> (A. Rudiansyah)</span>
-                    <button type="button" onclick="document.getElementById('nik-input').value='6303120801110002'" class="text-blue-600 font-bold hover:underline">Gunakan</button>
+                    <button type="button" onclick="pilihContohNik('6303120801110002')" class="text-blue-600 font-bold hover:underline">Gunakan</button>
+                </div>
+                <div class="flex items-center justify-between pt-1 border-t border-slate-200/60">
+                    <span><code>6303120108040001</code> (Abd Hadi)</span>
+                    <button type="button" onclick="pilihContohNik('6303120108040001')" class="text-blue-600 font-bold hover:underline">Gunakan</button>
                 </div>
             </div>
         </form>
@@ -119,12 +135,105 @@
     </div>
 
     <script>
-        let allStudents = [];
+        // Inisialisasi Database Murid (Langsung dari Script Memory atau Cache)
+        let allStudents = (typeof window.PKBM_STUDENTS !== 'undefined' && Array.isArray(window.PKBM_STUDENTS) && window.PKBM_STUDENTS.length > 0)
+            ? window.PKBM_STUDENTS
+            : [];
+
         const AUTH_SALT = 'PKBM_AUTH_SALT_2026';
-        
-        // Salted SHA-256 hashes (kredensial tidak tersimpan dalam teks mentah)
         const HASH_ADMIN = '0ccccb41afc17dad1547cff81aaf61c55de2e7b6f88a5efa3d84cd8b6772d35a'; // admin123
         const HASH_GURU  = '5917a05198715418d8c66cfd5c813cc03ff56448b732e26d6a6b84e9bba989f7'; // guru123
+
+        function updateBadge() {
+            const badge = document.getElementById('data-status-badge');
+            if (badge) {
+                if (allStudents.length > 0) {
+                    badge.innerHTML = `<i class="bi bi-check-circle-fill"></i> ${allStudents.length} siswa siap`;
+                    badge.className = "text-[10px] text-emerald-600 font-bold";
+                } else {
+                    badge.innerHTML = `<i class="bi bi-hourglass-split"></i> Menyinkron data...`;
+                    badge.className = "text-[10px] text-amber-600 font-medium";
+                }
+            }
+        }
+        updateBadge();
+
+        // Fungsi Memastikan Data Murid Tersedia
+        async function ensureStudentsLoaded() {
+            if (allStudents.length > 0) {
+                updateBadge();
+                return allStudents;
+            }
+
+            if (typeof window.PKBM_STUDENTS !== 'undefined' && Array.isArray(window.PKBM_STUDENTS) && window.PKBM_STUDENTS.length > 0) {
+                allStudents = window.PKBM_STUDENTS;
+                updateBadge();
+                return allStudents;
+            }
+
+            // Coba dari localStorage
+            const localCached = localStorage.getItem('pkbm_students_cache');
+            if (localCached) {
+                try {
+                    const parsed = JSON.parse(localCached);
+                    if (Array.isArray(parsed) && parsed.length > 500) {
+                        allStudents = parsed;
+                        updateBadge();
+                        return allStudents;
+                    }
+                } catch(e) {}
+            }
+
+            // Fallback fetch no-cache
+            try {
+                const res = await fetch('./data/students.json?v=' + Date.now(), { cache: 'no-store' });
+                if (res.ok) {
+                    allStudents = await res.json();
+                    if (allStudents.length > 0) {
+                        localStorage.setItem('pkbm_students_cache', JSON.stringify(allStudents));
+                        updateBadge();
+                        return allStudents;
+                    }
+                }
+            } catch(e) {}
+
+            try {
+                const res2 = await fetch('/data/students.json?v=' + Date.now(), { cache: 'no-store' });
+                if (res2.ok) {
+                    allStudents = await res2.json();
+                    if (allStudents.length > 0) {
+                        localStorage.setItem('pkbm_students_cache', JSON.stringify(allStudents));
+                        updateBadge();
+                        return allStudents;
+                    }
+                }
+            } catch(e) {}
+
+            updateBadge();
+            return allStudents;
+        }
+
+        // Jalankan background sync
+        ensureStudentsLoaded();
+
+        function hardRefreshApp() {
+            resetFailedAttempts();
+            localStorage.removeItem('pkbm_students_cache');
+            if ('caches' in window) {
+                caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k))));
+            }
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(regs => {
+                    for (let reg of regs) reg.unregister();
+                });
+            }
+            window.location.reload(true);
+        }
+
+        function pilihContohNik(nikVal) {
+            document.getElementById('nik-input').value = nikVal;
+            document.getElementById('login-error').classList.add('hidden');
+        }
 
         // Web Crypto SHA-256
         async function sha256(message) {
@@ -170,14 +279,6 @@
             localStorage.removeItem('pkbm_lockout_until');
         }
 
-        // Load 556 students data
-        fetch('./data/students.json')
-            .then(res => res.json())
-            .then(data => {
-                allStudents = data;
-            })
-            .catch(e => console.log('Students loaded'));
-
         function switchTab(role) {
             const btnS = document.getElementById('tab-btn-siswa');
             const btnT = document.getElementById('tab-btn-staff');
@@ -200,40 +301,75 @@
         }
 
         // Login Siswa
-        document.getElementById('form-siswa').addEventListener('submit', function(e) {
+        document.getElementById('form-siswa').addEventListener('submit', async function(e) {
             e.preventDefault();
             if (checkLockout()) return;
+
+            const submitBtn = document.getElementById('btn-login-siswa');
+            const originalBtnHtml = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="bi bi-arrow-repeat animate-spin"></i> <span>Memeriksa Database...</span>';
 
             const rawInput = document.getElementById('nik-input').value.trim();
             const nik = rawInput.replace(/[^0-9]/g, '');
             const err = document.getElementById('login-error');
             const errMsg = document.getElementById('login-error-msg');
+            err.classList.add('hidden');
 
-            // Cek di allStudents atau localStorage pendaftar
-            let found = allStudents.find(s => (s.nik && s.nik.replace(/[^0-9]/g, '') === nik) || s.nik === rawInput);
-            if (!found) {
-                let pendaftarList = JSON.parse(localStorage.getItem('pkbm_pendaftar') || '[]');
-                found = pendaftarList.find(s => (s.nik && s.nik.replace(/[^0-9]/g, '') === nik) || s.nik === rawInput);
-            }
+            try {
+                await ensureStudentsLoaded();
 
-            if (found) {
-                resetFailedAttempts();
-                sessionStorage.setItem('current_user', JSON.stringify({
-                    role: 'siswa',
-                    nama: found.nama,
-                    nik: found.nik,
-                    rombel: found.rombel || found.paket,
-                    paket: found.paket,
-                    jk: found.jk,
-                    ttl: (found.tempat_lahir || 'Mataraman') + ', ' + (found.tanggal_lahir || '-'),
-                    alamat: found.alamat || 'Kec. Mataraman',
-                    auth_time: Date.now()
-                }));
-                window.location.href = './siswa.html';
-            } else {
-                recordFailedAttempt();
+                if (allStudents.length === 0) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnHtml;
+                    err.classList.remove('hidden');
+                    errMsg.innerText = "Gagal memuat pangkalan data murid dari server. Silakan klik tombol 'Segarkan' di pojok kanan atas atau periksa internet Anda.";
+                    return;
+                }
+
+                // Cek di allStudents atau localStorage pendaftar
+                let found = allStudents.find(s => {
+                    const cleanDbNik = (s.nik || '').toString().trim().replace(/[^0-9]/g, '');
+                    return (cleanDbNik && cleanDbNik === nik) || (s.nik && s.nik === rawInput);
+                });
+
+                if (!found) {
+                    let pendaftarList = JSON.parse(localStorage.getItem('pkbm_pendaftar') || '[]');
+                    found = pendaftarList.find(s => {
+                        const cleanDbNik = (s.nik || '').toString().trim().replace(/[^0-9]/g, '');
+                        return (cleanDbNik && cleanDbNik === nik) || (s.nik && s.nik === rawInput);
+                    });
+                }
+
+                if (found) {
+                    resetFailedAttempts();
+                    submitBtn.innerHTML = '<i class="bi bi-check-circle-fill text-emerald-300"></i> <span>Berhasil! Mengalihkan...</span>';
+                    sessionStorage.setItem('current_user', JSON.stringify({
+                        role: 'siswa',
+                        nama: found.nama,
+                        nik: found.nik,
+                        rombel: found.rombel || found.paket,
+                        paket: found.paket,
+                        jk: found.jk,
+                        ttl: (found.tempat_lahir || 'Mataraman') + ', ' + (found.tanggal_lahir || '-'),
+                        alamat: found.alamat || 'Kec. Mataraman',
+                        auth_time: Date.now()
+                    }));
+                    setTimeout(() => {
+                        window.location.href = './siswa.html';
+                    }, 300);
+                } else {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnHtml;
+                    recordFailedAttempt();
+                    err.classList.remove('hidden');
+                    errMsg.innerText = "NIK " + (nik || rawInput) + " tidak ditemukan dalam database (" + allStudents.length + " murid terdaftar). Pastikan NIK sudah sesuai.";
+                }
+            } catch(error) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnHtml;
                 err.classList.remove('hidden');
-                errMsg.innerText = "NIK " + nik + " tidak ditemukan dalam database. Pastikan NIK sudah sesuai.";
+                errMsg.innerText = "Terjadi kendala koneksi saat verifikasi. Silakan klik Segarkan dan coba lagi.";
             }
         });
 
