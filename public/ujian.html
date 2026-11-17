@@ -237,6 +237,26 @@
                 renderQuestions();
             });
 
+        // Helper Autosave Draft Esai
+        function saveEssayDraft(qId, val) {
+            if (!currentExam || !user) return;
+            try {
+                const key = 'pkbm_draft_' + user.nik + '_' + currentExam.id;
+                let drafts = JSON.parse(localStorage.getItem(key) || '{}');
+                drafts[qId] = val;
+                localStorage.setItem(key, JSON.stringify(drafts));
+            } catch(e) {}
+        }
+
+        function getEssayDraft(qId) {
+            if (!currentExam || !user) return '';
+            try {
+                const key = 'pkbm_draft_' + user.nik + '_' + currentExam.id;
+                const drafts = JSON.parse(localStorage.getItem(key) || '{}');
+                return drafts[qId] || '';
+            } catch(e) { return ''; }
+        }
+
         function renderQuestions() {
             const list = document.getElementById('questions-list');
             list.innerHTML = shuffledQuestions.map((q, idx) => {
@@ -273,7 +293,7 @@
                                 </div>
                             </div>
                             <div class="pl-11">
-                                <textarea name="jawaban_${q.id}" rows="4" placeholder="Tuliskan uraian jawaban Anda di sini..." class="w-full p-4 rounded-2xl border border-slate-300 text-xs focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
+                                <textarea id="jawaban_esai_${q.id}" name="jawaban_${q.id}" rows="4" placeholder="Tuliskan uraian jawaban Anda di sini..." oninput="saveEssayDraft(${q.id}, this.value)" class="w-full p-4 rounded-2xl border border-slate-300 text-xs focus:ring-2 focus:ring-blue-500 outline-none">${getEssayDraft(q.id)}</textarea>
                             </div>
                         </div>
                     `;
@@ -312,12 +332,16 @@
                         }
                     }
                 } else if (q.jenis === 'esai') {
-                    const studentAns = formData.get('jawaban_' + q.id) || '';
+                    const textareaEl = document.getElementById('jawaban_esai_' + q.id) || form.querySelector(`textarea[name="jawaban_${q.id}"]`);
+                    let studentAns = textareaEl ? textareaEl.value : (formData.get('jawaban_' + q.id) || '');
+                    if (!studentAns || !studentAns.trim()) {
+                        studentAns = getEssayDraft(q.id);
+                    }
                     essayAnswers.push({
                         id: q.id,
                         pertanyaan: q.pertanyaan,
                         rubrik: q.rubrik || 'Koreksi mandiri oleh guru',
-                        jawaban: studentAns.trim()
+                        jawaban: (studentAns || '').trim()
                     });
                 }
             }
@@ -338,8 +362,8 @@
 
             // Simpan ke riwayat siswa
             let studentScores = JSON.parse(localStorage.getItem('pkbm_scores_' + user.nik) || '[]');
-            studentScores = studentScores.filter(s => s.exam_id !== currentExam.id);
-            studentScores.push(examRecord);
+            studentScores = studentScores.filter(s => String(s.exam_id) !== String(currentExam.id));
+            studentScores.unshift(examRecord);
             localStorage.setItem('pkbm_scores_' + user.nik, JSON.stringify(studentScores));
 
             // Simpan ke master ledger admin & tutor (Local & Cloud)
@@ -359,8 +383,19 @@
                 strikes: strikeCount,
                 tanggal: examRecord.tanggal
             };
-            allScores.push(masterScoreRecord);
+            
+            const existingIdx = allScores.findIndex(s => String(s.exam_id) === String(currentExam.id) && String(s.nik) === String(user.nik));
+            if (existingIdx !== -1) {
+                allScores[existingIdx] = masterScoreRecord;
+            } else {
+                allScores.unshift(masterScoreRecord);
+            }
             localStorage.setItem('pkbm_master_scores', JSON.stringify(allScores));
+
+            // Hapus draft autosave setelah sukses submit
+            try {
+                localStorage.removeItem('pkbm_draft_' + user.nik + '_' + currentExam.id);
+            } catch(e) {}
 
             if (window.simpanNilaiUjianCloud) {
                 window.simpanNilaiUjianCloud(masterScoreRecord);

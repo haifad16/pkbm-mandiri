@@ -932,10 +932,11 @@ KUNCI JAWABAN:
             document.getElementById('modal-input-catatan').value = s.catatan_guru || '';
 
             // Ambil daftar butir soal esai beserta jawaban yang diketik murid
-            let essayList = s.essay_answers || [];
+            let essayList = s.essay_answers;
+            const isLegacy = (!essayList || essayList.length === 0);
 
-            // Jika lembar jawaban berasal dari pengerjaan sebelumnya, cari butir soal dari naskah ujian
-            if ((!essayList || essayList.length === 0) && s.exam_id) {
+            // Jika lembar jawaban berasal dari pengerjaan sebelumnya (versi lama), cari butir soal dari naskah ujian
+            if (isLegacy && s.exam_id) {
                 let baseExams = [];
                 try {
                     const res = await fetch('./data/exams.json');
@@ -943,7 +944,7 @@ KUNCI JAWABAN:
                 } catch(e) {}
                 let customExams = JSON.parse(localStorage.getItem('pkbm_custom_exams') || '[]');
                 const allExams = [...customExams, ...baseExams];
-                const foundExam = allExams.find(x => x.id == s.exam_id);
+                const foundExam = allExams.find(x => String(x.id) === String(s.exam_id));
                 if (foundExam && foundExam.questions) {
                     essayList = foundExam.questions.filter(q => q.jenis === 'esai').map(q => ({
                         id: q.id,
@@ -967,7 +968,28 @@ KUNCI JAWABAN:
                 `;
             } else {
                 countLabel.innerText = `${essayList.length} Butir Soal Esai`;
-                container.innerHTML = essayList.map((item, i) => `
+                
+                let legacyBanner = '';
+                if (isLegacy) {
+                    legacyBanner = `
+                        <div class="p-4 rounded-2xl bg-amber-50 border-2 border-amber-300 text-amber-950 text-xs flex items-start gap-3 shadow-sm">
+                            <div class="w-8 h-8 rounded-xl bg-amber-200 text-amber-800 flex items-center justify-center flex-shrink-0 text-base font-bold">
+                                <i class="bi bi-info-circle-fill"></i>
+                            </div>
+                            <div class="space-y-1">
+                                <div class="font-black text-amber-950 text-xs">Pengerjaan Sesi Versi Lama (Sebelum Update Sinkronisasi Esai)</div>
+                                <p class="text-amber-900 text-[11px] leading-relaxed">
+                                    Lembar ujian siswa ini dikirim sebelum fitur sinkronisasi teks uraian esai diaktifkan (pada versi sebelumnya sistem hanya merekam skor Pilihan Ganda). 
+                                </p>
+                                <p class="text-emerald-800 font-bold text-[11px]">
+                                    ✓ Pada pengerjaan ujian baru atau ulangan, setiap kata uraian yang diketik murid sudah otomatis tersimpan dan langsung tampil utuh di bawah.
+                                </p>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                container.innerHTML = legacyBanner + essayList.map((item, i) => `
                     <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50/80 space-y-3">
                         <div class="flex items-center justify-between border-b border-slate-200 pb-2">
                             <span class="px-2.5 py-0.5 rounded-lg bg-amber-100 text-amber-900 font-black text-[11px]">
@@ -984,13 +1006,13 @@ KUNCI JAWABAN:
                                 <div class="text-slate-700 italic pl-4">${item.rubrik}</div>
                             </div>
                         ` : ''}
-                        <div class="p-3.5 rounded-xl bg-white border-2 border-blue-200 space-y-1 shadow-sm">
-                            <div class="text-[11px] font-bold text-blue-900 flex items-center justify-between">
-                                <span class="flex items-center gap-1.5"><i class="bi bi-chat-left-text-fill text-blue-600"></i> Jawaban yang Diketik Murid:</span>
+                        <div class="p-3.5 rounded-xl bg-white border-2 ${item.jawaban ? 'border-emerald-300' : (isLegacy ? 'border-amber-200' : 'border-slate-200')} space-y-1 shadow-sm">
+                            <div class="text-[11px] font-bold ${item.jawaban ? 'text-emerald-900' : (isLegacy ? 'text-amber-900' : 'text-slate-600')} flex items-center justify-between">
+                                <span class="flex items-center gap-1.5"><i class="bi ${item.jawaban ? 'bi-chat-left-text-fill text-emerald-600' : (isLegacy ? 'bi-clock-history text-amber-600' : 'bi-dash-circle text-slate-400')}"></i> Jawaban yang Diketik Murid:</span>
                                 <span class="text-[10px] text-slate-400 font-normal">Teks Asli Siswa</span>
                             </div>
-                            <div class="text-xs text-slate-900 leading-relaxed font-medium whitespace-pre-wrap p-2.5 bg-blue-50/30 rounded-lg min-h-[3rem]">
-                                ${item.jawaban ? item.jawaban : '<span class="text-rose-500 italic font-normal">Siswa tidak mengisi jawaban pada butir esai ini (Kosong).</span>'}
+                            <div class="text-xs text-slate-900 leading-relaxed font-medium whitespace-pre-wrap p-2.5 rounded-lg min-h-[3rem] ${item.jawaban ? 'bg-emerald-50/30' : (isLegacy ? 'bg-amber-50/40' : 'bg-slate-50')}">
+                                ${item.jawaban ? item.jawaban : (isLegacy ? '<span class="text-amber-700 italic font-medium"><i class="bi bi-exclamation-triangle mr-1"></i>Uraian tidak terekam pada sesi pengerjaan versi sebelumnya. Silakan berikan nilai evaluasi guru atau siswa dapat mengulang ujian jika diperlukan.</span>' : '<span class="text-rose-500 italic font-normal">Siswa tidak mengisi jawaban pada butir esai ini (Kosong).</span>')}
                             </div>
                         </div>
                     </div>
