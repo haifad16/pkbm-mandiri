@@ -1,5 +1,6 @@
 {
   "projects": {
+    "default": "pkbm-mandiri",
     "y": "pkbm-mandiri"
   },
   "targets": {},
