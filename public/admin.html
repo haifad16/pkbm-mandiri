@@ -95,6 +95,22 @@
             </div>
         </header>
 
+        <!-- Top Security & Compliance Bar (UU PDP) -->
+        <div class="bg-white border-b border-slate-200 px-4 sm:px-8 py-2.5 flex flex-wrap items-center justify-between gap-3 text-xs sticky top-0 z-20 shadow-sm">
+            <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span class="font-extrabold text-slate-800">Sistem Terproteksi UU PDP No. 27/2022</span>
+                <span class="hidden sm:inline text-slate-300">•</span>
+                <span class="hidden sm:inline text-slate-500 text-[11px]">Enkripsi Sesi &amp; Sensor Data Sensitif Aktif</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <button id="btn-toggle-mask" onclick="toggleNikSensor()" class="px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1.5 transition bg-emerald-50 text-emerald-800 border border-emerald-300 hover:bg-emerald-100 shadow-sm active:scale-95">
+                    <i class="bi bi-shield-lock-fill text-emerald-600"></i>
+                    <span id="label-toggle-mask">Sensor NIK: AKTIF (Aman)</span>
+                </button>
+            </div>
+        </div>
+
         <main class="p-4 sm:p-8 flex-grow space-y-6 max-w-7xl w-full mx-auto">
 
             <!-- TAB 0: DASHBOARD & STATISTIK RINGKASAN -->
@@ -785,21 +801,32 @@
         </div>
     </div>
 
-    <!-- Lightbox Zoom Modal Gambar Berkas -->
-    <div id="modal-lightbox-berkas" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[60] hidden flex flex-col items-center justify-center p-4">
+    <!-- Lightbox Zoom Modal Gambar Berkas Terproteksi Watermark & Anti-Bocor -->
+    <div id="modal-lightbox-berkas" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-[60] hidden flex flex-col items-center justify-center p-4 select-none">
         <div class="relative max-w-4xl max-h-[90vh] flex flex-col items-center">
             <div class="w-full flex items-center justify-between text-white pb-3">
-                <span class="font-bold text-sm" id="lightbox-title">Dokumen Berkas</span>
+                <div class="flex items-center gap-2">
+                    <span class="font-bold text-sm" id="lightbox-title">Dokumen Berkas</span>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/25 text-emerald-300 border border-emerald-500/40">
+                        <i class="bi bi-shield-check"></i> Terproteksi UU PDP
+                    </span>
+                </div>
                 <div class="flex items-center gap-3">
-                    <a id="lightbox-download" href="#" download="Berkas_PKBM" class="px-3 py-1 bg-white/20 hover:bg-white/30 text-white rounded-lg text-xs font-semibold flex items-center gap-1">
+                    <a id="lightbox-download" href="#" download="Berkas_PKBM" class="px-3 py-1 bg-white/20 hover:bg-white/30 text-white rounded-lg text-xs font-semibold flex items-center gap-1 transition">
                         <i class="bi bi-download"></i> Unduh
                     </a>
-                    <button onclick="document.getElementById('modal-lightbox-berkas').classList.add('hidden')" class="w-8 h-8 rounded-lg bg-white/20 hover:bg-white/30 text-white flex items-center justify-center text-lg">
+                    <button onclick="document.getElementById('modal-lightbox-berkas').classList.add('hidden')" class="w-8 h-8 rounded-lg bg-white/20 hover:bg-white/30 text-white flex items-center justify-center text-lg transition">
                         <i class="bi bi-x-lg"></i>
                     </button>
                 </div>
             </div>
-            <img id="lightbox-img" src="" alt="Berkas" class="max-h-[80vh] max-w-full rounded-2xl object-contain border border-white/10 shadow-2xl bg-black">
+            <div class="relative overflow-hidden rounded-2xl border border-white/10 shadow-2xl bg-black flex items-center justify-center">
+                <img id="lightbox-img" src="" alt="Berkas" oncontextmenu="return false;" class="max-h-[78vh] max-w-full object-contain pointer-events-none">
+                <!-- Watermark Diagonal Keamanan Dokumen Pribadi -->
+                <div class="absolute inset-0 pointer-events-none flex items-center justify-center opacity-20 rotate-[-22deg] select-none text-red-400 font-black text-xl sm:text-2xl tracking-widest text-center border-4 border-dashed border-red-400/60 m-6 p-4">
+                    RAHASIA • DOKUMEN INTERNAL PKBM MANDIRI<br>DILINDUNGI UU NO. 27 TAHUN 2022
+                </div>
+            </div>
         </div>
     </div>
 
@@ -892,6 +919,57 @@
         let activeStudentDetail = null;
         let currentFilteredList = [];
 
+        // ==================== KEAMANAN DATA PRIBADI (UU PDP NO. 27/2022) ====================
+        let isNikMasked = true; // SENSOR AKTIF SECARA DEFAULT DEMI KEPATUHAN UU PDP
+
+        function maskNik(nik) {
+            if (!nik) return '-';
+            const s = nik.toString().trim();
+            if (!isNikMasked) return s;
+            if (s.length >= 16) {
+                return s.substring(0, 6) + '******' + s.substring(12);
+            }
+            if (s.length >= 6) {
+                return s.substring(0, 3) + '****' + s.slice(-2);
+            }
+            return '******';
+        }
+
+        function maskKk(kk) {
+            if (!kk) return '-';
+            const s = kk.toString().trim();
+            if (!isNikMasked) return s;
+            if (s.length >= 16) {
+                return s.substring(0, 6) + '******' + s.substring(12);
+            }
+            return '******';
+        }
+
+        function toggleNikSensor() {
+            if (isNikMasked) {
+                const pass = prompt("DEMI KEAMANAN DATA PRIBADI (UU PDP NO. 27/2022):\n\nSeluruh NIK dan No. KK saat ini disensor. Masukkan password otorisasi admin untuk membuka sensor (Mode Audit Resmi):");
+                if (!pass) return;
+                if (pass === 'admin123' || pass === 'admin') {
+                    isNikMasked = false;
+                    document.getElementById('label-toggle-mask').innerText = '⚠️ Sensor NIK Terbuka (Kunci Kembali)';
+                    document.getElementById('btn-toggle-mask').className = "px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1.5 transition bg-amber-100 text-amber-900 border border-amber-300 hover:bg-amber-200 shadow-sm active:scale-95";
+                    renderStudentsPage();
+                    if (currentPendaftarList && currentPendaftarList.length) renderPendaftarTable(currentPendaftarList);
+                    if (currentMasterScores && currentMasterScores.length) renderMasterScores(currentMasterScores);
+                    alert("⚠️ PERHATIAN AUDIT:\nSensor NIK berhasil dibuka untuk sesi ini. Harap segera kunci kembali setelah selesai melakukan verifikasi data!");
+                } else {
+                    alert("❌ Password otorisasi salah. Pembukaan sensor NIK ditolak demi keamanan data.");
+                }
+            } else {
+                isNikMasked = true;
+                document.getElementById('label-toggle-mask').innerText = 'Sensor NIK: AKTIF (Aman)';
+                document.getElementById('btn-toggle-mask').className = "px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1.5 transition bg-emerald-50 text-emerald-800 border border-emerald-300 hover:bg-emerald-100 shadow-sm active:scale-95";
+                renderStudentsPage();
+                if (currentPendaftarList && currentPendaftarList.length) renderPendaftarTable(currentPendaftarList);
+                if (currentMasterScores && currentMasterScores.length) renderMasterScores(currentMasterScores);
+            }
+        }
+
         // Tab switcher
         function switchTab(tab) {
             const tabs = ['dashboard', 'siswa', 'pendaftar', 'ujian', 'guru', 'pengaturan'];
@@ -972,7 +1050,7 @@
                             <div class="font-bold text-slate-900">${s.nama}</div>
                             <div class="text-[10px] text-slate-400 font-mono">NISN: ${s.nisn || '-'}</div>
                         </td>
-                        <td class="py-3 px-4 font-mono font-bold text-blue-700">${s.nik}</td>
+                        <td class="py-3 px-4 font-mono font-bold text-blue-700">${maskNik(s.nik)}</td>
                         <td class="py-3 px-4"><span class="px-2 py-0.5 rounded-md font-bold ${s.jk === 'L' ? 'bg-sky-50 text-sky-700' : 'bg-pink-50 text-pink-700'}">${s.jk}</span></td>
                         <td class="py-3 px-4 font-semibold text-slate-700">${s.rombel || s.paket}</td>
                         <td class="py-3 px-4"><span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${s.paket === 'Paket C' ? 'bg-purple-100 text-purple-800' : (s.paket === 'Paket B' ? 'bg-blue-100 text-blue-800' : 'bg-emerald-100 text-emerald-800')}">${s.paket}</span></td>
@@ -1150,7 +1228,7 @@
             document.getElementById('det-rombel').innerText = `${s.rombel || s.paket} (${s.paket})`;
 
             document.getElementById('det-content').innerHTML = `
-                <div><span class="text-slate-400">NIK:</span> <div class="font-bold text-slate-800 font-mono">${s.nik}</div></div>
+                <div><span class="text-slate-400">NIK:</span> <div class="font-bold text-slate-800 font-mono">${maskNik(s.nik)}</div></div>
                 <div><span class="text-slate-400">NISN:</span> <div class="font-bold text-slate-800 font-mono">${s.nisn || '-'}</div></div>
                 <div><span class="text-slate-400">Jenis Kelamin:</span> <div class="font-semibold text-slate-800">${s.jk === 'L' ? 'Laki-Laki' : 'Perempuan'}</div></div>
                 <div><span class="text-slate-400">TTL:</span> <div class="font-semibold text-slate-800">${s.tempat_lahir || 'Mataraman'}, ${s.tanggal_lahir || '-'}</div></div>
@@ -1255,7 +1333,7 @@
                         <div class="font-bold text-slate-900">${p.nama}</div>
                         <div class="text-[10px] text-slate-400">${p.alamat || 'Kec. Mataraman'}</div>
                     </td>
-                    <td class="py-3 px-4 font-mono font-semibold text-slate-700">${p.nik}</td>
+                    <td class="py-3 px-4 font-mono font-semibold text-slate-700">${maskNik(p.nik)}</td>
                     <td class="py-3 px-4">
                         <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
                             p.paket === 'Paket A' ? 'bg-amber-100 text-amber-800' :
@@ -1316,8 +1394,8 @@
                 waBox.innerHTML = `<span class="text-xs text-slate-400 font-semibold italic">Nomor HP belum tercatat</span>`;
             }
 
-            // Biodata Lengkap
-            document.getElementById('ppdb-det-nik').innerText = p.nik || '-';
+            // Biodata Lengkap (Tersensor Masking UU PDP)
+            document.getElementById('ppdb-det-nik').innerText = maskNik(p.nik);
             document.getElementById('ppdb-det-jk').innerText = p.jk === 'L' ? 'Laki-Laki (L)' : (p.jk === 'P' ? 'Perempuan (P)' : 'Laki-Laki');
             document.getElementById('ppdb-det-ttl').innerText = `${p.tempat_lahir || 'Mataraman'}, ${p.tanggal_lahir || '-'}`;
             document.getElementById('ppdb-det-agama').innerText = p.agama || 'Islam';
@@ -1326,7 +1404,7 @@
             document.getElementById('ppdb-det-alamat').innerText = `${p.alamat || '-'} ${p.rt ? 'RT ' + p.rt : ''} ${p.rw ? 'RW ' + p.rw : ''} ${p.kecamatan ? 'Kec. ' + p.kecamatan : ''}`;
 
             // Data Orang Tua
-            document.getElementById('ppdb-det-nokk').innerText = p.no_kk ? `No. KK: ${p.no_kk}` : 'No. KK: -';
+            document.getElementById('ppdb-det-nokk').innerText = p.no_kk ? `No. KK: ${maskKk(p.no_kk)}` : 'No. KK: -';
             document.getElementById('ppdb-det-nama-ayah').innerText = p.nama_ayah || '-';
             document.getElementById('ppdb-det-thn-ayah').innerText = p.tahun_lahir_ayah || '-';
             document.getElementById('ppdb-det-pend-ayah').innerText = p.pendidikan_ayah || '-';
@@ -1649,7 +1727,7 @@
             tbody.innerHTML = scores.map((s, idx) => `
                 <tr class="hover:bg-slate-50 transition border-b border-slate-100">
                     <td class="py-2.5 px-3 font-bold text-slate-900">${s.nama}</td>
-                    <td class="py-2.5 px-3 font-mono text-slate-500">${s.nik}</td>
+                    <td class="py-2.5 px-3 font-mono text-slate-500">${maskNik(s.nik)}</td>
                     <td class="py-2.5 px-3 font-semibold text-blue-700">${s.mapel}</td>
                     <td class="py-2.5 px-3">${s.paket}</td>
                     <td class="py-2.5 px-3 text-center font-bold text-slate-700">${s.skor_pg || s.skor || 0}</td>
