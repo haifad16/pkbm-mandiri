@@ -47,8 +47,8 @@ define('APP_FULL_NAME', 'Pusat Kegiatan Belajar Masyarakat (PKBM) Mandiri');
 define('APP_NPSN', 'P2962977');
 define('APP_SK_OPERASIONAL', '421.9/056/Disdik/2021');
 define('APP_ADDRESS', 'Jl. A. Yani KM. 60 RT. 02 RW. 02, Desa Mataraman, Kec. Mataraman, Kab. Banjar, Kalimantan Selatan');
-define('APP_PHONE', '0831-6215-1175');
-define('APP_WHATSAPP', '6283162151175');
+define('APP_PHONE', '0812-5597-4191');
+define('APP_WHATSAPP', '6281255974191');
 define('APP_EMAIL', 'pkbmmandiri.mataraman@gmail.com');
 define('APP_YEAR', '2026/2027');
 

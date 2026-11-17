@@ -21,9 +21,14 @@
                     <div class="text-xs text-slate-500">Pendaftaran Peserta Didik Baru Online</div>
                 </div>
             </a>
-            <a href="./index.html" class="text-xs font-semibold text-slate-600 hover:text-blue-600 flex items-center gap-1">
-                <i class="bi bi-arrow-left"></i> Kembali ke Beranda
-            </a>
+            <div class="flex items-center gap-3">
+                <a href="https://wa.me/6281255974191?text=Halo%20Admin%20PKBM%20Mandiri,%20saya%20butuh%20bantuan%20pendaftaran" target="_blank" class="text-xs font-bold text-emerald-600 hover:text-emerald-700 flex items-center gap-1 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200 transition">
+                    <i class="bi bi-whatsapp"></i> Call Center: +62 812-5597-4191
+                </a>
+                <a href="./index.html" class="text-xs font-semibold text-slate-600 hover:text-blue-600 flex items-center gap-1">
+                    <i class="bi bi-arrow-left"></i> Beranda
+                </a>
+            </div>
         </div>
     </header>
 
@@ -56,12 +61,20 @@
                     <div><span class="text-slate-500">NIK Murid:</span> <div class="font-bold text-slate-900" id="res-nik">-</div></div>
                     <div><span class="text-slate-500">Tanggal Daftar:</span> <div class="font-bold text-slate-900" id="res-tgl">-</div></div>
                 </div>
-                <div class="text-[11px] text-slate-500 bg-blue-50 p-3 rounded-xl border border-blue-100">
-                    <i class="bi bi-info-circle-fill text-blue-500 mr-1"></i> Simpan bukti ini. Setelah diverifikasi admin, Anda dapat langsung login menggunakan <strong>NIK</strong> Anda.
+                <div class="text-[11px] text-slate-500 bg-blue-50 p-3 rounded-xl border border-blue-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                        <i class="bi bi-info-circle-fill text-blue-500 mr-1"></i> Simpan bukti ini. Setelah diverifikasi admin, Anda dapat langsung login menggunakan <strong>NIK</strong> Anda.
+                    </div>
+                    <div class="text-right text-[10px] text-slate-400 font-mono">
+                        Call Center: +62 812-5597-4191
+                    </div>
                 </div>
             </div>
 
             <div class="flex flex-wrap justify-center gap-3 pt-2">
+                <a id="btn-wa-konfirmasi" href="https://wa.me/6281255974191?text=Halo%20Admin%20PKBM%20Mandiri,%20saya%20sudah%20mendaftar%20online" target="_blank" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs flex items-center gap-2 shadow transition">
+                    <i class="bi bi-whatsapp"></i> Konfirmasi ke WhatsApp Admin (+62 812-5597-4191)
+                </a>
                 <button onclick="window.print()" class="px-6 py-2.5 bg-slate-900 text-white font-bold rounded-xl text-xs flex items-center gap-2 hover:bg-slate-800">
                     <i class="bi bi-printer-fill"></i> Cetak Bukti Pendaftaran
                 </button>
@@ -362,6 +375,13 @@
             document.getElementById('res-paket').innerText = paket;
             document.getElementById('res-nik').innerText = nik;
             document.getElementById('res-tgl').innerText = tgl;
+
+            const waBtn = document.getElementById('btn-wa-konfirmasi');
+            if (waBtn) {
+                const waText = encodeURIComponent(`Halo Admin PKBM Mandiri, saya sudah mendaftar PPDB Online dengan No. Pendaftaran: ${nodaftar} atas nama ${nama} (${paket}). Mohon bantuannya untuk verifikasi.`);
+                waBtn.href = `https://wa.me/6281255974191?text=${waText}`;
+            }
+
             window.scrollTo({ top: 0, behavior: 'smooth' });
         });
     </script>
