@@ -205,11 +205,13 @@
             return array.sort(() => Math.random() - 0.5);
         }
 
-        // Load exam
+        // Load exam (Cari dari naskah bawaan dan naskah yang dibuat oleh guru)
         fetch('./data/exams.json')
             .then(res => res.json())
-            .then(exams => {
-                currentExam = exams.find(e => e.id === examId) || exams[0];
+            .then(baseExams => {
+                const customExams = JSON.parse(localStorage.getItem('pkbm_custom_exams') || '[]');
+                const allExams = [...customExams, ...baseExams];
+                currentExam = allExams.find(e => e.id === examId) || allExams[0];
                 document.getElementById('exam-title').innerText = currentExam.judul;
                 document.getElementById('exam-subtitle').innerText = `${currentExam.mapel} (${currentExam.paket} - ${currentExam.tingkat_kelas})`;
 

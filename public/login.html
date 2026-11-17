@@ -247,10 +247,10 @@
                 resetFailedAttempts();
                 sessionStorage.setItem('current_user', JSON.stringify({
                     role: 'guru',
-                    nama: 'Tutor / Guru Pengajar',
+                    nama: 'Tutor / Guru Pengajar PKBM Mandiri',
                     auth_time: Date.now()
                 }));
-                window.location.href = './admin.html';
+                window.location.href = './guru.html';
             } else {
                 recordFailedAttempt();
                 err.classList.remove('hidden');

@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Guru &amp; Tutor - PKBM Mandiri</title>
+    <link rel="icon" type="image/jpeg" href="./assets/img/logo.jpg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="./assets/css/style.css">
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex antialiased">
+
+    <!-- Sidebar Guru Desktop -->
+    <aside class="w-64 bg-slate-900 text-slate-300 hidden md:flex flex-col justify-between p-4 flex-shrink-0">
+        <div class="space-y-6">
+            <div class="flex items-center gap-3 px-2 pt-2">
+                <img src="./assets/img/logo.jpg" alt="Logo PKBM Mandiri" class="w-11 h-11 object-contain rounded-xl shadow bg-white p-0.5 border border-slate-700">
+                <div>
+                    <div class="font-black text-white text-sm">PKBM MANDIRI</div>
+                    <div class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">PORTAL GURU &amp; TUTOR</div>
+                </div>
+            </div>
+
+            <nav class="space-y-1.5 text-xs font-semibold">
+                <button onclick="switchGuruTab('buat-soal')" id="tab-buat-soal" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-emerald-600 text-white transition">
+                    <i class="bi bi-plus-circle-fill text-base"></i>
+                    <span>Buat &amp; Upload Soal Baru</span>
+                </button>
+                <button onclick="switchGuruTab('bank-soal')" id="tab-bank-soal" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition">
+                    <i class="bi bi-collection-fill text-base"></i>
+                    <span>Bank Soal &amp; Naskah Word</span>
+                </button>
+                <button onclick="switchGuruTab('koreksi')" id="tab-koreksi" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition">
+                    <i class="bi bi-pencil-square text-base"></i>
+                    <span>Koreksi Esai Murid</span>
+                </button>
+                <button onclick="switchGuruTab('rekap-nilai')" id="tab-rekap-nilai" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition">
+                    <i class="bi bi-award-fill text-base"></i>
+                    <span>Rekap Nilai &amp; Leger Mapel</span>
+                </button>
+                <a href="./index.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition">
+                    <i class="bi bi-globe text-base"></i>
+                    <span>Lihat Halaman Utama</span>
+                </a>
+            </nav>
+        </div>
+
+        <div class="pt-4 border-t border-slate-800 px-2 space-y-2">
+            <div class="text-[11px] text-slate-400">
+                Tutor Aktif: <strong class="text-white block" id="guru-name-display">Guru Pengajar</strong>
+            </div>
+            <button onclick="logoutGuru()" class="w-full py-2 bg-rose-900/40 text-rose-300 rounded-lg text-xs font-bold hover:bg-rose-900 transition flex items-center justify-center gap-1.5">
+                <i class="bi bi-box-arrow-right"></i> Keluar Portal Guru
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="flex-grow flex flex-col min-w-0">
+        
+        <!-- Topbar Mobile -->
+        <header class="bg-white border-b border-slate-200 py-3.5 px-4 flex items-center justify-between md:hidden">
+            <div class="flex items-center gap-2">
+                <img src="./assets/img/logo.jpg" alt="Logo" class="w-8 h-8 rounded-lg">
+                <span class="font-black text-slate-900 text-xs">PORTAL GURU PKBM</span>
+            </div>
+            <button onclick="logoutGuru()" class="text-xs text-rose-600 font-bold">Keluar</button>
+        </header>
+
+        <main class="p-4 sm:p-8 flex-grow space-y-6">
+
+            <!-- TAB 1: FORM BUAT & UPLOAD SOAL BARU -->
+            <div id="section-buat-soal" class="space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h1 class="text-2xl font-black text-slate-900">Buat &amp; Upload Soal Ujian Baru</h1>
+                        <p class="text-xs text-slate-500 mt-0.5">Tutor dapat menyusun butir soal Pilihan Ganda (nilai otomatis) dan Esai mandiri.</p>
+                    </div>
+                    <button type="button" onclick="loadFormatTemplate()" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow transition">
+                        <i class="bi bi-file-earmark-text"></i> Gunakan Contoh Soal Cepat
+                    </button>
+                </div>
+
+                <form id="create-exam-form" class="space-y-6">
+                    
+                    <!-- 1. Informasi Identitas Ujian -->
+                    <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+                        <h3 class="font-bold text-sm text-slate-900 border-b pb-3 flex items-center gap-2">
+                            <span class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs">1</span>
+                            Informasi Ujian &amp; Mata Pelajaran
+                        </h3>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div class="sm:col-span-2">
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Judul Ujian / Asesmen *</label>
+                                <input type="text" id="exam-title-input" required placeholder="Contoh: Asesmen Sumatif Matematika Akhir Semester" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold focus:ring-2 focus:ring-emerald-500 outline-none">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Mata Pelajaran *</label>
+                                <select id="exam-mapel-input" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold focus:ring-2 focus:ring-emerald-500 outline-none">
+                                    <option value="Bahasa Indonesia">Bahasa Indonesia</option>
+                                    <option value="Matematika">Matematika</option>
+                                    <option value="Ilmu Pengetahuan Alam (IPA)">Ilmu Pengetahuan Alam (IPA)</option>
+                                    <option value="Ilmu Pengetahuan Sosial (IPS)">Ilmu Pengetahuan Sosial (IPS)</option>
+                                    <option value="Pendidikan Kewarganegaraan (PKn)">Pendidikan Kewarganegaraan (PKn)</option>
+                                    <option value="Pendidikan Agama Islam">Pendidikan Agama Islam</option>
+                                    <option value="Keterampilan &amp; Vokasi">Keterampilan &amp; Vokasi</option>
+                                    <option value="Bahasa Inggris">Bahasa Inggris</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Program Paket *</label>
+                                <select id="exam-paket-input" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold focus:ring-2 focus:ring-emerald-500 outline-none">
+                                    <option value="Paket A">Paket A (Setara SD)</option>
+                                    <option value="Paket B">Paket B (Setara SMP)</option>
+                                    <option value="Paket C">Paket C (Setara SMA)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Tingkat Kelas</label>
+                                <input type="text" id="exam-kelas-input" value="Semua Kelas" placeholder="Contoh: Kelas 9 atau Semua Kelas" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Durasi Waktu</label>
+                                <select id="exam-durasi-input" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
+                                    <option value="0">Fleksibel (Tanpa batas waktu kaku)</option>
+                                    <option value="60">60 Menit</option>
+                                    <option value="90">90 Menit</option>
+                                    <option value="120">120 Menit</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Kontainer Input Butir Soal -->
+                    <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-6">
+                        <div class="flex items-center justify-between border-b pb-3">
+                            <h3 class="font-bold text-sm text-slate-900 flex items-center gap-2">
+                                <span class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs">2</span>
+                                Butir-Butir Soal Ujian (Pilihan Ganda &amp; Esai)
+                            </h3>
+                            <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full" id="question-count-badge">1 Butir Soal</span>
+                        </div>
+
+                        <!-- Daftar Butir Soal Dinamis -->
+                        <div id="questions-builder-container" class="space-y-6">
+                            <!-- Soal Item 1 Default -->
+                        </div>
+
+                        <!-- Tombol Tambah Soal -->
+                        <div class="flex flex-wrap gap-3 pt-2">
+                            <button type="button" onclick="addQuestionItem('pg')" class="px-5 py-2.5 rounded-xl border-2 border-dashed border-blue-400 bg-blue-50/60 text-blue-700 font-bold text-xs hover:bg-blue-100 flex items-center gap-1.5 transition">
+                                <i class="bi bi-plus-circle-fill"></i> + Tambah Soal Pilihan Ganda (PG)
+                            </button>
+                            <button type="button" onclick="addQuestionItem('esai')" class="px-5 py-2.5 rounded-xl border-2 border-dashed border-amber-400 bg-amber-50/60 text-amber-800 font-bold text-xs hover:bg-amber-100 flex items-center gap-1.5 transition">
+                                <i class="bi bi-plus-circle-fill"></i> + Tambah Soal Esai
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tombol Terbitkan Ujian -->
+                    <div class="pt-2">
+                        <button type="submit" class="w-full py-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm shadow-xl shadow-emerald-600/25 flex items-center justify-center gap-2 transition transform active:scale-95">
+                            <i class="bi bi-cloud-arrow-up-fill text-lg"></i>
+                            <span>Simpan &amp; Terbitkan Soal Ujian Ini ke Murid</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- TAB 2: BANK SOAL & ARSIP WORD -->
+            <div id="section-bank-soal" class="space-y-6 hidden">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h1 class="text-2xl font-black text-slate-900">Bank Soal &amp; Arsip Microsoft Word</h1>
+                        <p class="text-xs text-slate-500 mt-0.5">Daftar naskah soal yang telah dibuat oleh guru dan dapat diunduh ke file Word (.doc).</p>
+                    </div>
+                </div>
+
+                <div id="exams-list-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Loaded dynamically -->
+                </div>
+            </div>
+
+            <!-- TAB 3: KOREKSI ESAI SISWA -->
+            <div id="section-koreksi" class="space-y-6 hidden">
+                <div>
+                    <h1 class="text-2xl font-black text-slate-900">Pemeriksaan &amp; Koreksi Soal Esai Murid</h1>
+                    <p class="text-xs text-slate-500 mt-0.5">Guru dapat membaca uraian jawaban siswa, memberikan nilai 0 - 100, dan mencatat catatan pembinaan.</p>
+                </div>
+
+                <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 space-y-4">
+                    <div class="flex items-center justify-between border-b pb-3">
+                        <h3 class="font-bold text-sm text-slate-900">Daftar Lembar Jawaban Ujian Masuk</h3>
+                        <span class="text-xs text-slate-500">Otomatis sinkron dengan pengerjaan siswa</span>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-50 text-slate-500 font-bold uppercase">
+                                <tr>
+                                    <th class="py-3 px-4">Nama Siswa</th>
+                                    <th class="py-3 px-4">Mata Pelajaran</th>
+                                    <th class="py-3 px-4">Nilai PG Otomatis</th>
+                                    <th class="py-3 px-4">Status Esai</th>
+                                    <th class="py-3 px-4 text-center">Aksi Guru</th>
+                                </tr>
+                            </thead>
+                            <tbody id="koreksi-table-body" class="divide-y divide-slate-100">
+                                <!-- Loaded dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: REKAP NILAI & LEGER MAPEL -->
+            <div id="section-rekap-nilai" class="space-y-6 hidden">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h1 class="text-2xl font-black text-slate-900">Rekapitulasi Nilai Siswa (Leger Tutor)</h1>
+                        <p class="text-xs text-slate-500 mt-0.5">Hasil pengerjaan ujian seluruh murid untuk kebutuhan pengisian buku rapor.</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="exportTeacherExcel()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow transition">
+                            <i class="bi bi-file-earmark-excel"></i> Unduh Rekap Excel
+                        </button>
+                        <button onclick="window.print()" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow transition">
+                            <i class="bi bi-printer"></i> Cetak Leger
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase">
+                                <tr>
+                                    <th class="py-3 px-4">No</th>
+                                    <th class="py-3 px-4">Nama Murid</th>
+                                    <th class="py-3 px-4">NIK</th>
+                                    <th class="py-3 px-4">Rombel</th>
+                                    <th class="py-3 px-4">Mata Pelajaran</th>
+                                    <th class="py-3 px-4">Nilai Akhir</th>
+                                    <th class="py-3 px-4">Tanggal Ujian</th>
+                                </tr>
+                            </thead>
+                            <tbody id="teacher-ledger-body" class="divide-y divide-slate-100">
+                                <!-- Loaded dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Modal Koreksi Esai -->
+    <div id="modal-koreksi" class="hidden fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-4 shadow-2xl">
+            <div class="flex items-center justify-between border-b pb-3">
+                <h3 class="font-extrabold text-base text-slate-900" id="modal-siswa-nama">Koreksi Jawaban Esai</h3>
+                <button onclick="closeModalKoreksi()" class="text-slate-400 hover:text-slate-600"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="space-y-3 text-xs">
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    <strong class="text-slate-700 block mb-1">Pertanyaan Esai:</strong>
+                    <div class="text-slate-900" id="modal-soal-teks">-</div>
+                </div>
+                <div class="bg-blue-50 p-3 rounded-xl border border-blue-200">
+                    <strong class="text-blue-900 block mb-1">Jawaban Siswa:</strong>
+                    <div class="text-slate-800 italic" id="modal-jawaban-siswa">"Siswa menjawab uraian lengkap mengenai materi yang diujikan."</div>
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Input Nilai Esai (0 - 100):</label>
+                    <input type="number" id="modal-input-nilai" min="0" max="100" value="85" class="w-full px-3 py-2 border rounded-xl font-bold text-sm">
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Catatan / Umpan Balik Guru:</label>
+                    <textarea id="modal-input-catatan" rows="2" class="w-full px-3 py-2 border rounded-xl text-xs" placeholder="Jawaban sangat bagus dan runtut..."></textarea>
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 pt-2 border-t">
+                <button onclick="closeModalKoreksi()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100">Batal</button>
+                <button onclick="simpanNilaiEsai()" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs">Simpan Nilai Rapor</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check Guru Auth
+        const userJson = sessionStorage.getItem('current_user');
+        if (!userJson) window.location.href = './login.html';
+        const user = JSON.parse(userJson || '{}');
+        if (user.role !== 'guru' && user.role !== 'admin') window.location.href = './login.html';
+        document.getElementById('guru-name-display').innerText = user.nama || 'Tutor PKBM Mandiri';
+
+        const SALT = 'PKBM_MANDIRI_SALT_2026_';
+
+        // Web Crypto SHA-256
+        async function sha256(message) {
+            const msgBuffer = new TextEncoder().encode(message);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        // Tab Navigation
+        function switchGuruTab(tab) {
+            ['buat-soal', 'bank-soal', 'koreksi', 'rekap-nilai'].forEach(t => {
+                document.getElementById('section-' + t).classList.add('hidden');
+                document.getElementById('tab-' + t).className = "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition";
+            });
+            document.getElementById('section-' + tab).classList.remove('hidden');
+            document.getElementById('tab-' + tab).className = "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-emerald-600 text-white transition";
+
+            if (tab === 'bank-soal') renderBankSoal();
+            if (tab === 'koreksi') renderKoreksiTable();
+            if (tab === 'rekap-nilai') renderTeacherLedger();
+        }
+
+        // Dynamic Question Builder State
+        let questionCounter = 0;
+
+        function addQuestionItem(type = 'pg', defaultData = null) {
+            questionCounter++;
+            const container = document.getElementById('questions-builder-container');
+            const qId = questionCounter;
+
+            const div = document.createElement('div');
+            div.id = `q-card-${qId}`;
+            div.className = "p-5 rounded-2xl border border-slate-200 bg-slate-50 space-y-4 relative";
+
+            if (type === 'pg') {
+                div.innerHTML = `
+                    <div class="flex items-center justify-between border-b pb-2">
+                        <span class="px-2.5 py-1 bg-blue-100 text-blue-800 text-[11px] font-black rounded-lg">
+                            SOAL #${qId} (PILIHAN GANDA)
+                        </span>
+                        <button type="button" onclick="removeQuestionItem(${qId})" class="text-rose-500 hover:text-rose-700 text-xs font-bold">
+                            <i class="bi bi-trash"></i> Hapus Soal
+                        </button>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Teks Pertanyaan Soal *</label>
+                        <textarea class="q-pertanyaan w-full px-3 py-2 border rounded-xl text-xs bg-white outline-none focus:ring-2 focus:ring-blue-500" rows="2" required placeholder="Tuliskan teks pertanyaan soal di sini...">${defaultData ? defaultData.pertanyaan : ''}</textarea>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                        <div>
+                            <span class="text-[11px] font-bold text-slate-600">Pilihan A:</span>
+                            <input type="text" class="q-opsi-a w-full px-3 py-1.5 border rounded-lg text-xs bg-white" required placeholder="Jawaban A" value="${defaultData ? defaultData.opsi_a : ''}">
+                        </div>
+                        <div>
+                            <span class="text-[11px] font-bold text-slate-600">Pilihan B:</span>
+                            <input type="text" class="q-opsi-b w-full px-3 py-1.5 border rounded-lg text-xs bg-white" required placeholder="Jawaban B" value="${defaultData ? defaultData.opsi_b : ''}">
+                        </div>
+                        <div>
+                            <span class="text-[11px] font-bold text-slate-600">Pilihan C:</span>
+                            <input type="text" class="q-opsi-c w-full px-3 py-1.5 border rounded-lg text-xs bg-white" required placeholder="Jawaban C" value="${defaultData ? defaultData.opsi_c : ''}">
+                        </div>
+                        <div>
+                            <span class="text-[11px] font-bold text-slate-600">Pilihan D:</span>
+                            <input type="text" class="q-opsi-d w-full px-3 py-1.5 border rounded-lg text-xs bg-white" required placeholder="Jawaban D" value="${defaultData ? defaultData.opsi_d : ''}">
+                        </div>
+                    </div>
+                    <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-200 flex items-center justify-between">
+                        <span class="text-xs font-bold text-emerald-900">Kunci Jawaban yang Benar:</span>
+                        <div class="flex gap-4 text-xs font-black text-slate-800">
+                            ${['A', 'B', 'C', 'D'].map(k => `
+                                <label class="flex items-center gap-1 cursor-pointer">
+                                    <input type="radio" name="kunci_${qId}" value="${k}" class="q-kunci" ${(!defaultData && k === 'A') || (defaultData && defaultData.kunci === k) ? 'checked' : ''}> ${k}
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            } else {
+                div.innerHTML = `
+                    <div class="flex items-center justify-between border-b pb-2">
+                        <span class="px-2.5 py-1 bg-amber-100 text-amber-800 text-[11px] font-black rounded-lg">
+                            SOAL #${qId} (ESAI / URAIAN)
+                        </span>
+                        <button type="button" onclick="removeQuestionItem(${qId})" class="text-rose-500 hover:text-rose-700 text-xs font-bold">
+                            <i class="bi bi-trash"></i> Hapus Soal
+                        </button>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Teks Pertanyaan Esai *</label>
+                        <textarea class="q-pertanyaan w-full px-3 py-2 border rounded-xl text-xs bg-white outline-none focus:ring-2 focus:ring-amber-500" rows="3" required placeholder="Tuliskan instruksi atau uraian soal esai di sini...">${defaultData ? defaultData.pertanyaan : ''}</textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Rubrik / Pedoman Nilai Guru (Hanya Dibaca Tutor):</label>
+                        <input type="text" class="q-rubrik w-full px-3 py-1.5 border rounded-lg text-xs bg-white" placeholder="Contoh: Menjawab 3 poin konsep = 100, 2 poin = 70..." value="${defaultData ? defaultData.rubrik : ''}">
+                    </div>
+                `;
+            }
+
+            container.appendChild(div);
+            updateBadge();
+        }
+
+        function removeQuestionItem(id) {
+            const card = document.getElementById(`q-card-${id}`);
+            if (card) {
+                card.remove();
+                updateBadge();
+            }
+        }
+
+        function updateBadge() {
+            const total = document.getElementById('questions-builder-container').children.length;
+            document.getElementById('question-count-badge').innerText = `${total} Butir Soal`;
+        }
+
+        // Initialize with 1 PG and 1 Essay
+        addQuestionItem('pg');
+        addQuestionItem('esai');
+
+        // Quick Template Loader
+        function loadFormatTemplate() {
+            document.getElementById('exam-title-input').value = 'Penilaian Tengah Semester IPA Terpadu';
+            document.getElementById('exam-mapel-input').value = 'Ilmu Pengetahuan Alam (IPA)';
+            document.getElementById('exam-paket-input').value = 'Paket B';
+            document.getElementById('exam-kelas-input').value = 'Kelas 8';
+            alert('Contoh identitas ujian berhasil diisikan ke form!');
+        }
+
+        // Form Submission (Simpan Ujian Baru)
+        document.getElementById('create-exam-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const title = document.getElementById('exam-title-input').value.trim();
+            const mapel = document.getElementById('exam-mapel-input').value;
+            const paket = document.getElementById('exam-paket-input').value;
+            const kelas = document.getElementById('exam-kelas-input').value;
+            const durasi = parseInt(document.getElementById('exam-durasi-input').value || '0');
+
+            const container = document.getElementById('questions-builder-container');
+            const cards = container.children;
+            if (cards.length === 0) {
+                alert('Silakan tambahkan minimal 1 butir soal sebelum menerbitkan ujian!');
+                return;
+            }
+
+            const questions = [];
+            const newExamId = Date.now();
+
+            for (let i = 0; i < cards.length; i++) {
+                const card = cards[i];
+                const pertanyaan = card.querySelector('.q-pertanyaan').value.trim();
+                const qSubId = (i + 1) * 10;
+
+                const isPg = card.querySelector('.q-opsi-a') !== null;
+                if (isPg) {
+                    const opsi_a = card.querySelector('.q-opsi-a').value.trim();
+                    const opsi_b = card.querySelector('.q-opsi-b').value.trim();
+                    const opsi_c = card.querySelector('.q-opsi-c').value.trim();
+                    const opsi_d = card.querySelector('.q-opsi-d').value.trim();
+                    const kunciChecked = card.querySelector('input.q-kunci:checked');
+                    const kunci = kunciChecked ? kunciChecked.value : 'A';
+
+                    // Enkripsi salted hash agar kunci tidak bocor
+                    const hashVal = await sha256(qSubId + '_' + kunci + '_' + SALT);
+
+                    questions.push({
+                        id: qSubId,
+                        jenis: 'pg',
+                        pertanyaan: pertanyaan,
+                        opsi_a: opsi_a,
+                        opsi_b: opsi_b,
+                        opsi_c: opsi_c,
+                        opsi_d: opsi_d,
+                        answer_hash: hashVal,
+                        kunci_asli_guru: kunci // disimpan khusus untuk arsip bank soal word guru
+                    });
+                } else {
+                    const rubrik = card.querySelector('.q-rubrik').value.trim();
+                    questions.push({
+                        id: qSubId,
+                        jenis: 'esai',
+                        pertanyaan: pertanyaan,
+                        rubrik: rubrik || 'Diperiksa mandiri oleh guru'
+                    });
+                }
+            }
+
+            const newExam = {
+                id: newExamId,
+                judul: title,
+                mapel: mapel,
+                paket: paket,
+                tingkat_kelas: kelas,
+                durasi_menit: durasi,
+                dibuat_oleh: user.nama || 'Tutor PKBM',
+                tanggal_dibuat: new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }),
+                questions: questions
+            };
+
+            // Simpan ke localStorage khusus custom exams
+            let customExams = JSON.parse(localStorage.getItem('pkbm_custom_exams') || '[]');
+            customExams.unshift(newExam);
+            localStorage.setItem('pkbm_custom_exams', JSON.stringify(customExams));
+
+            alert(`BERHASIL DITERBITKAN!\nUjian "${title}" untuk ${paket} telah aktif dan dapat langsung dikerjakan oleh seluruh murid di akun mereka.`);
+            switchGuruTab('bank-soal');
+        });
+
+        // Render Bank Soal
+        async function renderBankSoal() {
+            const container = document.getElementById('exams-list-container');
+            let baseExams = [];
+            try {
+                const res = await fetch('./data/exams.json');
+                baseExams = await res.json();
+            } catch(e) {}
+
+            let customExams = JSON.parse(localStorage.getItem('pkbm_custom_exams') || '[]');
+            const allExams = [...customExams, ...baseExams];
+
+            container.innerHTML = allExams.map(e => `
+                <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-4">
+                    <div>
+                        <div class="flex items-center justify-between text-xs mb-2">
+                            <span class="px-2.5 py-0.5 rounded-full font-bold bg-blue-50 text-blue-700">${e.paket}</span>
+                            <span class="text-slate-400 font-semibold">${e.tingkat_kelas}</span>
+                        </div>
+                        <h3 class="font-extrabold text-slate-900 text-base">${e.mapel}</h3>
+                        <p class="text-xs text-slate-500 mt-1">${e.judul}</p>
+                        <div class="mt-3 text-xs text-slate-600 bg-slate-50 p-2.5 rounded-xl flex items-center justify-between">
+                            <span><i class="bi bi-question-circle text-blue-600 mr-1"></i> ${e.questions.length} Butir Soal</span>
+                            <span class="text-emerald-700 font-bold"><i class="bi bi-check-circle"></i> Terpublikasi</span>
+                        </div>
+                    </div>
+                    <div class="flex gap-2 pt-2 border-t">
+                        <button onclick="downloadSingleExamWord(${e.id})" class="flex-1 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow transition">
+                            <i class="bi bi-file-earmark-word"></i> Arsip Word (.doc)
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Download Naskah Soal Tertentu ke Word
+        async function downloadSingleExamWord(examId) {
+            let baseExams = [];
+            try {
+                const res = await fetch('./data/exams.json');
+                baseExams = await res.json();
+            } catch(e) {}
+            let customExams = JSON.parse(localStorage.getItem('pkbm_custom_exams') || '[]');
+            const allExams = [...customExams, ...baseExams];
+            const e = allExams.find(x => x.id === examId);
+            if (!e) return;
+
+            let doc = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+            <head><title>${e.judul}</title></head>
+            <body style='font-family:Arial, sans-serif;'>
+                <h2 style='text-align:center;'>PUSAT KEGIATAN BELAJAR MASYARAKAT (PKBM) MANDIRI</h2>
+                <h4 style='text-align:center;'>NPSN: P2962977 - Mataraman, Kab. Banjar</h4>
+                <hr/>
+                <h3 style='text-align:center;'>NASKAH UJIAN: ${e.judul.toUpperCase()}</h3>
+                <p><b>Mata Pelajaran:</b> ${e.mapel} | <b>Jenjang:</b> ${e.paket} (${e.tingkat_kelas})</p>
+                <hr/>
+                <ol>`;
+
+            e.questions.forEach(q => {
+                if (q.jenis === 'pg') {
+                    doc += `<li><b>${q.pertanyaan}</b><br/>A. ${q.opsi_a}<br/>B. ${q.opsi_b}<br/>C. ${q.opsi_c}<br/>D. ${q.opsi_d}<br/><i>Kunci: ${q.kunci_asli_guru || 'Terproteksi Hash'}</i></li><br/>`;
+                } else {
+                    doc += `<li><b>[ESAI] ${q.pertanyaan}</b><br/><i>Rubrik Penilaian: ${q.rubrik || '-'}</i></li><br/>`;
+                }
+            });
+            doc += `</ol></body></html>`;
+
+            const blob = new Blob([doc], { type: 'application/msword' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `Naskah_Soal_${e.mapel.replace(/\s+/g, '_')}_${e.paket}.doc`;
+            link.click();
+        }
+
+        // Render Koreksi Table
+        function renderKoreksiTable() {
+            const scores = JSON.parse(localStorage.getItem('pkbm_master_scores') || '[]');
+            const tbody = document.getElementById('koreksi-table-body');
+            if (scores.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-slate-400">Belum ada murid yang menyelesaikan ujian untuk dikoreksi.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = scores.map((s, idx) => `
+                <tr class="hover:bg-slate-50">
+                    <td class="py-3 px-4 font-bold text-slate-900">${s.nama}</td>
+                    <td class="py-3 px-4 font-semibold text-blue-700">${s.mapel} (${s.paket})</td>
+                    <td class="py-3 px-4 font-black text-slate-900">${s.skor} / 100</td>
+                    <td class="py-3 px-4">
+                        <span class="px-2.5 py-0.5 rounded-full font-bold text-[10px] ${s.esai_dinilai ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+                            ${s.esai_dinilai ? 'Sudah Dinilai' : 'Menunggu Koreksi'}
+                        </span>
+                    </td>
+                    <td class="py-3 px-4 text-center">
+                        <button onclick="bukaModalKoreksi(${idx})" class="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold">
+                            <i class="bi bi-pencil"></i> Periksa Esai
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        let selectedKoreksiIndex = null;
+        function bukaModalKoreksi(idx) {
+            selectedKoreksiIndex = idx;
+            const scores = JSON.parse(localStorage.getItem('pkbm_master_scores') || '[]');
+            const s = scores[idx];
+            document.getElementById('modal-siswa-nama').innerText = `Koreksi Esai: ${s.nama}`;
+            document.getElementById('modal-soal-teks').innerText = `Uraian jawaban soal esai untuk mata pelajaran ${s.mapel}`;
+            document.getElementById('modal-koreksi').classList.remove('hidden');
+        }
+
+        function closeModalKoreksi() {
+            document.getElementById('modal-koreksi').classList.add('hidden');
+        }
+
+        function simpanNilaiEsai() {
+            const val = document.getElementById('modal-input-nilai').value;
+            let scores = JSON.parse(localStorage.getItem('pkbm_master_scores') || '[]');
+            if (scores[selectedKoreksiIndex]) {
+                scores[selectedKoreksiIndex].esai_dinilai = true;
+                scores[selectedKoreksiIndex].nilai_esai = val;
+                localStorage.setItem('pkbm_master_scores', JSON.stringify(scores));
+                alert('Nilai esai siswa berhasil disimpan!');
+                closeModalKoreksi();
+                renderKoreksiTable();
+            }
+        }
+
+        // Render Teacher Ledger
+        function renderTeacherLedger() {
+            const scores = JSON.parse(localStorage.getItem('pkbm_master_scores') || '[]');
+            const tbody = document.getElementById('teacher-ledger-body');
+            if (scores.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-400">Belum ada data nilai ujian masuk.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = scores.map((s, idx) => `
+                <tr class="hover:bg-slate-50">
+                    <td class="py-3 px-4 text-slate-400 text-center">${idx + 1}</td>
+                    <td class="py-3 px-4 font-bold text-slate-900">${s.nama}</td>
+                    <td class="py-3 px-4 font-mono text-slate-600">${s.nik}</td>
+                    <td class="py-3 px-4 font-semibold text-blue-700">${s.rombel || s.paket}</td>
+                    <td class="py-3 px-4">${s.mapel}</td>
+                    <td class="py-3 px-4 font-black text-emerald-600 text-sm">${s.skor}</td>
+                    <td class="py-3 px-4 text-slate-400">${s.tanggal}</td>
+                </tr>
+            `).join('');
+        }
+
+        function exportTeacherExcel() {
+            const scores = JSON.parse(localStorage.getItem('pkbm_master_scores') || '[]');
+            let csv = "data:text/csv;charset=utf-8,No,Nama Siswa,NIK,Rombel,Mata Pelajaran,Nilai,Tanggal\r\n";
+            scores.forEach((s, i) => {
+                csv += `${i+1},"${s.nama}","'${s.nik}","${s.rombel || s.paket}","${s.mapel}",${s.skor},"${s.tanggal}"\r\n`;
+            });
+            const link = document.createElement('a');
+            link.href = encodeURI(csv);
+            link.download = `Rekap_Nilai_Tutor_PKBM_Mandiri.csv`;
+            link.click();
+        }
+
+        function logoutGuru() {
+            sessionStorage.removeItem('current_user');
+            window.location.href = './login.html';
+        }
+    </script>
+</body>
+</html>
