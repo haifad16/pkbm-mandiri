@@ -9,6 +9,10 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="./assets/css/style.css">
     <script src="./assets/js/students_data.js?v=20261117_5"></script>
+    <!-- Firebase Cloud Firestore SDK for Live Cross-Device Sync -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="./assets/js/firebase-config.js?v=20261117_1"></script>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen flex antialiased font-sans">
 
@@ -296,10 +300,18 @@
             <div id="section-pendaftar" class="space-y-6 hidden">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
-                        <h1 class="text-2xl font-black text-slate-900">Pendaftar Murid Baru (PPDB Online)</h1>
-                        <p class="text-xs text-slate-500 mt-0.5">Daftar calon murid yang baru saja mendaftar secara online melalui formulir website.</p>
+                        <div class="flex items-center gap-3">
+                            <h1 class="text-2xl font-black text-slate-900">Pendaftar Murid Baru (PPDB Online)</h1>
+                            <span id="cloud-sync-badge" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 flex items-center gap-1.5 border border-emerald-200">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Cloud Real-Time Sync
+                            </span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-0.5">Daftar calon murid yang mendaftar via HP/komputer tersinkronisasi otomatis via Cloud Firestore.</p>
                     </div>
                     <div class="flex flex-wrap gap-2">
+                        <button onclick="promptInputPendaftarWa()" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow transition">
+                            <i class="bi bi-whatsapp"></i> Input Cepat Calon dari WA
+                        </button>
                         <button onclick="exportPpdbToExcel()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow transition">
                             <i class="bi bi-file-earmark-excel"></i> Ekspor Rekap PPDB
                         </button>
@@ -1022,37 +1034,79 @@
             window.open('./siswa.html', '_blank');
         }
 
-        // ==================== PPDB ONLINE HANDLER ====================
+        // ==================== PPDB ONLINE HANDLER (REAL-TIME CLOUD) ====================
+        let currentPendaftarList = [];
+        let ppdbRealtimeUnsubscribe = null;
+
         function loadPendaftar() {
-            const list = JSON.parse(localStorage.getItem('pkbm_pendaftar') || '[]');
+            // Jika listener belum aktif, aktifkan listener real-time Cloud Firestore
+            if (window.listenPendaftarRealtime && !ppdbRealtimeUnsubscribe) {
+                ppdbRealtimeUnsubscribe = window.listenPendaftarRealtime((list, mode) => {
+                    currentPendaftarList = list || [];
+                    renderPendaftarTable(currentPendaftarList, mode);
+                });
+            } else {
+                const list = JSON.parse(localStorage.getItem('pkbm_pendaftar') || '[]');
+                currentPendaftarList = list;
+                renderPendaftarTable(currentPendaftarList, 'local');
+            }
+        }
+
+        function renderPendaftarTable(list, mode = 'cloud') {
             document.getElementById('badge-ppdb-count').innerText = list.length;
             document.getElementById('dash-total-ppdb').innerText = list.length;
+
+            const badgeSync = document.getElementById('cloud-sync-badge');
+            if (badgeSync) {
+                if (mode === 'cloud') {
+                    badgeSync.className = "px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 flex items-center gap-1.5 border border-emerald-200";
+                    badgeSync.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Cloud Real-Time (${list.length})`;
+                } else {
+                    badgeSync.className = "px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 flex items-center gap-1.5 border border-amber-200";
+                    badgeSync.innerHTML = `<i class="bi bi-hdd"></i> Local Cache (${list.length})`;
+                }
+            }
 
             const tbody = document.getElementById('pendaftar-table-body');
             if (!tbody) return;
 
             if (list.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-400 font-semibold">Belum ada calon pendaftar baru yang masuk.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="py-12 text-center text-slate-400 font-semibold">
+                    <i class="bi bi-inbox text-3xl mb-2 block text-slate-300"></i>
+                    Belum ada calon pendaftar baru yang masuk.<br>
+                    <span class="text-[11px] text-slate-400">Pendaftaran yang dikirim via HP atau Web akan otomatis muncul di sini secara langsung (Real-Time).</span>
+                </td></tr>`;
                 return;
             }
 
             tbody.innerHTML = list.map((p, idx) => `
                 <tr class="hover:bg-slate-50 transition border-b border-slate-100">
-                    <td class="py-3 px-4 font-mono font-bold text-blue-700">${p.no}</td>
-                    <td class="py-3 px-4 font-bold text-slate-900">${p.nama}</td>
-                    <td class="py-3 px-4 font-mono font-semibold">${p.nik}</td>
-                    <td class="py-3 px-4"><span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">${p.paket}</span></td>
-                    <td class="py-3 px-4 font-mono">${p.hp || '-'}</td>
-                    <td class="py-3 px-4 text-slate-500">${p.tanggal}</td>
+                    <td class="py-3 px-4 font-mono font-bold text-blue-700">
+                        <span class="px-2 py-1 bg-blue-50 border border-blue-200 rounded-lg">${p.no}</span>
+                    </td>
+                    <td class="py-3 px-4">
+                        <div class="font-bold text-slate-900">${p.nama}</div>
+                        <div class="text-[10px] text-slate-400">${p.alamat || 'Kec. Mataraman'}</div>
+                    </td>
+                    <td class="py-3 px-4 font-mono font-semibold text-slate-700">${p.nik}</td>
+                    <td class="py-3 px-4">
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                            p.paket === 'Paket A' ? 'bg-amber-100 text-amber-800' :
+                            p.paket === 'Paket B' ? 'bg-blue-100 text-blue-800' : 'bg-emerald-100 text-emerald-800'
+                        }">${p.paket}</span>
+                    </td>
+                    <td class="py-3 px-4 font-mono text-slate-600">${p.hp || '-'}</td>
+                    <td class="py-3 px-4 text-slate-500">${p.tanggal || '-'}</td>
                     <td class="py-3 px-4 text-center">
-                        <div class="inline-flex items-center gap-1">
-                            <button onclick="approveStudent(${idx})" title="Verifikasi &amp; Masukkan ke Data Murid" class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold flex items-center gap-1 shadow">
-                                <i class="bi bi-check-circle"></i> Terima
+                        <div class="inline-flex items-center gap-1.5">
+                            <button onclick="approveStudent(${idx})" title="Verifikasi & Masukkan ke Database Murid Aktif" class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold flex items-center gap-1 shadow transition active:scale-95">
+                                <i class="bi bi-check-circle-fill"></i> Terima
                             </button>
-                            <a href="https://wa.me/${(p.hp || '').replace(/[^0-9]/g, '')}?text=Halo%20${encodeURIComponent(p.nama)},%20kami%20dari%20Panitia%20PPDB%20PKBM%20Mandiri%20Mataraman%20mengonfirmasi%20pendaftaran%20Anda." target="_blank" title="Hubungi Calon Siswa via WA" class="p-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg text-xs font-bold">
+                            ${p.hp ? `
+                            <a href="https://wa.me/${p.hp.replace(/[^0-9]/g, '')}?text=Halo%20${encodeURIComponent(p.nama)},%20kami%20dari%20Panitia%20PPDB%20PKBM%20Mandiri%20Mataraman%20mengonfirmasi%20bahwa%20pendaftaran%20Anda%20(${p.no})%20telah%20kami%20terima." target="_blank" title="Hubungi Calon Siswa via WhatsApp" class="p-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg text-xs font-bold border border-emerald-200">
                                 <i class="bi bi-whatsapp"></i>
-                            </a>
-                            <button onclick="hapusPendaftar(${idx})" title="Tolak &amp; Hapus" class="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg text-xs font-bold">
+                            </a>` : ''}
+                            <button onclick="hapusPendaftar(${idx})" title="Tolak & Hapus" class="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg text-xs font-bold border border-rose-200">
                                 <i class="bi bi-trash"></i>
                             </button>
                         </div>
@@ -1061,16 +1115,15 @@
             `).join('');
         }
 
-        function approveStudent(idx) {
-            let list = JSON.parse(localStorage.getItem('pkbm_pendaftar') || '[]');
-            const p = list[idx];
+        async function approveStudent(idx) {
+            const p = currentPendaftarList[idx];
             if (!p) return;
 
-            // Masukkan ke pangkalan database murid
+            // Buat record murid baru
             const newStudent = {
                 no: allStudents.length + 1,
-                nama: p.nama.toUpperCase(),
-                nik: p.nik,
+                nama: (p.nama || 'CALON SISWA').toUpperCase(),
+                nik: p.nik || '',
                 jk: 'L',
                 nisn: '',
                 tempat_lahir: 'MATARAMAN',
@@ -1080,48 +1133,103 @@
                 hp: p.hp || '',
                 nama_ayah: '',
                 nama_ibu: '',
-                rombel: p.paket + ' Baru',
-                paket: p.paket,
+                rombel: p.paket ? `${p.paket} Baru` : 'Paket C Baru',
+                paket: p.paket || 'Paket C',
                 status: 'aktif'
             };
 
+            // Masukkan ke daftar siswa aktif lokal
             allStudents.unshift(newStudent);
             localStorage.setItem('pkbm_students_custom', JSON.stringify(allStudents));
 
-            // Hapus dari antrean PPDB
-            list.splice(idx, 1);
-            localStorage.setItem('pkbm_pendaftar', JSON.stringify(list));
+            // Hapus dari antrean PPDB Cloud dan Local
+            if (window.terimaPendaftarCloud) {
+                await window.terimaPendaftarCloud(p.no || p.id);
+            }
+            let localList = JSON.parse(localStorage.getItem('pkbm_pendaftar') || '[]');
+            localList = localList.filter(item => item.no !== p.no && item.id !== p.id);
+            localStorage.setItem('pkbm_pendaftar', JSON.stringify(localList));
 
-            alert(`BERHASIL DITERIMA!\nSiswa "${p.nama}" (NIK: ${p.nik}) telah resmi menjadi warga belajar aktif dan langsung bisa login.`);
-            loadPendaftar();
+            alert(`✅ BERHASIL DITERIMA!\n\nSiswa "${p.nama}" (NIK: ${p.nik}) telah resmi menjadi warga belajar aktif di PKBM Mandiri dan sekarang sudah dapat langsung login.`);
             finishLoadStudents();
+            loadPendaftar();
         }
 
-        function hapusPendaftar(idx) {
-            let list = JSON.parse(localStorage.getItem('pkbm_pendaftar') || '[]');
-            if (confirm('Apakah Anda yakin ingin menolak / menghapus pendaftar ini?')) {
-                list.splice(idx, 1);
-                localStorage.setItem('pkbm_pendaftar', JSON.stringify(list));
+        async function hapusPendaftar(idx) {
+            const p = currentPendaftarList[idx];
+            if (!p) return;
+            if (confirm(`Apakah Anda yakin ingin menolak atau menghapus pendaftaran atas nama "${p.nama}" (${p.no})?`)) {
+                if (window.hapusPendaftarCloud) {
+                    await window.hapusPendaftarCloud(p.no || p.id);
+                }
+                let localList = JSON.parse(localStorage.getItem('pkbm_pendaftar') || '[]');
+                localList = localList.filter(item => item.no !== p.no && item.id !== p.id);
+                localStorage.setItem('pkbm_pendaftar', JSON.stringify(localList));
                 loadPendaftar();
             }
         }
 
+        async function promptInputPendaftarWa() {
+            const textWa = prompt("Masukkan pesan / Nomor Registrasi pendaftar dari WhatsApp:\n(Contoh: REG-800786 atau Nama Calon Siswa)");
+            if (!textWa) return;
+
+            const nama = prompt("Nama Lengkap Calon Siswa:", "Agus") || "Calon Siswa";
+            const nik = prompt("16 Digit NIK Resmi:", "0000000000000000") || "0000000000000000";
+            const paket = prompt("Program Paket (Paket A / Paket B / Paket C):", "Paket C") || "Paket C";
+            const hp = prompt("No. WhatsApp / HP:", "081255974191") || "";
+
+            const regNo = textWa.startsWith("REG-") ? textWa.trim() : ('REG-' + Math.floor(100000 + Math.random() * 900000));
+            const tgl = new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+
+            const newApp = {
+                no: regNo,
+                nama: nama,
+                nik: nik,
+                paket: paket,
+                tanggal: tgl,
+                hp: hp,
+                alamat: "Mataraman, Kab. Banjar",
+                status: "pendaftar_baru"
+            };
+
+            if (window.simpanPendaftarOnline) {
+                await window.simpanPendaftarOnline(newApp);
+            }
+            alert(`Pendaftar "${nama}" (${regNo}) berhasil ditambahkan dan disinkronkan ke Cloud!`);
+            loadPendaftar();
+        }
+
         function exportPpdbToExcel() {
-            const list = JSON.parse(localStorage.getItem('pkbm_pendaftar') || '[]');
+            const list = currentPendaftarList.length > 0 ? currentPendaftarList : JSON.parse(localStorage.getItem('pkbm_pendaftar') || '[]');
             if (list.length === 0) {
                 alert('Belum ada data pendaftar baru untuk diekspor.');
                 return;
             }
             let csv = "data:text/csv;charset=utf-8,No. Registrasi,Nama,NIK,Program,No HP,Tanggal,Status\r\n";
             list.forEach(p => {
-                csv += `"${p.no}","${p.nama}","'${p.nik}","${p.paket}","'${p.hp}","${p.tanggal}","Menunggu Verifikasi"\r\n`;
+                csv += `"${p.no}","${p.nama}","'${p.nik}","${p.paket}","'${p.hp || ''}","${p.tanggal}","Menunggu Verifikasi"\r\n`;
             });
             downloadCsv(csv, "Rekap_PPDB_Online_PKBM_Mandiri.csv");
         }
 
-        // ==================== MASTER CBT UJIAN & NILAI ====================
+        // ==================== MASTER CBT UJIAN & NILAI (REAL-TIME CLOUD) ====================
+        let masterScoresUnsubscribe = null;
+        let currentMasterScores = [];
+
         function loadMasterScores() {
-            const scores = JSON.parse(localStorage.getItem('pkbm_master_scores') || '[]');
+            if (window.listenNilaiUjianRealtime && !masterScoresUnsubscribe) {
+                masterScoresUnsubscribe = window.listenNilaiUjianRealtime((scores) => {
+                    currentMasterScores = scores;
+                    renderMasterScores(currentMasterScores);
+                });
+            } else {
+                const scores = JSON.parse(localStorage.getItem('pkbm_master_scores') || '[]');
+                currentMasterScores = scores;
+                renderMasterScores(currentMasterScores);
+            }
+        }
+
+        function renderMasterScores(scores) {
             const tbody = document.getElementById('master-scores-body');
             if (!tbody) return;
 

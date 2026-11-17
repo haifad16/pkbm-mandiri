@@ -160,6 +160,19 @@
 
         // Fungsi Memastikan Data Murid Tersedia
         async function ensureStudentsLoaded() {
+            // Prioritas 1: Custom local storage hasil CRUD admin / penerimaan PPDB
+            const localCustom = localStorage.getItem('pkbm_students_custom');
+            if (localCustom) {
+                try {
+                    const parsed = JSON.parse(localCustom);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        allStudents = parsed;
+                        updateBadge();
+                        return allStudents;
+                    }
+                } catch(e) {}
+            }
+
             if (allStudents.length > 0) {
                 updateBadge();
                 return allStudents;

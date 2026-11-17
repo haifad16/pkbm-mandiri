@@ -334,6 +334,11 @@
         </div>
     </main>
 
+    <!-- Firebase Cloud Firestore SDK for Live Cross-Device Sync -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="./assets/js/firebase-config.js?v=20261117_1"></script>
+
     <script>
         function togglePaketRule(paket) {
             const notice = document.getElementById('paket-a-notice');
@@ -342,8 +347,13 @@
             }
         }
 
-        document.getElementById('ppdb-form').addEventListener('submit', function(e) {
+        document.getElementById('ppdb-form').addEventListener('submit', async function(e) {
             e.preventDefault();
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalBtnHtml = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<i class="bi bi-arrow-repeat animate-spin"></i> <span>Mengirim Data ke Server...</span>`;
+
             const formData = new FormData(this);
             const nama = formData.get('nama');
             const nik = formData.get('nik');
@@ -351,21 +361,26 @@
             const nodaftar = 'REG-' + Math.floor(100000 + Math.random() * 900000);
             const tgl = new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
 
-            // Simpan pendaftar baru ke local list
+            // Data pendaftar baru
             const newApplicant = {
                 no: nodaftar,
                 nama: nama,
                 nik: nik,
                 paket: paket,
                 tanggal: tgl,
-                hp: formData.get('hp'),
-                alamat: formData.get('alamat'),
+                hp: formData.get('hp') || '',
+                alamat: formData.get('alamat') || '',
                 status: 'pendaftar_baru'
             };
 
-            let pendaftarList = JSON.parse(localStorage.getItem('pkbm_pendaftar') || '[]');
-            pendaftarList.unshift(newApplicant);
-            localStorage.setItem('pkbm_pendaftar', JSON.stringify(pendaftarList));
+            // Simpan ke Cloud Firestore (Real-Time Cloud Database) dan LocalStorage fallback
+            if (window.simpanPendaftarOnline) {
+                await window.simpanPendaftarOnline(newApplicant);
+            } else {
+                let pendaftarList = JSON.parse(localStorage.getItem('pkbm_pendaftar') || '[]');
+                pendaftarList.unshift(newApplicant);
+                localStorage.setItem('pkbm_pendaftar', JSON.stringify(pendaftarList));
+            }
 
             // Tampilkan hasil
             document.getElementById('form-container').classList.add('hidden');

@@ -1,0 +1,17 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // PPDB Online registrations: read and write enabled for live cross-device sync
+    match /pendaftar/{docId} {
+      allow read, write: if true;
+    }
+    // Exam score submissions & CBT records
+    match /nilai_ujian/{docId} {
+      allow read, write: if true;
+    }
+    // General collection fallback
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}

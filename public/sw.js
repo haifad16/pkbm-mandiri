@@ -14,6 +14,10 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  // Pass through Firebase & Firestore cloud API calls immediately
+  if (event.request.url.includes('firestore.googleapis.com') || event.request.url.includes('firebase') || event.request.url.includes('googleapis.com')) {
+    return;
+  }
   // Always go to network first, no stale caching for data or html
   if (event.request.method === 'GET') {
     event.respondWith(
