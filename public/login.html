@@ -84,13 +84,13 @@
                     </span>
                 </div>
                 <div class="flex items-center gap-2">
-                    <div class="relative bg-slate-100 border border-slate-300 rounded-xl overflow-hidden shadow-inner flex items-center justify-center p-1 select-none">
-                        <canvas id="captcha-canvas-siswa" width="130" height="44" class="cursor-pointer" onclick="generateCaptcha('siswa')" title="Klik untuk ganti angka"></canvas>
+                    <div class="shrink-0 relative bg-slate-100 border border-slate-300 rounded-xl overflow-hidden shadow-inner flex items-center justify-center select-none w-32 h-11">
+                        <canvas id="captcha-canvas-siswa" width="128" height="42" class="cursor-pointer block w-full h-full" onclick="generateCaptcha('siswa')" title="Klik untuk ganti angka"></canvas>
                     </div>
-                    <button type="button" onclick="generateCaptcha('siswa')" class="p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl transition" title="Ganti Angka Baru">
+                    <button type="button" onclick="generateCaptcha('siswa')" class="shrink-0 p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl transition flex items-center justify-center w-11 h-11" title="Ganti Angka Baru">
                         <i class="bi bi-arrow-clockwise text-base"></i>
                     </button>
-                    <input type="tel" inputmode="numeric" id="captcha-input-siswa" maxlength="4" required oninput="checkCaptchaLive('siswa')" placeholder="4 Angka" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-base font-mono font-black tracking-widest text-center focus:ring-2 focus:ring-blue-500 outline-none transition">
+                    <input type="tel" inputmode="numeric" id="captcha-input-siswa" maxlength="4" required oninput="checkCaptchaLive('siswa')" placeholder="4 Angka" class="flex-1 min-w-0 px-3 py-2.5 rounded-xl border border-slate-300 text-base font-mono font-black tracking-widest text-center focus:ring-2 focus:ring-blue-500 outline-none transition h-11">
                 </div>
                 <p class="text-[10px] text-slate-400">Ketik 4 angka pada kotak verifikasi di atas.</p>
             </div>
@@ -133,13 +133,13 @@
                     </span>
                 </div>
                 <div class="flex items-center gap-2">
-                    <div class="relative bg-slate-100 border border-slate-300 rounded-xl overflow-hidden shadow-inner flex items-center justify-center p-1 select-none">
-                        <canvas id="captcha-canvas-staff" width="130" height="44" class="cursor-pointer" onclick="generateCaptcha('staff')" title="Klik untuk ganti angka"></canvas>
+                    <div class="shrink-0 relative bg-slate-100 border border-slate-300 rounded-xl overflow-hidden shadow-inner flex items-center justify-center select-none w-32 h-11">
+                        <canvas id="captcha-canvas-staff" width="128" height="42" class="cursor-pointer block w-full h-full" onclick="generateCaptcha('staff')" title="Klik untuk ganti angka"></canvas>
                     </div>
-                    <button type="button" onclick="generateCaptcha('staff')" class="p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl transition" title="Ganti Angka Baru">
+                    <button type="button" onclick="generateCaptcha('staff')" class="shrink-0 p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl transition flex items-center justify-center w-11 h-11" title="Ganti Angka Baru">
                         <i class="bi bi-arrow-clockwise text-base"></i>
                     </button>
-                    <input type="tel" inputmode="numeric" id="captcha-input-staff" maxlength="4" required oninput="checkCaptchaLive('staff')" placeholder="4 Angka" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-base font-mono font-black tracking-widest text-center focus:ring-2 focus:ring-blue-500 outline-none transition">
+                    <input type="tel" inputmode="numeric" id="captcha-input-staff" maxlength="4" required oninput="checkCaptchaLive('staff')" placeholder="4 Angka" class="flex-1 min-w-0 px-3 py-2.5 rounded-xl border border-slate-300 text-base font-mono font-black tracking-widest text-center focus:ring-2 focus:ring-blue-500 outline-none transition h-11">
                 </div>
                 <p class="text-[10px] text-slate-400">Ketik 4 angka pada kotak verifikasi di atas.</p>
             </div>
@@ -379,23 +379,22 @@
 
             // Gambar 4 angka dengan font besar, jelas, dan kontras tinggi
             const fontColors = ['#1e3a8a', '#065f46', '#9a3412', '#4c1d95', '#0f172a', '#1e40af'];
-            const startX = 20;
-            const spacing = 28;
+            const cellWidth = width / 4;
 
             for (let i = 0; i < 4; i++) {
                 const char = code.charAt(i);
                 ctx.save();
 
-                const x = startX + (i * spacing);
-                const y = height / 2 + 1;
+                const x = (i + 0.5) * cellWidth;
+                const y = height / 2;
 
                 ctx.translate(x, y);
 
-                // Sedikit kemiringan acak (-5 sampai +5 derajat saja agar tetap tegak dan mudah dibaca)
-                const angle = (Math.random() * 10 - 5) * Math.PI / 180;
+                // Sedikit kemiringan acak (-4 sampai +4 derajat saja agar tetap tegak dan tidak terpotong)
+                const angle = (Math.random() * 8 - 4) * Math.PI / 180;
                 ctx.rotate(angle);
 
-                ctx.font = 'bold 24px "Segoe UI", Arial, sans-serif';
+                ctx.font = 'bold 22px "Segoe UI", Arial, sans-serif';
                 ctx.fillStyle = fontColors[Math.floor(Math.random() * fontColors.length)];
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
@@ -420,19 +419,19 @@
             if (val.length === 0) {
                 badge.innerHTML = `<i class="bi bi-shield-check"></i> Verifikasi`;
                 badge.className = "text-[11px] font-bold text-slate-400 flex items-center gap-1";
-                input.className = "w-full px-3 py-2.5 rounded-xl border border-slate-300 text-base font-mono font-black tracking-widest text-center focus:ring-2 focus:ring-blue-500 outline-none transition";
+                input.className = "flex-1 min-w-0 px-3 py-2.5 rounded-xl border border-slate-300 text-base font-mono font-black tracking-widest text-center focus:ring-2 focus:ring-blue-500 outline-none transition h-11";
             } else if (val === currentCaptcha[type]) {
                 badge.innerHTML = `<i class="bi bi-check-circle-fill text-emerald-500"></i> Cocok (Aman)`;
                 badge.className = "text-[11px] font-bold text-emerald-600 flex items-center gap-1";
-                input.className = "w-full px-3 py-2.5 rounded-xl border-2 border-emerald-500 bg-emerald-50/50 text-emerald-800 text-base font-mono font-black tracking-widest text-center outline-none transition";
+                input.className = "flex-1 min-w-0 px-3 py-2.5 rounded-xl border-2 border-emerald-500 bg-emerald-50/50 text-emerald-800 text-base font-mono font-black tracking-widest text-center outline-none transition h-11";
             } else if (val.length === 4) {
                 badge.innerHTML = `<i class="bi bi-x-circle-fill text-rose-500"></i> Belum Sesuai`;
                 badge.className = "text-[11px] font-bold text-rose-600 flex items-center gap-1";
-                input.className = "w-full px-3 py-2.5 rounded-xl border-2 border-rose-400 bg-rose-50/50 text-rose-800 text-base font-mono font-black tracking-widest text-center outline-none transition";
+                input.className = "flex-1 min-w-0 px-3 py-2.5 rounded-xl border-2 border-rose-400 bg-rose-50/50 text-rose-800 text-base font-mono font-black tracking-widest text-center outline-none transition h-11";
             } else {
                 badge.innerHTML = `<span>${val.length}/4 angka</span>`;
                 badge.className = "text-[11px] font-medium text-slate-400 flex items-center gap-1";
-                input.className = "w-full px-3 py-2.5 rounded-xl border border-slate-300 text-base font-mono font-black tracking-widest text-center focus:ring-2 focus:ring-blue-500 outline-none transition";
+                input.className = "flex-1 min-w-0 px-3 py-2.5 rounded-xl border border-slate-300 text-base font-mono font-black tracking-widest text-center focus:ring-2 focus:ring-blue-500 outline-none transition h-11";
             }
         }
 
