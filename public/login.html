@@ -41,11 +41,16 @@
         </div>
 
         <!-- Lockout Notice (Brute-Force Protection) -->
-        <div id="lockout-box" class="hidden p-4 bg-amber-50 border border-amber-200 rounded-2xl text-xs text-amber-800 space-y-1">
+        <div id="lockout-box" class="hidden p-4 bg-amber-50 border border-amber-200 rounded-2xl text-xs text-amber-800 space-y-2">
             <div class="font-bold flex items-center gap-1.5 text-amber-900">
                 <i class="bi bi-lock-fill text-base"></i> Akun Sementara Terkunci Demi Keamanan
             </div>
-            <div>Terlalu banyak percobaan gagal. Silakan tunggu <span id="lockout-timer" class="font-black text-rose-600">300</span> detik lagi sebelum mencoba kembali.</div>
+            <div>Terlalu banyak percobaan gagal. Silakan tunggu <span id="lockout-timer" class="font-black text-rose-600">60</span> detik lagi sebelum mencoba kembali.</div>
+            <div class="pt-1">
+                <button type="button" onclick="resetFailedAttempts(); document.getElementById('lockout-box').classList.add('hidden'); document.getElementById('btn-login-siswa').disabled=false; document.getElementById('btn-login-staff').disabled=false; document.getElementById('login-error').classList.add('hidden');" class="px-3 py-1.5 bg-amber-200 hover:bg-amber-300 text-amber-900 font-bold rounded-lg text-xs transition inline-flex items-center gap-1.5 shadow-sm">
+                    <i class="bi bi-unlock-fill"></i> Buka Kunci Sekarang
+                </button>
+            </div>
         </div>
 
         <!-- Form 1: Login Siswa via NIK -->
@@ -146,7 +151,7 @@
             let fails = parseInt(localStorage.getItem('pkbm_login_fails') || '0') + 1;
             localStorage.setItem('pkbm_login_fails', fails);
             if (fails >= 5) {
-                localStorage.setItem('pkbm_lockout_until', Date.now() + 300000); // 5 menit lockout
+                localStorage.setItem('pkbm_lockout_until', Date.now() + 60000); // 1 menit lockout
                 localStorage.removeItem('pkbm_login_fails');
                 checkLockout();
             }
@@ -191,15 +196,16 @@
             e.preventDefault();
             if (checkLockout()) return;
 
-            const nik = document.getElementById('nik-input').value.trim();
+            const rawInput = document.getElementById('nik-input').value.trim();
+            const nik = rawInput.replace(/[^0-9]/g, '');
             const err = document.getElementById('login-error');
             const errMsg = document.getElementById('login-error-msg');
 
             // Cek di allStudents atau localStorage pendaftar
-            let found = allStudents.find(s => s.nik === nik);
+            let found = allStudents.find(s => (s.nik && s.nik.replace(/[^0-9]/g, '') === nik) || s.nik === rawInput);
             if (!found) {
                 let pendaftarList = JSON.parse(localStorage.getItem('pkbm_pendaftar') || '[]');
-                found = pendaftarList.find(s => s.nik === nik);
+                found = pendaftarList.find(s => (s.nik && s.nik.replace(/[^0-9]/g, '') === nik) || s.nik === rawInput);
             }
 
             if (found) {
