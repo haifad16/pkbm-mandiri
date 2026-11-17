@@ -1112,7 +1112,7 @@ KUNCI JAWABAN:
             });
         }
 
-        // SMART EXAM TEXT PARSER ALGORITHM
+        // SMART EXAM TEXT PARSER ALGORITHM (VERSI CERDAS & PRESISI)
         function parseExamText(rawText) {
             if (!rawText) return { questions: [], meta: {} };
 
@@ -1120,68 +1120,159 @@ KUNCI JAWABAN:
 
             // 0. Ekstrak Metadata (Judul, Mapel, Paket, Kelas, Durasi)
             const meta = {};
-            const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-            if (lines.length > 0 && !lines[0].includes(':') && !/^\s*(?:Soal\s+|No\.?\s*)?\d+[\.\)\:\–\—\-]/i.test(lines[0])) {
-                meta.judul = lines[0].replace(/^[#*=\-\s]+|[#*=\-\s]+$/g, '').trim();
-            }
-
-            const mapelMatch = text.match(/(?:Mata\s*Pelajaran|Mapel)\s*[:=-]\s*([^\n\r]+)/i);
+            const mapelMatch = text.match(/(?:Mata\s*Pelajaran|Mapel)\s*[:=-]\s*([^\n\r|]+)/i);
             if (mapelMatch) meta.mapel = mapelMatch[1].trim();
 
-            const paketMatch = text.match(/(?:Program\s*Paket|Paket)\s*[:=-]?\s*([A-Ca-c])\b/i);
+            const paketMatch = text.match(/(?:Tingkatan\s*\/\s*Kelas|Program\s*Pendidikan|Program\s*Paket|Paket)\s*[:=-]?\s*([A-Ca-c])\b/i);
             if (paketMatch) meta.paket = 'Paket ' + paketMatch[1].toUpperCase();
 
-            const kelasMatch = text.match(/(?:Kelas|Tingkat)\s*[:=-]\s*(\d+|Semua\s*Kelas|[IVXLCDM]+)/i);
+            const kelasMatch = text.match(/(?:Kelas|Tingkat)\s*[:=-]?\s*(\d+|XI|XII|X|Semua\s*Kelas|[IVXLCDM]+)/i);
             if (kelasMatch) meta.kelas = kelasMatch[1].trim();
 
-            const durasiMatch = text.match(/(?:Waktu|Durasi)\s*[:=-]\s*(\d+)\s*(?:menit)?/i);
+            const durasiMatch = text.match(/(?:Alokasi\s*Waktu|Waktu|Durasi)\s*[:=-]\s*(\d+)\s*(?:menit)?/i);
             if (durasiMatch) meta.durasi = parseInt(durasiMatch[1]);
 
-            if (!meta.judul) {
-                const titleMatch = text.match(/^(?:Judul\s*Ujian|Asesmen|Ujian|Penilaian\s*Akhir[^\n]*)\s*[:=-]?\s*([^\n\r]+)/mi);
-                if (titleMatch) meta.judul = titleMatch[1].trim();
-            }
+            const titleMatch = text.match(/^(?:PENILAIAN[^\n]*|UJIAN[^\n]*|EVALUASI[^\n]*|ASESMEN[^\n]*)/im);
+            if (titleMatch) meta.judul = titleMatch[0].replace(/\|.*$/g, '').trim();
 
-            // 1. Ekstrak Kunci Jawaban di Blok Khusus (di akhir dokumen)
+            // 1. Potong KUNCI JAWABAN & PEDOMAN PENSKORAN di Bagian Akhir Dokumen
             const separateKeys = {};
-            const keyBlockMatch = text.match(/(?:^|\n)\s*(?:[=\-*#]+\s*)?(?:KUNCI\s+JAWABAN|KUNCI\s+SOAL|DAFTAR\s+KUNCI|KUNCI)(?:[=\-*#\s:]*)\n([\s\S]*)$/i);
+            const separateRubrik = {};
+
+            const keyBlockRegex = /(?:^|\n)\s*(?:[=\-*#|]+\s*)?(?:KUNCI\s+JAWABAN|KUNCI\s+SOAL|DAFTAR\s+KUNCI|PEDOMAN\s+PENSKORAN|KUNCI\s*[:=-])[^\n]*\n([\s\S]*)$/i;
+            const keyBlockMatch = text.match(keyBlockRegex);
             let mainExamText = text;
+
             if (keyBlockMatch) {
                 const keyBlock = keyBlockMatch[1];
                 mainExamText = text.substring(0, keyBlockMatch.index).trim();
-                const keyItemMatches = keyBlock.matchAll(/(?:^|\s|[,\n|;])(\d+)[\s.:=\)-]+([A-Ea-e])(?:\s|[,\n|;]|$)/g);
+
+                // 1a. Ekstrak kunci PG dari format tabel (| 1. B |) atau daftar (1. B)
+                const keyItemMatches = keyBlock.matchAll(/(?:^|[\s,\n|;])(\d+)[\s.:=\)-]+([A-Ea-e])(?=[\s,\n|;]|$)/gi);
                 for (const km of keyItemMatches) {
                     separateKeys[parseInt(km[1])] = km[2].toUpperCase();
                 }
+
+                // 1b. Ekstrak pedoman jawaban uraian / rubrik esai
+                const essayRubrikMatch = keyBlock.match(/(?:Pedoman\s+Jawaban\s+Uraian|Pedoman\s+Uraian|Rubrik\s+Esai|Pedoman\s+Penskoran\s+Esai)[^\n]*\n([\s\S]*)$/i);
+                if (essayRubrikMatch) {
+                    const rubrikText = essayRubrikMatch[1];
+                    const rubrikItems = rubrikText.matchAll(/(?:^|\n)\s*(\d+)[\.\)\:\-]\s+([\s\S]*?)(?=(?:\n\s*\d+[\.\)\:\-]|\n\s*Catatan|\n\s*$|$))/gi);
+                    for (const rm of rubrikItems) {
+                        separateRubrik[parseInt(rm[1])] = rm[2].trim();
+                    }
+                }
             }
 
-            // 2. Pisahkan Soal Berdasarkan Nomor (1., 1), No. 1, Soal 1, dll)
-            const splitRegex = /(?:^|\n)\s*(?:Soal\s+|No\.?\s*)?(\d+)[\.\)\:\–\—\-]\s+/gi;
-            let match;
-            const indices = [];
-            while ((match = splitRegex.exec(mainExamText)) !== null) {
-                indices.push({
-                    num: parseInt(match[1]),
-                    index: match.index,
-                    matchLength: match[0].length
-                });
+            // 2. Abaikan petunjuk umum / header di awal sebelum butir soal nomor 1 dimulai
+            let examStartIdx = 0;
+            const sectionHeadingMatch = mainExamText.match(/(?:^|\n)\s*(?:[A-I]\.\s*)?(?:PILIHAN\s+GANDA|SOAL\s+PILIHAN\s+GANDA)[^\n]*/i);
+            if (sectionHeadingMatch) {
+                examStartIdx = sectionHeadingMatch.index + sectionHeadingMatch[0].length;
+            } else {
+                const allOnes = mainExamText.matchAll(/(?:^|\n)\s*(?:Soal\s+|No\.?\s*)?1[\.\:\–\—\-]\s+/gi);
+                for (const one of allOnes) {
+                    const snippet = mainExamText.substring(one.index, one.index + 1000);
+                    if (/(?:^|\n|\s{2,}|\t)\s*[\(\[]?A[\.\)\]]\s+/i.test(snippet)) {
+                        examStartIdx = one.index;
+                        break;
+                    }
+                }
             }
 
-            const questionBlocks = [];
-            for (let i = 0; i < indices.length; i++) {
-                const start = indices[i].index + indices[i].matchLength;
-                const end = (i + 1 < indices.length) ? indices[i + 1].index : mainExamText.length;
-                const blockText = mainExamText.substring(start, end).trim();
-                questionBlocks.push({
-                    num: indices[i].num,
-                    rawText: blockText
-                });
+            const examContentText = mainExamText.substring(examStartIdx).trim();
+
+            // 3. Pisahkan bagian URAIAN / ESSAY jika ada penanda bagian "B. URAIAN / ESSAY"
+            let pgSectionText = examContentText;
+            let essaySectionText = '';
+
+            const essaySectionMatch = examContentText.match(/(?:^|\n)\s*(?:[A-I]\.\s*)?(?:URAIAN|ESSAY|SOAL\s+URAIAN|SOAL\s+ESSAY)[^\n]*\n([\s\S]*)$/i);
+            if (essaySectionMatch) {
+                pgSectionText = examContentText.substring(0, essaySectionMatch.index).trim();
+                essaySectionText = essaySectionMatch[1].trim();
             }
 
-            // 3. Ekstrak Pertanyaan, Opsi A-D/E, & Kunci
+            // Smart splitter untuk PG:
+            // Mencegah rincian teks bacaan seperti (1) Siapkan, 1) aktifitas terdeteksi sebagai soal baru!
+            function splitPgQuestions(sectionText) {
+                const splitRegex = /(?:^|\n)\s*(?:Soal\s+|No\.?\s*)?(\d+)[\.\:\–\—\-]\s+/gi;
+                let m;
+                const candidates = [];
+                while ((m = splitRegex.exec(sectionText)) !== null) {
+                    candidates.push({
+                        num: parseInt(m[1]),
+                        index: m.index,
+                        matchLength: m[0].length
+                    });
+                }
+
+                const validIndices = [];
+                let expectedNum = 1;
+                for (let i = 0; i < candidates.length; i++) {
+                    const c = candidates[i];
+                    const nextIdx = (i + 1 < candidates.length) ? candidates[i + 1].index : sectionText.length;
+                    const snippet = sectionText.substring(c.index, nextIdx);
+                    const hasOptions = /(?:^|\n|\s{2,}|\t)\s*[\(\[]?[A-Ca-c][\.\)\]]\s+/.test(snippet);
+
+                    // Nomor valid jika berurutan atau jika memiliki pilihan opsi A, B, C
+                    if (c.num === expectedNum || hasOptions || c.num === expectedNum + 1) {
+                        validIndices.push(c);
+                        expectedNum = c.num + 1;
+                    }
+                }
+
+                const blocks = [];
+                for (let i = 0; i < validIndices.length; i++) {
+                    const start = validIndices[i].index + validIndices[i].matchLength;
+                    const end = (i + 1 < validIndices.length) ? validIndices[i + 1].index : sectionText.length;
+                    const blockText = sectionText.substring(start, end).trim();
+                    blocks.push({
+                        num: validIndices[i].num,
+                        rawText: blockText
+                    });
+                }
+                return blocks;
+            }
+
+            function splitEssayQuestions(sectionText) {
+                const splitRegex = /(?:^|\n)\s*(?:Soal\s+|No\.?\s*)?(\d+)[\.\)\:\–\—\-]\s+/gi;
+                let m;
+                const candidates = [];
+                while ((m = splitRegex.exec(sectionText)) !== null) {
+                    candidates.push({
+                        num: parseInt(m[1]),
+                        index: m.index,
+                        matchLength: m[0].length
+                    });
+                }
+                const validIndices = [];
+                let expected = 1;
+                for (const c of candidates) {
+                    if (c.num === expected || c.num === expected + 1) {
+                        validIndices.push(c);
+                        expected = c.num + 1;
+                    }
+                }
+                const blocks = [];
+                for (let i = 0; i < validIndices.length; i++) {
+                    const start = validIndices[i].index + validIndices[i].matchLength;
+                    const end = (i + 1 < validIndices.length) ? validIndices[i + 1].index : sectionText.length;
+                    const blockText = sectionText.substring(start, end).trim();
+                    blocks.push({
+                        num: validIndices[i].num,
+                        rawText: blockText
+                    });
+                }
+                return blocks;
+            }
+
+            const pgBlocks = splitPgQuestions(pgSectionText);
+            const essayBlocks = essaySectionText ? splitEssayQuestions(essaySectionText) : [];
+
             const parsedQuestions = [];
+            let globalCounter = 0;
 
-            for (const q of questionBlocks) {
+            for (const q of pgBlocks) {
                 let b = q.rawText;
                 let kunci = separateKeys[q.num] || '';
 
@@ -1192,7 +1283,7 @@ KUNCI JAWABAN:
                     b = b.replace(/(?:KUNCI\s+JAWABAN|KUNCI|JAWABAN\s+BENAR|JAWABAN)\s*[:=\-]\s*[A-Ea-e][\.\)]?/gi, '').trim();
                 }
 
-                // Cek apakah ada opsi bertanda (*A. atau [x] A. atau A. (kunci))
+                // Cek opsi bertanda (*A. atau [x] A.)
                 const markedOptionMatch = b.match(/(?:[\*✓]|\[[xX]\])\s*([A-Ea-e])[\.\)]|([A-Ea-e])[\.\)][^\n\r]*\((?:kunci|benar)\)/i);
                 if (markedOptionMatch && !kunci) {
                     kunci = (markedOptionMatch[1] || markedOptionMatch[2]).toUpperCase();
@@ -1210,6 +1301,9 @@ KUNCI JAWABAN:
                     });
                 }
 
+                globalCounter++;
+                const displayNo = globalCounter;
+
                 if (optIndices.length >= 2) {
                     const pertanyaan = b.substring(0, optIndices[0].index).trim();
                     const options = { A: '', B: '', C: '', D: '', E: '' };
@@ -1224,9 +1318,10 @@ KUNCI JAWABAN:
                     }
 
                     parsedQuestions.push({
-                        no: q.num,
+                        no: displayNo,
+                        origNo: q.num,
                         jenis: 'pg',
-                        pertanyaan: pertanyaan || ('Soal nomor ' + q.num),
+                        pertanyaan: pertanyaan || ('Soal nomor ' + displayNo),
                         opsi_a: options.A || '',
                         opsi_b: options.B || '',
                         opsi_c: options.C || '',
@@ -1236,15 +1331,32 @@ KUNCI JAWABAN:
                     });
                 } else {
                     parsedQuestions.push({
-                        no: q.num,
+                        no: displayNo,
+                        origNo: q.num,
                         jenis: 'esai',
-                        pertanyaan: b || ('Pertanyaan esai nomor ' + q.num),
-                        rubrik: 'Koreksi mandiri oleh guru'
+                        pertanyaan: b || ('Pertanyaan esai nomor ' + displayNo),
+                        rubrik: separateRubrik[q.num] || 'Koreksi mandiri oleh guru'
                     });
                 }
             }
 
-            return { meta, questions: parsedQuestions };
+            // Bagian Esai / Uraian
+            for (const q of essayBlocks) {
+                globalCounter++;
+                parsedQuestions.push({
+                    no: globalCounter,
+                    origNo: q.num,
+                    jenis: 'esai',
+                    pertanyaan: q.rawText || ('Pertanyaan esai nomor ' + globalCounter),
+                    rubrik: separateRubrik[q.num] || 'Koreksi mandiri oleh guru'
+                });
+            }
+
+            return {
+                meta,
+                questions: parsedQuestions,
+                totalKeys: Object.keys(separateKeys).length
+            };
         }
 
         function parseAndDisplaySmartResults(rawText) {
