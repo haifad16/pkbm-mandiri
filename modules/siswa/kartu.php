@@ -55,9 +55,7 @@ require_once BASE_PATH . '/includes/admin_header.php';
             <!-- Header Kartu -->
             <div class="flex items-center justify-between border-b border-blue-800/60 pb-3 mb-5">
                 <div class="flex items-center gap-3">
-                    <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white text-2xl font-bold shadow-md">
-                        <i class="bi bi-mortarboard-fill"></i>
-                    </div>
+                    <img src="<?= BASE_URL ?>/assets/img/logo.jpg" alt="Logo PKBM Mandiri" class="w-12 h-12 object-contain rounded-xl bg-white p-0.5 shadow-md">
                     <div>
                         <div class="text-[10px] font-bold text-blue-300 tracking-widest uppercase">KARTU TANDA PELAJAR</div>
                         <div class="text-sm sm:text-base font-black tracking-tight text-white uppercase leading-none mt-0.5">

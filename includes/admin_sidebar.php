@@ -29,9 +29,7 @@ function isNavActive($pathPart, $currentScript) {
     <!-- Sidebar Header -->
     <div class="h-16 flex items-center justify-between px-5 border-b border-slate-200">
         <a href="<?= BASE_URL ?>/index.php" class="flex items-center gap-2.5">
-            <div class="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center text-white text-lg font-bold">
-                <i class="bi bi-mortarboard-fill"></i>
-            </div>
+            <img src="<?= BASE_URL ?>/assets/img/logo.jpg" alt="Logo PKBM Mandiri" class="w-9 h-9 object-contain rounded-lg bg-white p-0.5 shadow border border-slate-200">
             <div>
                 <div class="font-extrabold text-sm text-slate-900 leading-tight">PKBM MANDIRI</div>
                 <div class="text-[10px] text-slate-500 font-semibold tracking-wider uppercase">Panel <?= ucfirst($role) ?></div>

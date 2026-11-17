@@ -16,6 +16,7 @@ $waNumber = getSetting('whatsapp', APP_WHATSAPP);
     
     <!-- PWA Meta -->
     <link rel="manifest" href="<?= BASE_URL ?>/assets/manifest.json">
+    <link rel="icon" type="image/jpeg" href="<?= BASE_URL ?>/assets/img/logo.jpg">
     <meta name="theme-color" content="#1e40af">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -76,9 +77,7 @@ $waNumber = getSetting('whatsapp', APP_WHATSAPP);
             <div class="flex justify-between items-center h-20">
                 <!-- Logo & Brand -->
                 <a href="<?= BASE_URL ?>/index.php" class="flex items-center gap-3 group">
-                    <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-blue-700 to-indigo-600 flex items-center justify-center text-white text-2xl shadow-md group-hover:scale-105 transition-transform">
-                        <i class="bi bi-mortarboard-fill"></i>
-                    </div>
+                    <img src="<?= BASE_URL ?>/assets/img/logo.jpg" alt="Logo PKBM Mandiri" class="w-12 h-12 sm:w-14 sm:h-14 object-contain rounded-2xl shadow-md group-hover:scale-105 transition-transform bg-white p-0.5 border border-slate-200">
                     <div>
                         <div class="font-extrabold text-xl text-slate-900 tracking-tight flex items-center gap-2">
                             <?= htmlspecialchars($schoolName) ?>

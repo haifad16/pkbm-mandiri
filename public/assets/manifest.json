@@ -1,18 +1,18 @@
 {
   "name": "PKBM Mandiri Mataraman",
   "short_name": "PKBM Mandiri",
-  "description": "Sistem Informasi & Pembelajaran Pendidikan Kesetaraan Paket A, B, C PKBM Mandiri Mataraman Banjar",
-  "start_url": "../index.php",
-  "scope": "../",
+  "description": "Sistem Informasi & CBT Ujian Online Pendidikan Kesetaraan Paket A, B, C PKBM Mandiri",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#1e40af",
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "./img/icon.svg",
-      "sizes": "192x192 512x512",
-      "type": "image/svg+xml",
+      "src": "./assets/img/logo.jpg",
+      "sizes": "512x512 192x192",
+      "type": "image/jpeg",
       "purpose": "any maskable"
     }
   ]
