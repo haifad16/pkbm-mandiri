@@ -299,6 +299,7 @@
 
             let totalPg = 0;
             let correctPg = 0;
+            const essayAnswers = [];
 
             for (const q of shuffledQuestions) {
                 if (q.jenis === 'pg') {
@@ -310,6 +311,14 @@
                             correctPg++;
                         }
                     }
+                } else if (q.jenis === 'esai') {
+                    const studentAns = formData.get('jawaban_' + q.id) || '';
+                    essayAnswers.push({
+                        id: q.id,
+                        pertanyaan: q.pertanyaan,
+                        rubrik: q.rubrik || 'Koreksi mandiri oleh guru',
+                        jawaban: studentAns.trim()
+                    });
                 }
             }
 
@@ -322,6 +331,7 @@
                 paket: currentExam.paket,
                 skor_pg: score,
                 skor_akhir: score,
+                essay_answers: essayAnswers,
                 strikes: strikeCount,
                 tanggal: new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'short', day: 'numeric' })
             };
@@ -332,7 +342,7 @@
             studentScores.push(examRecord);
             localStorage.setItem('pkbm_scores_' + user.nik, JSON.stringify(studentScores));
 
-            // Simpan ke master ledger admin (Local & Cloud)
+            // Simpan ke master ledger admin & tutor (Local & Cloud)
             let allScores = JSON.parse(localStorage.getItem('pkbm_master_scores') || '[]');
             const masterScoreRecord = {
                 exam_id: currentExam.id,
@@ -342,6 +352,10 @@
                 mapel: currentExam.mapel,
                 paket: currentExam.paket,
                 skor: score,
+                skor_pg: score,
+                nilai_esai: null,
+                esai_dinilai: essayAnswers.length === 0,
+                essay_answers: essayAnswers,
                 strikes: strikeCount,
                 tanggal: examRecord.tanggal
             };
