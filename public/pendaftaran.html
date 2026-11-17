@@ -297,28 +297,32 @@
                     <p class="text-xs text-slate-500">Anda dapat langsung memotret dokumen menggunakan kamera HP.</p>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div class="p-4 rounded-2xl border border-dashed border-slate-300 bg-slate-50 text-center">
+                        <div class="p-4 rounded-2xl border border-dashed border-slate-300 bg-slate-50 text-center relative overflow-hidden">
                             <i class="bi bi-card-image text-2xl text-blue-600 mb-1 block"></i>
                             <span class="text-xs font-bold text-slate-700 block">Foto Kartu Keluarga (KK) *</span>
-                            <input type="file" name="file_kk" accept="image/*" class="mt-2 text-xs w-full">
+                            <input type="file" name="file_kk" accept="image/*" onchange="previewUpload(this, 'prev-kk')" class="mt-2 text-xs w-full">
+                            <img id="prev-kk" src="" class="hidden mt-2 max-h-24 mx-auto rounded-lg border border-slate-300 object-cover shadow-sm">
                         </div>
 
-                        <div class="p-4 rounded-2xl border border-dashed border-slate-300 bg-slate-50 text-center">
+                        <div class="p-4 rounded-2xl border border-dashed border-slate-300 bg-slate-50 text-center relative overflow-hidden">
                             <i class="bi bi-file-earmark-person text-2xl text-emerald-600 mb-1 block"></i>
                             <span class="text-xs font-bold text-slate-700 block">Akta Kelahiran *</span>
-                            <input type="file" name="file_akta" accept="image/*" class="mt-2 text-xs w-full">
+                            <input type="file" name="file_akta" accept="image/*" onchange="previewUpload(this, 'prev-akta')" class="mt-2 text-xs w-full">
+                            <img id="prev-akta" src="" class="hidden mt-2 max-h-24 mx-auto rounded-lg border border-slate-300 object-cover shadow-sm">
                         </div>
 
-                        <div id="box-ijazah" class="p-4 rounded-2xl border border-dashed border-slate-300 bg-slate-50 text-center">
+                        <div id="box-ijazah" class="p-4 rounded-2xl border border-dashed border-slate-300 bg-slate-50 text-center relative overflow-hidden">
                             <i class="bi bi-mortarboard text-2xl text-amber-600 mb-1 block"></i>
                             <span class="text-xs font-bold text-slate-700 block">Ijazah Terakhir (Jika ada)</span>
-                            <input type="file" name="file_ijazah" accept="image/*" class="mt-2 text-xs w-full">
+                            <input type="file" name="file_ijazah" accept="image/*" onchange="previewUpload(this, 'prev-ijazah')" class="mt-2 text-xs w-full">
+                            <img id="prev-ijazah" src="" class="hidden mt-2 max-h-24 mx-auto rounded-lg border border-slate-300 object-cover shadow-sm">
                         </div>
 
-                        <div id="box-pindah" class="p-4 rounded-2xl border border-dashed border-slate-300 bg-slate-50 text-center">
+                        <div id="box-pindah" class="p-4 rounded-2xl border border-dashed border-slate-300 bg-slate-50 text-center relative overflow-hidden">
                             <i class="bi bi-file-earmark-arrow-up text-2xl text-indigo-600 mb-1 block"></i>
                             <span class="text-xs font-bold text-slate-700 block">Surat Pindah (Jika pindahan)</span>
-                            <input type="file" name="file_pindah" accept="image/*" class="mt-2 text-xs w-full">
+                            <input type="file" name="file_pindah" accept="image/*" onchange="previewUpload(this, 'prev-pindah')" class="mt-2 text-xs w-full">
+                            <img id="prev-pindah" src="" class="hidden mt-2 max-h-24 mx-auto rounded-lg border border-slate-300 object-cover shadow-sm">
                         </div>
                     </div>
                 </div>
@@ -347,12 +351,57 @@
             }
         }
 
+        function previewUpload(input, imgId) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.getElementById(imgId);
+                    if (img) {
+                        img.src = e.target.result;
+                        img.classList.remove('hidden');
+                    }
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Kompresi Berkas Dokumen Gambar ke Format Ringan (Base64 JPEG)
+        function compressImageFile(file, maxWidth = 900, quality = 0.65) {
+            return new Promise((resolve) => {
+                if (!file || !file.type.startsWith('image/')) {
+                    resolve(null);
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let w = img.width;
+                        let h = img.height;
+                        if (w > maxWidth) {
+                            h = Math.round((h * maxWidth) / w);
+                            w = maxWidth;
+                        }
+                        canvas.width = w;
+                        canvas.height = h;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, w, h);
+                        resolve(canvas.toDataURL('image/jpeg', quality));
+                    };
+                    img.onerror = () => resolve(null);
+                    img.src = e.target.result;
+                };
+                reader.onerror = () => resolve(null);
+                reader.readAsDataURL(file);
+            });
+        }
+
         document.getElementById('ppdb-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             const submitBtn = this.querySelector('button[type="submit"]');
-            const originalBtnHtml = submitBtn.innerHTML;
             submitBtn.disabled = true;
-            submitBtn.innerHTML = `<i class="bi bi-arrow-repeat animate-spin"></i> <span>Mengirim Data ke Server...</span>`;
+            submitBtn.innerHTML = `<i class="bi bi-arrow-repeat animate-spin"></i> <span>Memproses & Mengompres Berkas...</span>`;
 
             const formData = new FormData(this);
             const nama = formData.get('nama');
@@ -361,15 +410,48 @@
             const nodaftar = 'REG-' + Math.floor(100000 + Math.random() * 900000);
             const tgl = new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
 
-            // Data pendaftar baru
+            // Baca & kompres berkas upload
+            const fileKkInput = document.querySelector('input[name="file_kk"]');
+            const fileAktaInput = document.querySelector('input[name="file_akta"]');
+            const fileIjazahInput = document.querySelector('input[name="file_ijazah"]');
+            const filePindahInput = document.querySelector('input[name="file_pindah"]');
+
+            const berkas_kk = fileKkInput && fileKkInput.files[0] ? await compressImageFile(fileKkInput.files[0]) : null;
+            const berkas_akta = fileAktaInput && fileAktaInput.files[0] ? await compressImageFile(fileAktaInput.files[0]) : null;
+            const berkas_ijazah = fileIjazahInput && fileIjazahInput.files[0] ? await compressImageFile(fileIjazahInput.files[0]) : null;
+            const berkas_pindah = filePindahInput && filePindahInput.files[0] ? await compressImageFile(filePindahInput.files[0]) : null;
+
+            submitBtn.innerHTML = `<i class="bi bi-arrow-repeat animate-spin"></i> <span>Mengirim Data ke Cloud Server...</span>`;
+
+            // Data pendaftar lengkap beserta berkas dokumen
             const newApplicant = {
                 no: nodaftar,
                 nama: nama,
                 nik: nik,
                 paket: paket,
                 tanggal: tgl,
+                jk: formData.get('jk') || 'L',
+                tempat_lahir: formData.get('tempat_lahir') || '',
+                tanggal_lahir: formData.get('tanggal_lahir') || '',
+                agama: formData.get('agama') || 'Islam',
+                nisn: formData.get('nisn') || '',
                 hp: formData.get('hp') || '',
+                asal_sekolah: formData.get('asal_sekolah') || '',
                 alamat: formData.get('alamat') || '',
+                rt: formData.get('rt') || '',
+                rw: formData.get('rw') || '',
+                kecamatan: formData.get('kecamatan') || 'Mataraman',
+                no_kk: formData.get('no_kk') || '',
+                nama_ayah: formData.get('nama_ayah') || '',
+                tahun_lahir_ayah: formData.get('tahun_lahir_ayah') || '',
+                pendidikan_ayah: formData.get('pendidikan_ayah') || '',
+                nama_ibu: formData.get('nama_ibu') || '',
+                tahun_lahir_ibu: formData.get('tahun_lahir_ibu') || '',
+                pendidikan_ibu: formData.get('pendidikan_ibu') || '',
+                berkas_kk: berkas_kk,
+                berkas_akta: berkas_akta,
+                berkas_ijazah: berkas_ijazah,
+                berkas_pindah: berkas_pindah,
                 status: 'pendaftar_baru'
             };
 
@@ -393,7 +475,7 @@
 
             const waBtn = document.getElementById('btn-wa-konfirmasi');
             if (waBtn) {
-                const waText = encodeURIComponent(`Halo Admin PKBM Mandiri, saya sudah mendaftar PPDB Online dengan No. Pendaftaran: ${nodaftar} atas nama ${nama} (${paket}). Mohon bantuannya untuk verifikasi.`);
+                const waText = encodeURIComponent(`Halo Admin PKBM Mandiri, saya sudah mendaftar PPDB Online dengan No. Pendaftaran: ${nodaftar} atas nama ${nama} (${paket}). Mohon bantuannya untuk verifikasi berkas.`);
                 waBtn.href = `https://wa.me/6281255974191?text=${waText}`;
             }
 

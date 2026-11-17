@@ -330,6 +330,7 @@
                                     <th class="py-3.5 px-4">Nama Calon Murid</th>
                                     <th class="py-3.5 px-4">NIK</th>
                                     <th class="py-3.5 px-4">Program</th>
+                                    <th class="py-3.5 px-4 text-center">Kelengkapan Berkas</th>
                                     <th class="py-3.5 px-4">No. HP / WA</th>
                                     <th class="py-3.5 px-4">Tanggal Daftar</th>
                                     <th class="py-3.5 px-4 text-center">Aksi Verifikasi</th>
@@ -638,6 +639,167 @@
                     Tutup
                 </button>
             </div>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL: DETAIL & BERKAS CALON SISWA PPDB ==================== -->
+    <div id="modal-detail-pendaftar" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-4">
+        <div class="bg-white rounded-3xl max-w-4xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between p-4 sm:p-6 border-b border-slate-100 bg-slate-50/70">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-xl font-black shadow-md shadow-blue-500/20">
+                        <i class="bi bi-file-earmark-person"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h3 class="font-black text-slate-900 text-lg sm:text-xl" id="ppdb-det-nama">-</h3>
+                            <span id="ppdb-det-paket" class="px-2.5 py-0.5 rounded-full text-xs font-black bg-blue-100 text-blue-700">-</span>
+                        </div>
+                        <div class="text-xs text-slate-500 flex items-center gap-2 mt-0.5">
+                            <span class="font-mono font-bold text-blue-600" id="ppdb-det-nodaftar">-</span>
+                            <span>•</span>
+                            <span>Daftar: <span id="ppdb-det-tanggal" class="font-semibold text-slate-700">-</span></span>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="tutupDetailPendaftar()" class="w-9 h-9 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-600 flex items-center justify-center text-lg transition">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+
+            <!-- Modal Body (Scrollable) -->
+            <div class="p-4 sm:p-6 overflow-y-auto space-y-6 text-xs text-slate-700 flex-1">
+                <!-- Status Banner -->
+                <div class="p-4 rounded-2xl bg-blue-50 border border-blue-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-3 h-3 rounded-full bg-blue-500 animate-ping"></span>
+                        <div>
+                            <span class="font-bold text-blue-900 text-sm">Status Berkas: Menunggu Verifikasi Dokumen</span>
+                            <p class="text-[11px] text-blue-700 mt-0.5">Periksa keabsahan foto dokumen (KK, Akta, Ijazah) sebelum menerima calon murid.</p>
+                        </div>
+                    </div>
+                    <div id="ppdb-det-wa-box">
+                        <!-- Prefilled WhatsApp button -->
+                    </div>
+                </div>
+
+                <!-- Bagian 1: Berkas Dokumen Fisik (KK, Akta, Ijazah, dsb) -->
+                <div>
+                    <h4 class="font-black text-slate-900 text-sm mb-3 flex items-center gap-2">
+                        <i class="bi bi-images text-blue-600"></i> Berkas Dokumen yang Diunggah (Foto / Scan)
+                    </h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4" id="ppdb-det-berkas-grid">
+                        <!-- Loaded via JS -->
+                    </div>
+                </div>
+
+                <!-- Bagian 2: Biodata Lengkap Calon Siswa -->
+                <div class="border-t border-slate-100 pt-5">
+                    <h4 class="font-black text-slate-900 text-sm mb-3 flex items-center gap-2">
+                        <i class="bi bi-person-lines-fill text-blue-600"></i> Biodata Lengkap Calon Peserta Didik
+                    </h4>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                        <div>
+                            <span class="text-[10px] text-slate-400 font-bold block uppercase">16 Digit NIK</span>
+                            <span class="font-mono font-bold text-slate-800 text-sm" id="ppdb-det-nik">-</span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-slate-400 font-bold block uppercase">Jenis Kelamin</span>
+                            <span class="font-semibold text-slate-800" id="ppdb-det-jk">-</span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-slate-400 font-bold block uppercase">Tempat, Tanggal Lahir</span>
+                            <span class="font-semibold text-slate-800" id="ppdb-det-ttl">-</span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-slate-400 font-bold block uppercase">Agama</span>
+                            <span class="font-semibold text-slate-800" id="ppdb-det-agama">-</span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-slate-400 font-bold block uppercase">No. WhatsApp / HP</span>
+                            <span class="font-mono font-semibold text-slate-800" id="ppdb-det-hp">-</span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-slate-400 font-bold block uppercase">Asal Sekolah Sebelumnya</span>
+                            <span class="font-semibold text-slate-800" id="ppdb-det-sekolah">-</span>
+                        </div>
+                        <div class="col-span-2 sm:col-span-3">
+                            <span class="text-[10px] text-slate-400 font-bold block uppercase">Alamat Tempat Tinggal Lengkap</span>
+                            <span class="font-semibold text-slate-800" id="ppdb-det-alamat">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bagian 3: Data Kartu Keluarga & Orang Tua -->
+                <div class="border-t border-slate-100 pt-5">
+                    <h4 class="font-black text-slate-900 text-sm mb-3 flex items-center gap-2">
+                        <i class="bi bi-people-fill text-blue-600"></i> Data Kartu Keluarga &amp; Orang Tua Kandung
+                    </h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="bg-blue-50/60 p-4 rounded-2xl border border-blue-100 space-y-2">
+                            <div class="font-bold text-blue-900 text-xs flex items-center justify-between border-b border-blue-200/60 pb-1.5">
+                                <span><i class="bi bi-gender-male"></i> Data Ayah Kandung</span>
+                                <span class="text-[10px] font-mono text-blue-600" id="ppdb-det-nokk">No. KK: -</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 text-[11px]">
+                                <div><span class="text-slate-400 block text-[10px]">Nama Ayah:</span><span class="font-bold text-slate-800" id="ppdb-det-nama-ayah">-</span></div>
+                                <div><span class="text-slate-400 block text-[10px]">Tahun Lahir:</span><span class="font-bold text-slate-800" id="ppdb-det-thn-ayah">-</span></div>
+                                <div class="col-span-2"><span class="text-slate-400 block text-[10px]">Pendidikan Ayah:</span><span class="font-bold text-slate-800" id="ppdb-det-pend-ayah">-</span></div>
+                            </div>
+                        </div>
+
+                        <div class="bg-rose-50/60 p-4 rounded-2xl border border-rose-100 space-y-2">
+                            <div class="font-bold text-rose-900 text-xs border-b border-rose-200/60 pb-1.5">
+                                <i class="bi bi-gender-female"></i> Data Ibu Kandung
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 text-[11px]">
+                                <div><span class="text-slate-400 block text-[10px]">Nama Ibu:</span><span class="font-bold text-slate-800" id="ppdb-det-nama-ibu">-</span></div>
+                                <div><span class="text-slate-400 block text-[10px]">Tahun Lahir:</span><span class="font-bold text-slate-800" id="ppdb-det-thn-ibu">-</span></div>
+                                <div class="col-span-2"><span class="text-slate-400 block text-[10px]">Pendidikan Ibu:</span><span class="font-bold text-slate-800" id="ppdb-det-pend-ibu">-</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer Aksi -->
+            <div class="p-4 sm:p-5 border-t border-slate-100 bg-slate-50 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-2">
+                    <button onclick="cetakLembarVerifikasiPpdb()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow transition">
+                        <i class="bi bi-printer"></i> Cetak Berkas PPDB
+                    </button>
+                    <button onclick="mintaBerkasLengkapViaWa()" class="px-3.5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow transition">
+                        <i class="bi bi-whatsapp"></i> Minta Berkas via WA
+                    </button>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="tolakPendaftarDariModal()" class="px-4 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl font-bold text-xs border border-rose-200 transition">
+                        <i class="bi bi-trash"></i> Tolak Pendaftar
+                    </button>
+                    <button onclick="terimaPendaftarDariModal()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-extrabold text-xs flex items-center gap-2 shadow-lg shadow-emerald-600/30 transition transform active:scale-95">
+                        <i class="bi bi-check-circle-fill"></i> Verifikasi &amp; Terima Menjadi Murid Aktif
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lightbox Zoom Modal Gambar Berkas -->
+    <div id="modal-lightbox-berkas" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[60] hidden flex flex-col items-center justify-center p-4">
+        <div class="relative max-w-4xl max-h-[90vh] flex flex-col items-center">
+            <div class="w-full flex items-center justify-between text-white pb-3">
+                <span class="font-bold text-sm" id="lightbox-title">Dokumen Berkas</span>
+                <div class="flex items-center gap-3">
+                    <a id="lightbox-download" href="#" download="Berkas_PKBM" class="px-3 py-1 bg-white/20 hover:bg-white/30 text-white rounded-lg text-xs font-semibold flex items-center gap-1">
+                        <i class="bi bi-download"></i> Unduh
+                    </a>
+                    <button onclick="document.getElementById('modal-lightbox-berkas').classList.add('hidden')" class="w-8 h-8 rounded-lg bg-white/20 hover:bg-white/30 text-white flex items-center justify-center text-lg">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+            </div>
+            <img id="lightbox-img" src="" alt="Berkas" class="max-h-[80vh] max-w-full rounded-2xl object-contain border border-white/10 shadow-2xl bg-black">
         </div>
     </div>
 
@@ -1079,7 +1241,12 @@
                 return;
             }
 
-            tbody.innerHTML = list.map((p, idx) => `
+            tbody.innerHTML = list.map((p, idx) => {
+                const badgeKk = p.berkas_kk ? '<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800" title="Foto KK Tersedia">KK ✓</span>' : '<span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-400" title="Foto KK Belum Ada">KK -</span>';
+                const badgeAkta = p.berkas_akta ? '<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800" title="Foto Akta Tersedia">Akta ✓</span>' : '<span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-400" title="Foto Akta Belum Ada">Akta -</span>';
+                const badgeIjazah = p.berkas_ijazah ? '<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800" title="Ijazah Terlampir">Ijazah ✓</span>' : '';
+
+                return `
                 <tr class="hover:bg-slate-50 transition border-b border-slate-100">
                     <td class="py-3 px-4 font-mono font-bold text-blue-700">
                         <span class="px-2 py-1 bg-blue-50 border border-blue-200 rounded-lg">${p.no}</span>
@@ -1095,15 +1262,21 @@
                             p.paket === 'Paket B' ? 'bg-blue-100 text-blue-800' : 'bg-emerald-100 text-emerald-800'
                         }">${p.paket}</span>
                     </td>
+                    <td class="py-3 px-4 text-center">
+                        <div class="inline-flex items-center gap-1">${badgeKk}${badgeAkta}${badgeIjazah}</div>
+                    </td>
                     <td class="py-3 px-4 font-mono text-slate-600">${p.hp || '-'}</td>
                     <td class="py-3 px-4 text-slate-500">${p.tanggal || '-'}</td>
                     <td class="py-3 px-4 text-center">
                         <div class="inline-flex items-center gap-1.5">
+                            <button onclick="bukaDetailPendaftar(${idx})" title="Lihat Berkas Dokumen & Detail Lengkap" class="px-2.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold flex items-center gap-1 shadow transition active:scale-95">
+                                <i class="bi bi-file-earmark-person-fill"></i> Berkas &amp; Detail
+                            </button>
                             <button onclick="approveStudent(${idx})" title="Verifikasi & Masukkan ke Database Murid Aktif" class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold flex items-center gap-1 shadow transition active:scale-95">
                                 <i class="bi bi-check-circle-fill"></i> Terima
                             </button>
                             ${p.hp ? `
-                            <a href="https://wa.me/${p.hp.replace(/[^0-9]/g, '')}?text=Halo%20${encodeURIComponent(p.nama)},%20kami%20dari%20Panitia%20PPDB%20PKBM%20Mandiri%20Mataraman%20mengonfirmasi%20bahwa%20pendaftaran%20Anda%20(${p.no})%20telah%20kami%20terima." target="_blank" title="Hubungi Calon Siswa via WhatsApp" class="p-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg text-xs font-bold border border-emerald-200">
+                            <a href="https://wa.me/${p.hp.replace(/[^0-9]/g, '')}?text=Halo%20${encodeURIComponent(p.nama)},%20kami%20dari%20Panitia%20PPDB%20PKBM%20Mandiri%20Mataraman%20mengonfirmasi%20pendaftaran%20Anda%20(${p.no})." target="_blank" title="Hubungi Calon Siswa via WhatsApp" class="p-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg text-xs font-bold border border-emerald-200">
                                 <i class="bi bi-whatsapp"></i>
                             </a>` : ''}
                             <button onclick="hapusPendaftar(${idx})" title="Tolak & Hapus" class="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg text-xs font-bold border border-rose-200">
@@ -1111,28 +1284,287 @@
                             </button>
                         </div>
                     </td>
-                </tr>
-            `).join('');
+                </tr>`;
+            }).join('');
+        }
+
+        // ==================== DETAIL & VERIFIKASI BERKAS PPDB ====================
+        let activePendaftarIndex = -1;
+        let activePendaftarData = null;
+
+        function bukaDetailPendaftar(idx) {
+            activePendaftarIndex = idx;
+            const p = currentPendaftarList[idx];
+            if (!p) return;
+            activePendaftarData = p;
+
+            document.getElementById('ppdb-det-nama').innerText = p.nama || '-';
+            document.getElementById('ppdb-det-paket').innerText = p.paket || 'Paket C';
+            document.getElementById('ppdb-det-nodaftar').innerText = p.no || '-';
+            document.getElementById('ppdb-det-tanggal').innerText = p.tanggal || '-';
+
+            // Tombol WA Cepat
+            const cleanHp = (p.hp || '').replace(/[^0-9]/g, '');
+            const waBox = document.getElementById('ppdb-det-wa-box');
+            if (cleanHp) {
+                waBox.innerHTML = `
+                    <a href="https://wa.me/${cleanHp}?text=Halo%20${encodeURIComponent(p.nama)},%20kami%20dari%20Panitia%20PPDB%20PKBM%20Mandiri%20Mataraman%20terkait%20kelengkapan%20berkas%20pendaftaran%20(${p.no})." target="_blank" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow transition">
+                        <i class="bi bi-whatsapp"></i> Chat WhatsApp Calon Siswa
+                    </a>
+                `;
+            } else {
+                waBox.innerHTML = `<span class="text-xs text-slate-400 font-semibold italic">Nomor HP belum tercatat</span>`;
+            }
+
+            // Biodata Lengkap
+            document.getElementById('ppdb-det-nik').innerText = p.nik || '-';
+            document.getElementById('ppdb-det-jk').innerText = p.jk === 'L' ? 'Laki-Laki (L)' : (p.jk === 'P' ? 'Perempuan (P)' : 'Laki-Laki');
+            document.getElementById('ppdb-det-ttl').innerText = `${p.tempat_lahir || 'Mataraman'}, ${p.tanggal_lahir || '-'}`;
+            document.getElementById('ppdb-det-agama').innerText = p.agama || 'Islam';
+            document.getElementById('ppdb-det-hp').innerText = p.hp || '-';
+            document.getElementById('ppdb-det-sekolah').innerText = p.asal_sekolah || '-';
+            document.getElementById('ppdb-det-alamat').innerText = `${p.alamat || '-'} ${p.rt ? 'RT ' + p.rt : ''} ${p.rw ? 'RW ' + p.rw : ''} ${p.kecamatan ? 'Kec. ' + p.kecamatan : ''}`;
+
+            // Data Orang Tua
+            document.getElementById('ppdb-det-nokk').innerText = p.no_kk ? `No. KK: ${p.no_kk}` : 'No. KK: -';
+            document.getElementById('ppdb-det-nama-ayah').innerText = p.nama_ayah || '-';
+            document.getElementById('ppdb-det-thn-ayah').innerText = p.tahun_lahir_ayah || '-';
+            document.getElementById('ppdb-det-pend-ayah').innerText = p.pendidikan_ayah || '-';
+            document.getElementById('ppdb-det-nama-ibu').innerText = p.nama_ibu || '-';
+            document.getElementById('ppdb-det-thn-ibu').innerText = p.tahun_lahir_ibu || '-';
+            document.getElementById('ppdb-det-pend-ibu').innerText = p.pendidikan_ibu || '-';
+
+            // Grid Dokumen Berkas
+            const berkasGrid = document.getElementById('ppdb-det-berkas-grid');
+            const items = [
+                { title: 'Kartu Keluarga (KK)', key: 'berkas_kk', icon: 'bi-card-image' },
+                { title: 'Akta Kelahiran', key: 'berkas_akta', icon: 'bi-file-earmark-person' },
+                { title: 'Ijazah Terakhir', key: 'berkas_ijazah', icon: 'bi-mortarboard' },
+                { title: 'Surat Pindah', key: 'berkas_pindah', icon: 'bi-file-earmark-arrow-up' }
+            ];
+
+            berkasGrid.innerHTML = items.map(item => {
+                const imgData = p[item.key];
+                if (imgData) {
+                    return `
+                        <div class="p-3 bg-white border-2 border-emerald-300 rounded-2xl shadow-sm space-y-2 text-center">
+                            <div class="flex items-center justify-between text-[11px] font-bold text-emerald-800">
+                                <span>${item.title}</span>
+                                <i class="bi bi-check-circle-fill text-emerald-600"></i>
+                            </div>
+                            <div class="h-28 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 cursor-pointer relative group" onclick="bukaLightboxBerkas('${item.title}', '${imgData}')">
+                                <img src="${imgData}" alt="${item.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-200">
+                                <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white font-bold text-[11px] gap-1 transition">
+                                    <i class="bi bi-zoom-in"></i> Perbesar
+                                </div>
+                            </div>
+                            <button onclick="bukaLightboxBerkas('${item.title}', '${imgData}')" class="w-full py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold rounded-lg text-[11px] transition">
+                                <i class="bi bi-eye"></i> Buka Penuh
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <div class="p-3 bg-slate-50 border border-dashed border-slate-300 rounded-2xl text-center space-y-2 flex flex-col justify-between">
+                            <div>
+                                <i class="bi ${item.icon} text-2xl text-slate-400 block mb-1"></i>
+                                <span class="font-bold text-slate-700 text-xs block">${item.title}</span>
+                                <span class="text-[10px] text-slate-400 italic">Belum diunggah</span>
+                            </div>
+                            ${cleanHp ? `
+                                <button onclick="mintaBerkasSpesifikViaWa('${item.title}')" class="w-full py-1.5 bg-slate-200 hover:bg-emerald-100 hover:text-emerald-800 text-slate-600 font-bold rounded-lg text-[10px] flex items-center justify-center gap-1 transition">
+                                    <i class="bi bi-whatsapp"></i> Minta via WA
+                                </button>
+                            ` : ''}
+                        </div>
+                    `;
+                }
+            }).join('');
+
+            document.getElementById('modal-detail-pendaftar').classList.remove('hidden');
+        }
+
+        function tutupDetailPendaftar() {
+            document.getElementById('modal-detail-pendaftar').classList.add('hidden');
+        }
+
+        function bukaLightboxBerkas(title, imgSrc) {
+            document.getElementById('lightbox-title').innerText = title;
+            document.getElementById('lightbox-img').src = imgSrc;
+            const dl = document.getElementById('lightbox-download');
+            dl.href = imgSrc;
+            dl.download = `Berkas_${title.replace(/\s+/g, '_')}_PKBM_Mandiri.jpg`;
+            document.getElementById('modal-lightbox-berkas').classList.remove('hidden');
+        }
+
+        function mintaBerkasLengkapViaWa() {
+            if (!activePendaftarData || !activePendaftarData.hp) {
+                alert('Calon siswa ini tidak mencantumkan nomor WhatsApp.');
+                return;
+            }
+            const cleanHp = activePendaftarData.hp.replace(/[^0-9]/g, '');
+            const text = encodeURIComponent(`Halo Calon Siswa PKBM Mandiri a.n. ${activePendaftarData.nama} (${activePendaftarData.no}), mohon bantuannya untuk mengirimkan foto Kartu Keluarga (KK) dan Akta Kelahiran asli melalui WhatsApp ini guna melengkapi verifikasi administrasi PPDB. Terima kasih. - Panitia PPDB PKBM Mandiri`);
+            window.open(`https://wa.me/${cleanHp}?text=${text}`, '_blank');
+        }
+
+        function mintaBerkasSpesifikViaWa(jenisBerkas) {
+            if (!activePendaftarData || !activePendaftarData.hp) return;
+            const cleanHp = activePendaftarData.hp.replace(/[^0-9]/g, '');
+            const text = encodeURIComponent(`Halo ${activePendaftarData.nama} (${activePendaftarData.no}), mohon kirimkan foto/scan ${jenisBerkas} melalui chat WhatsApp ini untuk verifikasi pendaftaran di PKBM Mandiri. Terima kasih.`);
+            window.open(`https://wa.me/${cleanHp}?text=${text}`, '_blank');
+        }
+
+        function cetakLembarVerifikasiPpdb() {
+            if (!activePendaftarData) return;
+            const p = activePendaftarData;
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Lembar Verifikasi PPDB - ${p.nama}</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 24px; color: #111; line-height: 1.4; font-size: 12px; }
+                        .header { text-align: center; border-bottom: 3px double #000; padding-bottom: 10px; margin-bottom: 16px; }
+                        .header h2 { margin: 0; font-size: 15px; text-transform: uppercase; }
+                        .header h3 { margin: 2px 0; font-size: 13px; font-weight: normal; }
+                        .header p { margin: 0; font-size: 10px; color: #555; }
+                        .section-title { font-weight: bold; background: #eee; padding: 4px 8px; margin: 12px 0 6px 0; font-size: 11px; }
+                        table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
+                        td { padding: 4px 6px; vertical-align: top; }
+                        .label { width: 220px; font-weight: bold; }
+                        .checklist-table td, .checklist-table th { border: 1px solid #999; padding: 6px; }
+                        .checklist-table th { background: #f5f5f5; text-align: left; }
+                        .ttd-grid { display: flex; justify-content: space-between; margin-top: 35px; text-align: center; }
+                        .ttd-box { width: 200px; }
+                        .ttd-space { height: 55px; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h2>PUSAT KEGIATAN BELAJAR MASYARAKAT (PKBM) MANDIRI</h2>
+                        <h3>KECAMATAN MATARAMAN KABUPATEN BANJAR</h3>
+                        <p>NPSN: P2962977 • SK Izin Operasional: 421.9/056/Disdik/2021</p>
+                        <p>Alamat: Desa Mataraman, Kec. Mataraman, Kab. Banjar, Kalimantan Selatan • Call Center: +62 812-5597-4191</p>
+                    </div>
+
+                    <div style="text-align: center; font-weight: bold; font-size: 13px; margin-bottom: 12px;">
+                        FORMULIR VERIFIKASI PENDAFTARAN PESERTA DIDIK BARU (PPDB) ONLINE
+                    </div>
+
+                    <div class="section-title">I. IDENTITAS PENDAFTAR</div>
+                    <table>
+                        <tr><td class="label">Nomor Registrasi:</td><td><b>${p.no}</b></td><td class="label">Program Pilihan:</td><td><b>${p.paket}</b></td></tr>
+                        <tr><td class="label">Tanggal Pendaftaran:</td><td>${p.tanggal}</td><td class="label">Status:</td><td>TERVERIFIKASI ONLINE</td></tr>
+                    </table>
+
+                    <div class="section-title">II. BIODATA LENGKAP CALON PESERTA DIDIK</div>
+                    <table>
+                        <tr><td class="label">Nama Lengkap (Sesuai Akta/KK):</td><td><b>${p.nama}</b></td></tr>
+                        <tr><td class="label">Nomor Induk Kependudukan (NIK):</td><td>${p.nik}</td></tr>
+                        <tr><td class="label">Jenis Kelamin:</td><td>${p.jk === 'L' ? 'Laki-Laki' : 'Perempuan'}</td></tr>
+                        <tr><td class="label">Tempat, Tanggal Lahir:</td><td>${p.tempat_lahir || 'Mataraman'}, ${p.tanggal_lahir || '-'}</td></tr>
+                        <tr><td class="label">Agama:</td><td>${p.agama || 'Islam'}</td></tr>
+                        <tr><td class="label">Asal Sekolah Sebelumnya:</td><td>${p.asal_sekolah || '-'}</td></tr>
+                        <tr><td class="label">Nomor Telepon / WhatsApp:</td><td>${p.hp || '-'}</td></tr>
+                        <tr><td class="label">Alamat Lengkap:</td><td>${p.alamat || '-'} RT ${p.rt || '-'} / RW ${p.rw || '-'}, Kec. ${p.kecamatan || 'Mataraman'}</td></tr>
+                    </table>
+
+                    <div class="section-title">III. DATA ORANG TUA / KARTU KELUARGA</div>
+                    <table>
+                        <tr><td class="label">Nomor Kartu Keluarga (No. KK):</td><td>${p.no_kk || '-'}</td></tr>
+                        <tr><td class="label">Nama Ayah Kandung:</td><td>${p.nama_ayah || '-'} (Tahun Lahir: ${p.tahun_lahir_ayah || '-'}, Pendidikan: ${p.pendidikan_ayah || '-'})</td></tr>
+                        <tr><td class="label">Nama Ibu Kandung:</td><td>${p.nama_ibu || '-'} (Tahun Lahir: ${p.tahun_lahir_ibu || '-'}, Pendidikan: ${p.pendidikan_ibu || '-'})</td></tr>
+                    </table>
+
+                    <div class="section-title">IV. HASIL VERIFIKASI KELENGKAPAN BERKAS FISIK / DIGITAL</div>
+                    <table class="checklist-table">
+                        <tr>
+                            <th>No</th>
+                            <th>Nama Dokumen Persyaratan</th>
+                            <th>Status Unggahan Sistem</th>
+                            <th>Hasil Verifikasi Petugas</th>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td>Foto / Scan Kartu Keluarga (KK)</td>
+                            <td>${p.berkas_kk ? 'LENGKAP TERUNGGAH' : 'BELUM DIUNGGAH'}</td>
+                            <td>[ &nbsp; ] Sesuai &nbsp;&nbsp; [ &nbsp; ] Perlu Perbaikan</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>Foto / Scan Akta Kelahiran</td>
+                            <td>${p.berkas_akta ? 'LENGKAP TERUNGGAH' : 'BELUM DIUNGGAH'}</td>
+                            <td>[ &nbsp; ] Sesuai &nbsp;&nbsp; [ &nbsp; ] Perlu Perbaikan</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>Foto / Scan Ijazah Terakhir</td>
+                            <td>${p.berkas_ijazah ? 'LENGKAP TERUNGGAH' : 'TIDAK WAJIB / MENYUSUL'}</td>
+                            <td>[ &nbsp; ] Sesuai &nbsp;&nbsp; [ &nbsp; ] -</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>Surat Keterangan Pindah (Jika Pindahan)</td>
+                            <td>${p.berkas_pindah ? 'LENGKAP TERUNGGAH' : 'TIDAK ADA'}</td>
+                            <td>[ &nbsp; ] Sesuai &nbsp;&nbsp; [ &nbsp; ] -</td>
+                        </tr>
+                    </table>
+
+                    <div class="ttd-grid">
+                        <div class="ttd-box">
+                            Calon Warga Belajar / Orang Tua,
+                            <div class="ttd-space"></div>
+                            ( <b>${p.nama}</b> )
+                        </div>
+                        <div class="ttd-box">
+                            Mataraman, ${p.tanggal}<br>
+                            Petugas Verifikator PPDB,
+                            <div class="ttd-space"></div>
+                            ( <b>Administrator PKBM Mandiri</b> )
+                        </div>
+                    </div>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            setTimeout(() => {
+                printWindow.print();
+            }, 400);
+        }
+
+        function terimaPendaftarDariModal() {
+            if (activePendaftarIndex >= 0) {
+                approveStudent(activePendaftarIndex);
+                tutupDetailPendaftar();
+            }
+        }
+
+        function tolakPendaftarDariModal() {
+            if (activePendaftarIndex >= 0) {
+                hapusPendaftar(activePendaftarIndex);
+                tutupDetailPendaftar();
+            }
         }
 
         async function approveStudent(idx) {
             const p = currentPendaftarList[idx];
             if (!p) return;
 
-            // Buat record murid baru
+            // Buat record murid baru lengkap dengan seluruh data PPDB
             const newStudent = {
                 no: allStudents.length + 1,
                 nama: (p.nama || 'CALON SISWA').toUpperCase(),
                 nik: p.nik || '',
-                jk: 'L',
-                nisn: '',
-                tempat_lahir: 'MATARAMAN',
-                tanggal_lahir: '',
-                agama: 'Islam',
+                jk: p.jk || 'L',
+                nisn: p.nisn || '',
+                tempat_lahir: p.tempat_lahir || 'MATARAMAN',
+                tanggal_lahir: p.tanggal_lahir || '',
+                agama: p.agama || 'Islam',
                 alamat: p.alamat || 'Kec. Mataraman',
                 hp: p.hp || '',
-                nama_ayah: '',
-                nama_ibu: '',
+                nama_ayah: p.nama_ayah || '',
+                nama_ibu: p.nama_ibu || '',
                 rombel: p.paket ? `${p.paket} Baru` : 'Paket C Baru',
                 paket: p.paket || 'Paket C',
                 status: 'aktif'
