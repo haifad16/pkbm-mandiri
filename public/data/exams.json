@@ -45,6 +45,76 @@
         ]
     },
     {
+        "id": 4,
+        "judul": "Penilaian Tengah Semester Matematika Terapan Paket B",
+        "mapel": "Matematika",
+        "paket": "Paket B",
+        "tingkat_kelas": "Kelas 8",
+        "durasi_menit": 0,
+        "questions": [
+            {
+                "id": 401,
+                "jenis": "pg",
+                "pertanyaan": "Sebuah toko memberikan diskon 20% untuk sebuah baju seharga Rp 100.000. Berapa harga yang harus dibayar pembeli?",
+                "opsi_a": "Rp 70.000",
+                "opsi_b": "Rp 75.000",
+                "opsi_c": "Rp 80.000",
+                "opsi_d": "Rp 85.000",
+                "answer_hash": "f6130de6a9de54bb615e2e5cf8305b191e1abe650d3b846fe3aa7843880fb72f"
+            },
+            {
+                "id": 402,
+                "jenis": "pg",
+                "pertanyaan": "Hasil dari operasi hitung (-15) + 28 - (-7) adalah...",
+                "opsi_a": "20",
+                "opsi_b": "26",
+                "opsi_c": "30",
+                "opsi_d": "35",
+                "answer_hash": "60bbaceb6608c37d427bca13a2f456982861c35c8f01aeafc4cbe25d6f39c7a5"
+            },
+            {
+                "id": 403,
+                "jenis": "esai",
+                "pertanyaan": "Pak Joko memiliki sebidang kebun berbentuk persegi panjang berukuran panjang 15 meter dan lebar 8 meter. Hitunglah luas dan keliling kebun Pak Joko beserta rumusnya!"
+            }
+        ]
+    },
+    {
+        "id": 5,
+        "judul": "Asesmen Formatif Ilmu Pengetahuan Sosial (IPS) Paket B",
+        "mapel": "Ilmu Pengetahuan Sosial",
+        "paket": "Paket B",
+        "tingkat_kelas": "Kelas 7",
+        "durasi_menit": 0,
+        "questions": [
+            {
+                "id": 501,
+                "jenis": "pg",
+                "pertanyaan": "Letak geografis Indonesia yang berada di antara dua benua dan dua samudra menyebabkan Indonesia memiliki posisi silang strategis. Dua benua tersebut adalah...",
+                "opsi_a": "Benua Asia dan Benua Australia",
+                "opsi_b": "Benua Asia dan Benua Afrika",
+                "opsi_c": "Benua Eropa dan Benua Amerika",
+                "opsi_d": "Benua Australia dan Benua Antartika",
+                "answer_hash": "90de386dcbb03fbacbd84d8503faa3eab1571e7d430705ba43e9cb877fbc2e5d"
+            },
+            {
+                "id": 502,
+                "jenis": "pg",
+                "pertanyaan": "Kebutuhan manusia yang paling mendasar dan mutlak harus dipenuhi untuk mempertahankan kelangsungan hidup (seperti makanan, pakaian, tempat tinggal) disebut kebutuhan...",
+                "opsi_a": "Kebutuhan Sekunder",
+                "opsi_b": "Kebutuhan Tersier",
+                "opsi_c": "Kebutuhan Primer",
+                "opsi_d": "Kebutuhan Rohani",
+                "answer_hash": "aec9e68e1edd090022e5fc77498b425959de5926911eb25499e8de57033e925e"
+            },
+            {
+                "id": 503,
+                "jenis": "esai",
+                "pertanyaan": "Sebutkan 3 jenis kegiatan ekonomi masyarakat dan berikan masing-masing 1 contoh nyatanya di lingkungan sekitar Anda!"
+            }
+        ]
+    },
+    {
         "id": 2,
         "judul": "Asesmen Akhir Semester Pendidikan Kewarganegaraan Paket C",
         "mapel": "Pendidikan Kewarganegaraan",
@@ -80,6 +150,76 @@
         ]
     },
     {
+        "id": 6,
+        "judul": "Penilaian Sumatif Bahasa Inggris Komunikatif Paket C",
+        "mapel": "Bahasa Inggris",
+        "paket": "Paket C",
+        "tingkat_kelas": "Kelas 11",
+        "durasi_menit": 0,
+        "questions": [
+            {
+                "id": 601,
+                "jenis": "pg",
+                "pertanyaan": "Rian: 'Good morning, Sir. Could you help me find the PKBM library?' - Teacher: 'Sure, ...'",
+                "opsi_a": "I don't know who you are.",
+                "opsi_b": "Go straight ahead and it is on your left next to the computer lab.",
+                "opsi_c": "You should buy a ticket first.",
+                "opsi_d": "Yesterday was sunny.",
+                "answer_hash": "f7b762a923454a55f546919483f4fb393db2ef80236b87052bb64baa7ea27d30"
+            },
+            {
+                "id": 602,
+                "jenis": "pg",
+                "pertanyaan": "Choose the correct expression of offering help:",
+                "opsi_a": "May I help you carry those books?",
+                "opsi_b": "You must do it by yourself.",
+                "opsi_c": "I need someone to help me now.",
+                "opsi_d": "Why don't you stop working?",
+                "answer_hash": "f9034238fae648f218f479819bb3458f8844f5e815471ef73ca1071bdc61d365"
+            },
+            {
+                "id": 603,
+                "jenis": "esai",
+                "pertanyaan": "Write a short self-introduction paragraph in English (name, address, occupation/hobby, and reason for studying at PKBM Mandiri)!"
+            }
+        ]
+    },
+    {
+        "id": 7,
+        "judul": "Asesmen Prakarya & Kewirausahaan Paket C",
+        "mapel": "Prakarya & Kewirausahaan",
+        "paket": "Paket C",
+        "tingkat_kelas": "Kelas 10",
+        "durasi_menit": 0,
+        "questions": [
+            {
+                "id": 701,
+                "jenis": "pg",
+                "pertanyaan": "Sikap mental dan jiwa yang selalu aktif atau kreatif berdaya, bercipta, berkarsa dan bersahaja dalam berusaha guna meningkatkan pendapatan dalam kegiatan usahanya disebut...",
+                "opsi_a": "Birokrasi",
+                "opsi_b": "Kewirausahaan (Entrepreneurship)",
+                "opsi_c": "Spekulasi",
+                "opsi_d": "Konsumerisme",
+                "answer_hash": "a317905dd71866e385817af8c806fe9dd6e0cc9e52ccbe769e741e465349d24b"
+            },
+            {
+                "id": 702,
+                "jenis": "pg",
+                "pertanyaan": "Salah satu analisis perencanaan usaha yang digunakan untuk menganalisis Kekuatan (Strengths), Kelemahan (Weaknesses), Peluang (Opportunities), dan Ancaman (Threats) adalah analisis...",
+                "opsi_a": "Analisis SWOT",
+                "opsi_b": "Analisis Break Even Point",
+                "opsi_c": "Analisis Laporan Laba Rugi",
+                "opsi_d": "Analisis Neraca Saldo",
+                "answer_hash": "85d3f9452dbeac5227262bdcfabdc1d38aaead6f6355ae3f42b6a8c8bd12ede6"
+            },
+            {
+                "id": 703,
+                "jenis": "esai",
+                "pertanyaan": "Jelaskan ide usaha kreatif berbasis potensi lokal daerah Kalimantan Selatan (misal kuliner, kerajinan purun/sasirangan/perikanan/pertanian) yang berpotensi dikembangkan oleh warga belajar!"
+            }
+        ]
+    },
+    {
         "id": 3,
         "judul": "Penilaian Sumatif Ilmu Pengetahuan Alam Paket A",
         "mapel": "Ilmu Pengetahuan Alam",
@@ -111,6 +251,76 @@
                 "id": 303,
                 "jenis": "esai",
                 "pertanyaan": "Jelaskan siklus air (daur air) secara singkat mulai dari penguapan air laut hingga terjadinya hujan!"
+            }
+        ]
+    },
+    {
+        "id": 8,
+        "judul": "Penilaian Formatif Pendidikan Pancasila Paket A",
+        "mapel": "Pendidikan Pancasila",
+        "paket": "Paket A",
+        "tingkat_kelas": "Kelas 5",
+        "durasi_menit": 0,
+        "questions": [
+            {
+                "id": 801,
+                "jenis": "pg",
+                "pertanyaan": "Bunyi sila pertama Pancasila yang menjadi landasan kehidupan beragama di Indonesia adalah...",
+                "opsi_a": "Kemanusiaan yang adil dan beradab",
+                "opsi_b": "Ketuhanan Yang Maha Esa",
+                "opsi_c": "Persatuan Indonesia",
+                "opsi_d": "Keadilan sosial bagi seluruh rakyat Indonesia",
+                "answer_hash": "c833f0c7845594b073e538840cb9d2bad73f5a6e3f72ce848775c227a38c7d22"
+            },
+            {
+                "id": 802,
+                "jenis": "pg",
+                "pertanyaan": "Semboyan negara kita yang tertulis pada pita cengkeraman burung Garuda 'Bhinneka Tunggal Ika' artinya...",
+                "opsi_a": "Bersatu kita teguh bercerai kita runtuh",
+                "opsi_b": "Maju terus pantang mundur",
+                "opsi_c": "Berbeda-beda tetapi tetap satu jua",
+                "opsi_d": "Rajin pangkal pandai hemat pangkal kaya",
+                "answer_hash": "214c4362f88b34d1f9fcc0b5049d935f66c2302e0f0e0c7a369f86f8ea42fbee"
+            },
+            {
+                "id": 803,
+                "jenis": "esai",
+                "pertanyaan": "Sebutkan 3 contoh sikap tolong menolong dan gotong royong yang dapat kita lakukan di lingkungan keluarga atau tetangga!"
+            }
+        ]
+    },
+    {
+        "id": 9,
+        "judul": "Penilaian Dasar Bahasa Indonesia Membaca & Menulis Paket A",
+        "mapel": "Bahasa Indonesia",
+        "paket": "Paket A",
+        "tingkat_kelas": "Kelas 2",
+        "durasi_menit": 0,
+        "questions": [
+            {
+                "id": 901,
+                "jenis": "pg",
+                "pertanyaan": "Hewan yang berkokok pada waktu pagi hari adalah...",
+                "opsi_a": "Kucing",
+                "opsi_b": "Ayam jantan",
+                "opsi_c": "Kambing",
+                "opsi_d": "Ikan mas",
+                "answer_hash": "49b983434a7bbd1c71fcca068770f4d8f3b64f6a6e5f35d6cd85cab6e2710a02"
+            },
+            {
+                "id": 902,
+                "jenis": "pg",
+                "pertanyaan": "Huruf kapital selalu digunakan pada...",
+                "opsi_a": "Awal kalimat dan nama orang",
+                "opsi_b": "Tengah kata sembarangan",
+                "opsi_c": "Akhir kalimat sebelum titik",
+                "opsi_d": "Hanya tanda baca",
+                "answer_hash": "e3c4b9e0b1775f06a4aafd89b79c54b12c6d348e5ecfb2318c71ef4c4f11d258"
+            },
+            {
+                "id": 903,
+                "jenis": "esai",
+                "pertanyaan": "Tuliskan nama lengkap Anda dan nama desa tempat Anda tinggal dengan huruf yang rapi dan benar!"
             }
         ]
     }

@@ -206,12 +206,22 @@
         }
 
         // Load exam (Cari dari naskah bawaan dan naskah yang dibuat oleh guru)
-        fetch('./data/exams.json')
+        fetch('./data/exams.json?v=' + Date.now(), { cache: 'no-store' })
             .then(res => res.json())
             .then(baseExams => {
                 const customExams = JSON.parse(localStorage.getItem('pkbm_custom_exams') || '[]');
                 const allExams = [...customExams, ...baseExams];
                 currentExam = allExams.find(e => e.id === examId) || allExams[0];
+
+                // Validasi Keamanan: Pastikan siswa tidak mengerjakan ujian paket lain
+                const studentPaket = (user.paket || '').trim().toLowerCase();
+                const examPaket = (currentExam.paket || '').trim().toLowerCase();
+                if (examPaket && !examPaket.includes('semua') && studentPaket && !examPaket.includes(studentPaket)) {
+                    alert(`Akses Ditolak: Naskah ujian ini khusus untuk ${currentExam.paket}, sedangkan Anda terdaftar di ${user.paket}. Anda akan diarahkan ke dashboard.`);
+                    window.location.href = './siswa.html';
+                    return;
+                }
+
                 document.getElementById('exam-title').innerText = currentExam.judul;
                 document.getElementById('exam-subtitle').innerText = `${currentExam.mapel} (${currentExam.paket} - ${currentExam.tingkat_kelas})`;
 
