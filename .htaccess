@@ -1,30 +1,7 @@
-# PKBM Mandiri Apache Configuration
+# PKBM Mandiri Apache Configuration - InfinityFree & Shared Hosting Compatible
 DirectoryIndex index.php
 
-# Matikan directory listing agar pengunjung tidak bisa melihat isi folder
-Options -Indexes
-
-# Proteksi file konfigurasi dan log tersembunyi
-<FilesMatch "^\.">
-    Order allow,deny
-    Deny from all
-</FilesMatch>
-
-# Atur batasan upload file jika diizinkan server
-<IfModule mod_php.c>
-    php_value upload_max_filesize 20M
-    php_value post_max_size 25M
-    php_value max_execution_time 300
-    php_value max_input_time 300
-</IfModule>
-<IfModule mod_php8.c>
-    php_value upload_max_filesize 20M
-    php_value post_max_size 25M
-    php_value max_execution_time 300
-    php_value max_input_time 300
-</IfModule>
-
-# MIME type untuk PWA manifest & icon svg
+# Fallback MIME Type untuk PWA
 <IfModule mod_mime.c>
     AddType application/manifest+json .json .webmanifest
     AddType image/svg+xml .svg .svgz

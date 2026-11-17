@@ -1,0 +1,127 @@
+[
+  {
+    "id": 1,
+    "judul": "Penilaian Sumatif Bahasa Indonesia Paket B",
+    "mapel": "Bahasa Indonesia",
+    "paket": "Paket B",
+    "tingkat_kelas": "Kelas 9",
+    "durasi_menit": 0,
+    "questions": [
+      {
+        "id": 101,
+        "jenis": "pg",
+        "pertanyaan": "Kalimat berikut yang merupakan kalimat efektif dalam penulisan laporan observasi adalah...",
+        "opsi_a": "Para hadirin semua dimohon untuk segera berdiri menyanyikan lagu Indonesia Raya.",
+        "opsi_b": "Hadirin dimohon berdiri untuk menyanyikan lagu Indonesia Raya.",
+        "opsi_c": "Kepada bapak-bapak dan ibu-ibu sekalian dipersilakan maju ke depan.",
+        "opsi_d": "Warga belajar PKBM Mandiri sangat rajin sekali dalam membaca buku.",
+        "kunci": "B",
+        "pembahasan": "Opsi B adalah kalimat efektif tanpa pemborosan kata (pleonasme)."
+      },
+      {
+        "id": 102,
+        "jenis": "pg",
+        "pertanyaan": "Ide pokok dalam sebuah paragraf biasanya ditemukan pada...",
+        "opsi_a": "Hanya di kalimat terakhir saja",
+        "opsi_b": "Kalimat penjelas tambahan",
+        "opsi_c": "Kalimat utama (deduktif di awal atau induktif di akhir)",
+        "opsi_d": "Daftar pustaka",
+        "kunci": "C",
+        "pembahasan": "Ide pokok terletak pada kalimat utama paragraf."
+      },
+      {
+        "id": 103,
+        "jenis": "pg",
+        "pertanyaan": "Peribahasa 'Di mana bumi dipijak, di situ langit dijunjung' memiliki makna...",
+        "opsi_a": "Kita harus selalu menatap langit saat berjalan.",
+        "opsi_b": "Kita harus mematuhi adat istiadat dan aturan tempat kita berada.",
+        "opsi_c": "Setiap orang wajib memiliki tanah di kampung halaman.",
+        "opsi_d": "Perjalanan jauh memerlukan bekal yang banyak.",
+        "kunci": "B",
+        "pembahasan": "Peribahasa mengajarkan adaptasi dan penghormatan pada aturan setempat."
+      },
+      {
+        "id": 104,
+        "jenis": "esai",
+        "pertanyaan": "Jelaskan langkah-langkah dalam menyusun sebuah ringkasan (rangkuman) teks bacaan yang baik dan benar!",
+        "rubrik": "1. Membaca naskah asli (bobot 30%). 2. Mencatat gagasan utama (bobot 40%). 3. Menyusun ringkasan dengan kalimat sendiri secara runtut (bobot 30%)."
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "judul": "Asesmen Akhir Semester Pendidikan Kewarganegaraan Paket C",
+    "mapel": "Pendidikan Kewarganegaraan",
+    "paket": "Paket C",
+    "tingkat_kelas": "Kelas 12",
+    "durasi_menit": 0,
+    "questions": [
+      {
+        "id": 201,
+        "jenis": "pg",
+        "pertanyaan": "Sila ke-3 Pancasila 'Persatuan Indonesia' dilambangkan oleh simbol...",
+        "opsi_a": "Bintang emas bersudut lima",
+        "opsi_b": "Rantai emas bulat dan persegi",
+        "opsi_c": "Pohon Beringin",
+        "opsi_d": "Kepala Banteng",
+        "kunci": "C",
+        "pembahasan": "Pohon beringin melambangkan tempat berteduh dan persatuan bangsa Indonesia."
+      },
+      {
+        "id": 202,
+        "jenis": "pg",
+        "pertanyaan": "Bentuk partisipasi aktif warga negara dalam menjaga keutuhan NKRI di lingkungan masyarakat sekitar adalah...",
+        "opsi_a": "Menyebarkan berita yang belum jelas kebenarannya di media sosial",
+        "opsi_b": "Mengikuti kegiatan gotong royong dan pos ronda siskamling lingkungan",
+        "opsi_c": "Mengabaikan tetangga yang membutuhkan pertolongan",
+        "opsi_d": "Mengutamakan kepentingan pribadi di atas kepentingan umum",
+        "kunci": "B",
+        "pembahasan": "Gotong royong dan siskamling mencerminkan persatuan nyata di masyarakat."
+      },
+      {
+        "id": 203,
+        "jenis": "esai",
+        "pertanyaan": "Sebutkan dan jelaskan 3 contoh hak dan kewajiban asasi manusia yang diatur dalam UUD Negara Republik Indonesia Tahun 1945!",
+        "rubrik": "Siswa mampu menyebutkan hak hidup, hak berserikat/pendidikan, dan kewajiban menaati hukum/bela negara beserta pasalnya."
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "judul": "Penilaian Sumatif Ilmu Pengetahuan Alam Paket A",
+    "mapel": "Ilmu Pengetahuan Alam",
+    "paket": "Paket A",
+    "tingkat_kelas": "Kelas 6",
+    "durasi_menit": 0,
+    "questions": [
+      {
+        "id": 301,
+        "jenis": "pg",
+        "pertanyaan": "Proses pembuatan makanan pada tumbuhan hijau dengan bantuan cahaya matahari disebut...",
+        "opsi_a": "Respirasi",
+        "opsi_b": "Fotosintesis",
+        "opsi_c": "Transpirasi",
+        "opsi_d": "Metamorfosis",
+        "kunci": "B",
+        "pembahasan": "Fotosintesis adalah proses tumbuhan mengolah air dan CO2 dengan klorofil & matahari."
+      },
+      {
+        "id": 302,
+        "jenis": "pg",
+        "pertanyaan": "Benda berikut yang termasuk benda penghantar panas yang baik (konduktor) adalah...",
+        "opsi_a": "Sendok aluminium dan wajan besi",
+        "opsi_b": "Kain lap dan kayu",
+        "opsi_c": "Plastik dan karet",
+        "opsi_d": "Kaca mika dan kertas",
+        "kunci": "A",
+        "pembahasan": "Logam seperti aluminium dan besi merupakan konduktor panas yang baik."
+      },
+      {
+        "id": 303,
+        "jenis": "esai",
+        "pertanyaan": "Jelaskan siklus air (daur air) secara singkat mulai dari penguapan air laut hingga terjadinya hujan!",
+        "rubrik": "Evaporasi (penguapan), kondensasi (pembentukan awan), dan presipitasi (hujan)."
+      }
+    ]
+  }
+]

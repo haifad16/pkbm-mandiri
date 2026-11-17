@@ -1,4 +1,18 @@
 <?php
+// Tampilkan error secara jelas jika terjadi kendala di server hosting
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
+error_reporting(E_ALL);
+
+if (!file_exists(__DIR__ . '/config/app.php')) {
+    die("<div style='font-family:sans-serif;padding:30px;background:#fee2e2;color:#991b1b;border-radius:12px;max-width:600px;margin:50px auto;border:1px solid #f87171;line-height:1.6;'>
+        <h2 style='margin-top:0;'>⚠️ Folder Sistem Belum Masuk ke htdocs!</h2>
+        <p>File <b>config/app.php</b> belum ditemukan di dalam folder <code>htdocs</code>.</p>
+        <p>Ini artinya folder-folder sistem (<code>config</code>, <code>data</code>, <code>includes</code>, <code>modules</code>, <code>assets</code>) belum ter-ekstrak.</p>
+        <p><b>Cara Mengatasinya:</b> Buka File Manager &rarr; klik menu <b>Upload &amp; Unzip</b> di sebelah kiri &rarr; pilih <code>pkbm_mandiri_siap_deploy.zip</code>.</p>
+    </div>");
+}
+
 /**
  * Halaman Utama (Landing Page) PKBM Mandiri
  * Profil Lembaga, Program Kesetaraan, Guru, Galeri, dan Alur Pendaftaran

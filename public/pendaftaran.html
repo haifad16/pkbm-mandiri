@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulir Pendaftaran Murid Baru - PKBM Mandiri</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="./assets/css/style.css">
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-slate-200 py-4 px-4 sm:px-8 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-5xl mx-auto flex items-center justify-between">
+            <a href="./index.html" class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center text-xl shadow">
+                    <i class="bi bi-mortarboard-fill"></i>
+                </div>
+                <div>
+                    <div class="font-extrabold text-slate-900 leading-tight">PKBM MANDIRI</div>
+                    <div class="text-xs text-slate-500">Pendaftaran Peserta Didik Baru Online</div>
+                </div>
+            </a>
+            <a href="./index.html" class="text-xs font-semibold text-slate-600 hover:text-blue-600 flex items-center gap-1">
+                <i class="bi bi-arrow-left"></i> Kembali ke Beranda
+            </a>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-4xl mx-auto px-4 py-8 w-full">
+
+        <!-- Sukses Modal / Card (Hidden by default) -->
+        <div id="sukses-box" class="hidden bg-white rounded-3xl p-8 border border-emerald-200 shadow-xl text-center space-y-6">
+            <div class="w-20 h-20 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-4xl mx-auto">
+                <i class="bi bi-check2-circle"></i>
+            </div>
+            <div>
+                <h2 class="text-2xl font-black text-slate-900">Pendaftaran Berhasil Dikirim!</h2>
+                <p class="text-sm text-slate-600 mt-2">Data Anda telah tercatat di sistem PPDB PKBM Mandiri Mataraman.</p>
+            </div>
+
+            <!-- Kartu Bukti Digital -->
+            <div id="bukti-print" class="bg-slate-50 p-6 rounded-2xl border border-slate-200 text-left space-y-4 max-w-lg mx-auto">
+                <div class="flex items-center justify-between border-b pb-3 border-slate-200">
+                    <div>
+                        <div class="text-xs font-bold text-slate-500 uppercase">Nomor Pendaftaran</div>
+                        <div class="text-lg font-black text-blue-700" id="res-nodaftar">REG-2026-001</div>
+                    </div>
+                    <div class="text-right">
+                        <span class="px-2.5 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-full">TERVERIFIKASI</span>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3 text-xs">
+                    <div><span class="text-slate-500">Nama Calon Siswa:</span> <div class="font-bold text-slate-900 text-sm" id="res-nama">-</div></div>
+                    <div><span class="text-slate-500">Program Pilihan:</span> <div class="font-bold text-blue-600 text-sm" id="res-paket">-</div></div>
+                    <div><span class="text-slate-500">NIK Murid:</span> <div class="font-bold text-slate-900" id="res-nik">-</div></div>
+                    <div><span class="text-slate-500">Tanggal Daftar:</span> <div class="font-bold text-slate-900" id="res-tgl">-</div></div>
+                </div>
+                <div class="text-[11px] text-slate-500 bg-blue-50 p-3 rounded-xl border border-blue-100">
+                    <i class="bi bi-info-circle-fill text-blue-500 mr-1"></i> Simpan bukti ini. Setelah diverifikasi admin, Anda dapat langsung login menggunakan <strong>NIK</strong> Anda.
+                </div>
+            </div>
+
+            <div class="flex flex-wrap justify-center gap-3 pt-2">
+                <button onclick="window.print()" class="px-6 py-2.5 bg-slate-900 text-white font-bold rounded-xl text-xs flex items-center gap-2 hover:bg-slate-800">
+                    <i class="bi bi-printer-fill"></i> Cetak Bukti Pendaftaran
+                </button>
+                <a href="./login.html" class="px-6 py-2.5 bg-blue-600 text-white font-bold rounded-xl text-xs flex items-center gap-2 hover:bg-blue-700">
+                    <i class="bi bi-box-arrow-in-right"></i> Ke Halaman Login
+                </a>
+            </div>
+        </div>
+
+        <!-- Form Pendaftaran -->
+        <div id="form-container" class="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200 shadow-xl space-y-8">
+            <div>
+                <span class="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded-full uppercase tracking-wider">Tahun Ajaran 2026/2027</span>
+                <h1 class="text-2xl sm:text-3xl font-black text-slate-900 mt-3">Formulir Pendaftaran Murid Baru</h1>
+                <p class="text-xs sm:text-sm text-slate-500 mt-1">Lengkapi data diri calon peserta didik dan data orang tua di bawah ini dengan benar.</p>
+            </div>
+
+            <form id="ppdb-form" class="space-y-8">
+                
+                <!-- 1. Pilihan Program -->
+                <div class="space-y-4 border-b border-slate-100 pb-6">
+                    <h3 class="font-bold text-base text-slate-900 flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs">1</span>
+                        Program Pendidikan Kesetaraan
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <label class="p-4 rounded-2xl border-2 border-slate-200 hover:border-blue-500 cursor-pointer flex flex-col justify-between has-[:checked]:border-blue-600 has-[:checked]:bg-blue-50/50 transition">
+                            <input type="radio" name="paket" value="Paket A" class="sr-only" checked onchange="togglePaketRule(this.value)">
+                            <div>
+                                <div class="font-extrabold text-sm text-slate-900">Paket A</div>
+                                <div class="text-xs text-slate-500 mt-0.5">Setara Sekolah Dasar (SD)</div>
+                            </div>
+                            <span class="text-[10px] font-bold text-blue-700 mt-2">Usia Anak &amp; Dewasa</span>
+                        </label>
+
+                        <label class="p-4 rounded-2xl border-2 border-slate-200 hover:border-blue-500 cursor-pointer flex flex-col justify-between has-[:checked]:border-blue-600 has-[:checked]:bg-blue-50/50 transition">
+                            <input type="radio" name="paket" value="Paket B" class="sr-only" onchange="togglePaketRule(this.value)">
+                            <div>
+                                <div class="font-extrabold text-sm text-slate-900">Paket B</div>
+                                <div class="text-xs text-slate-500 mt-0.5">Setara SMP / MTs</div>
+                            </div>
+                            <span class="text-[10px] font-bold text-blue-700 mt-2">Lulusan SD/Paket A</span>
+                        </label>
+
+                        <label class="p-4 rounded-2xl border-2 border-slate-200 hover:border-blue-500 cursor-pointer flex flex-col justify-between has-[:checked]:border-blue-600 has-[:checked]:bg-blue-50/50 transition">
+                            <input type="radio" name="paket" value="Paket C" class="sr-only" onchange="togglePaketRule(this.value)">
+                            <div>
+                                <div class="font-extrabold text-sm text-slate-900">Paket C</div>
+                                <div class="text-xs text-slate-500 mt-0.5">Setara SMA / SMK (IPS/Vokasi)</div>
+                            </div>
+                            <span class="text-[10px] font-bold text-blue-700 mt-2">Lulusan SMP/Paket B</span>
+                        </label>
+                    </div>
+
+                    <!-- Aturan Khusus Paket A Dewasa -->
+                    <div id="paket-a-notice" class="p-4 rounded-2xl bg-amber-50 border border-amber-200 space-y-2">
+                        <div class="flex items-center gap-2 text-amber-900 font-bold text-xs sm:text-sm">
+                            <i class="bi bi-info-circle-fill text-amber-600 text-base"></i>
+                            <span>Aturan Khusus Pendaftar Paket A (Setara SD):</span>
+                        </div>
+                        <label class="flex items-start gap-2.5 cursor-pointer pt-1">
+                            <input type="checkbox" id="is-dewasa" name="is_dewasa" class="mt-1 w-4 h-4 rounded text-blue-600 focus:ring-blue-500">
+                            <span class="text-xs text-slate-700 leading-relaxed">
+                                <strong>Saya adalah Calon Siswa Dewasa (sudah lewat batas usia sekolah SD):</strong> Saya menyatakan tidak perlu menyertakan ijazah TK atau surat pindah karena faktor usia dewasa.
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 2. Data Calon Murid -->
+                <div class="space-y-4 border-b border-slate-100 pb-6">
+                    <h3 class="font-bold text-base text-slate-900 flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs">2</span>
+                        Biodata Calon Siswa
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="sm:col-span-2">
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nama Lengkap Murid (Sesuai Akta / KK) *</label>
+                            <input type="text" name="nama" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Contoh: MUHAMMAD RIZKY">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">NIK (Nomor Induk Kependudukan) *</label>
+                            <input type="text" name="nik" required maxlength="16" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="16 digit NIK">
+                            <span class="text-[10px] text-slate-400">NIK ini nantinya akan digunakan untuk login siswa</span>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Jenis Kelamin *</label>
+                            <select name="jk" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                                <option value="L">Laki-Laki</option>
+                                <option value="P">Perempuan</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Tempat Lahir *</label>
+                            <input type="text" name="tempat_lahir" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Contoh: Mataraman">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal Lahir *</label>
+                            <input type="date" name="tanggal_lahir" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Agama *</label>
+                            <select name="agama" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                                <option value="Islam">Islam</option>
+                                <option value="Kristen">Kristen</option>
+                                <option value="Katolik">Katolik</option>
+                                <option value="Hindu">Hindu</option>
+                                <option value="Buddha">Buddha</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">NISN (Jika Ada)</label>
+                            <input type="text" name="nisn" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Kosongkan jika tidak ada">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">No. WhatsApp / HP Siswa *</label>
+                            <input type="tel" name="hp" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="08xxxxxxxxxx">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Asal Sekolah Sebelumnya</label>
+                            <input type="text" name="asal_sekolah" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Contoh: SDN 1 Mataraman">
+                        </div>
+
+                        <div class="sm:col-span-2">
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Alamat Tempat Tinggal *</label>
+                            <textarea name="alamat" rows="2" required class="w-full px-4 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Nama Jalan, Kampung / Dusun"></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">RT / RW</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <input type="text" name="rt" placeholder="RT" class="px-3 py-2 border rounded-xl text-sm">
+                                <input type="text" name="rw" placeholder="RW" class="px-3 py-2 border rounded-xl text-sm">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Kecamatan</label>
+                            <input type="text" name="kecamatan" value="Mataraman" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Data Orang Tua -->
+                <div class="space-y-4 border-b border-slate-100 pb-6">
+                    <h3 class="font-bold text-base text-slate-900 flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs">3</span>
+                        Data Orang Tua / Kartu Keluarga
+                    </h3>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Nomor Kartu Keluarga (No. KK) *</label>
+                        <input type="text" name="no_kk" required maxlength="16" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="16 digit No. KK">
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2">
+                        <!-- Data Ayah -->
+                        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+                            <div class="font-bold text-xs text-blue-700 uppercase"><i class="bi bi-person-fill"></i> Data Ayah Kandung</div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Nama Ayah *</label>
+                                <input type="text" name="nama_ayah" required class="w-full px-3 py-2 bg-white rounded-lg border border-slate-300 text-xs">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Tahun Lahir Ayah</label>
+                                <input type="text" name="tahun_lahir_ayah" placeholder="Contoh: 1975" class="w-full px-3 py-2 bg-white rounded-lg border border-slate-300 text-xs">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Pendidikan Terakhir Ayah</label>
+                                <select name="pendidikan_ayah" class="w-full px-3 py-2 bg-white rounded-lg border border-slate-300 text-xs">
+                                    <option value="SD / Sederajat">SD / Sederajat</option>
+                                    <option value="SMP / Sederajat">SMP / Sederajat</option>
+                                    <option value="SMA / Sederajat">SMA / Sederajat</option>
+                                    <option value="Diploma / S1">Diploma / S1</option>
+                                    <option value="Tidak Sekolah">Tidak Sekolah</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Data Ibu -->
+                        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+                            <div class="font-bold text-xs text-rose-700 uppercase"><i class="bi bi-person-fill"></i> Data Ibu Kandung</div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Nama Ibu *</label>
+                                <input type="text" name="nama_ibu" required class="w-full px-3 py-2 bg-white rounded-lg border border-slate-300 text-xs">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Tahun Lahir Ibu</label>
+                                <input type="text" name="tahun_lahir_ibu" placeholder="Contoh: 1980" class="w-full px-3 py-2 bg-white rounded-lg border border-slate-300 text-xs">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Pendidikan Terakhir Ibu</label>
+                                <select name="pendidikan_ibu" class="w-full px-3 py-2 bg-white rounded-lg border border-slate-300 text-xs">
+                                    <option value="SD / Sederajat">SD / Sederajat</option>
+                                    <option value="SMP / Sederajat">SMP / Sederajat</option>
+                                    <option value="SMA / Sederajat">SMA / Sederajat</option>
+                                    <option value="Diploma / S1">Diploma / S1</option>
+                                    <option value="Tidak Sekolah">Tidak Sekolah</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. Upload Berkas -->
+                <div class="space-y-4">
+                    <h3 class="font-bold text-base text-slate-900 flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs">4</span>
+                        Upload Berkas Dokumen (Foto / Scan)
+                    </h3>
+                    <p class="text-xs text-slate-500">Anda dapat langsung memotret dokumen menggunakan kamera HP.</p>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="p-4 rounded-2xl border border-dashed border-slate-300 bg-slate-50 text-center">
+                            <i class="bi bi-card-image text-2xl text-blue-600 mb-1 block"></i>
+                            <span class="text-xs font-bold text-slate-700 block">Foto Kartu Keluarga (KK) *</span>
+                            <input type="file" name="file_kk" accept="image/*" class="mt-2 text-xs w-full">
+                        </div>
+
+                        <div class="p-4 rounded-2xl border border-dashed border-slate-300 bg-slate-50 text-center">
+                            <i class="bi bi-file-earmark-person text-2xl text-emerald-600 mb-1 block"></i>
+                            <span class="text-xs font-bold text-slate-700 block">Akta Kelahiran *</span>
+                            <input type="file" name="file_akta" accept="image/*" class="mt-2 text-xs w-full">
+                        </div>
+
+                        <div id="box-ijazah" class="p-4 rounded-2xl border border-dashed border-slate-300 bg-slate-50 text-center">
+                            <i class="bi bi-mortarboard text-2xl text-amber-600 mb-1 block"></i>
+                            <span class="text-xs font-bold text-slate-700 block">Ijazah Terakhir (Jika ada)</span>
+                            <input type="file" name="file_ijazah" accept="image/*" class="mt-2 text-xs w-full">
+                        </div>
+
+                        <div id="box-pindah" class="p-4 rounded-2xl border border-dashed border-slate-300 bg-slate-50 text-center">
+                            <i class="bi bi-file-earmark-arrow-up text-2xl text-indigo-600 mb-1 block"></i>
+                            <span class="text-xs font-bold text-slate-700 block">Surat Pindah (Jika pindahan)</span>
+                            <input type="file" name="file_pindah" accept="image/*" class="mt-2 text-xs w-full">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="pt-4">
+                    <button type="submit" class="w-full py-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-base shadow-xl transition transform active:scale-95 flex items-center justify-center gap-2">
+                        <i class="bi bi-send-fill"></i>
+                        <span>Kirim Formulir Pendaftaran Sekarang</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        function togglePaketRule(paket) {
+            const notice = document.getElementById('paket-a-notice');
+            if (notice) {
+                notice.style.display = (paket === 'Paket A') ? 'block' : 'none';
+            }
+        }
+
+        document.getElementById('ppdb-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const nama = formData.get('nama');
+            const nik = formData.get('nik');
+            const paket = formData.get('paket');
+            const nodaftar = 'REG-' + Math.floor(100000 + Math.random() * 900000);
+            const tgl = new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+
+            // Simpan pendaftar baru ke local list
+            const newApplicant = {
+                no: nodaftar,
+                nama: nama,
+                nik: nik,
+                paket: paket,
+                tanggal: tgl,
+                hp: formData.get('hp'),
+                alamat: formData.get('alamat'),
+                status: 'pendaftar_baru'
+            };
+
+            let pendaftarList = JSON.parse(localStorage.getItem('pkbm_pendaftar') || '[]');
+            pendaftarList.unshift(newApplicant);
+            localStorage.setItem('pkbm_pendaftar', JSON.stringify(pendaftarList));
+
+            // Tampilkan hasil
+            document.getElementById('form-container').classList.add('hidden');
+            document.getElementById('sukses-box').classList.remove('hidden');
+            document.getElementById('res-nodaftar').innerText = nodaftar;
+            document.getElementById('res-nama').innerText = nama;
+            document.getElementById('res-paket').innerText = paket;
+            document.getElementById('res-nik').innerText = nik;
+            document.getElementById('res-tgl').innerText = tgl;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    </script>
+</body>
+</html>

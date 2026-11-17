@@ -1,0 +1,74 @@
+[
+  {
+    "id": 1,
+    "nama_lengkap": "H. Zailani, S.Pd",
+    "gelar": "S.Pd",
+    "mapel_diampu": "Pendidikan Kewarganegaraan",
+    "jabatan": "Ketua / Kepala PKBM Mandiri",
+    "pendidikan_terakhir": "S1 Pendidikan",
+    "foto": ""
+  },
+  {
+    "id": 2,
+    "nama_lengkap": "Siti Rahmah, S.Pd",
+    "gelar": "S.Pd",
+    "mapel_diampu": "Bahasa Indonesia (Paket A & B)",
+    "jabatan": "Sekretaris & Tutor Bahasa",
+    "pendidikan_terakhir": "S1 Pendidikan Bahasa",
+    "foto": ""
+  },
+  {
+    "id": 3,
+    "nama_lengkap": "Ahmad Fauzi, S.Kom",
+    "gelar": "S.Kom",
+    "mapel_diampu": "Teknologi Informasi & Vokasi Digital",
+    "jabatan": "Tutor Keterampilan Komputer",
+    "pendidikan_terakhir": "S1 Ilmu Komputer",
+    "foto": ""
+  },
+  {
+    "id": 4,
+    "nama_lengkap": "Nurul Hidayah, S.Si",
+    "gelar": "S.Si",
+    "mapel_diampu": "Ilmu Pengetahuan Alam (IPA)",
+    "jabatan": "Tutor IPA & Sains Kesetaraan",
+    "pendidikan_terakhir": "S1 MIPA",
+    "foto": ""
+  },
+  {
+    "id": 5,
+    "nama_lengkap": "Muhammad Ridwan, S.Pd",
+    "gelar": "S.Pd",
+    "mapel_diampu": "Matematika (Paket A, B, C)",
+    "jabatan": "Tutor Matematika Terapan",
+    "pendidikan_terakhir": "S1 Pendidikan Matematika",
+    "foto": ""
+  },
+  {
+    "id": 6,
+    "nama_lengkap": "Hj. Mariatul Kiptiah, S.Pd",
+    "gelar": "S.Pd",
+    "mapel_diampu": "Ilmu Pengetahuan Sosial & Ekonomi",
+    "jabatan": "Tutor IPS & Sejarah",
+    "pendidikan_terakhir": "S1 Pendidikan IPS",
+    "foto": ""
+  },
+  {
+    "id": 7,
+    "nama_lengkap": "Ust. Zainal Abidin, S.Pd.I",
+    "gelar": "S.Pd.I",
+    "mapel_diampu": "Pendidikan Agama Islam & Budi Pekerti",
+    "jabatan": "Tutor Agama & Karakter",
+    "pendidikan_terakhir": "S1 Tarbiyah",
+    "foto": ""
+  },
+  {
+    "id": 8,
+    "nama_lengkap": "Dewi Sartika, S.E",
+    "gelar": "S.E",
+    "mapel_diampu": "Pemberdayaan & Kewirausahaan Mandiri",
+    "jabatan": "Tutor Vokasi & Life Skills",
+    "pendidikan_terakhir": "S1 Ekonomi",
+    "foto": ""
+  }
+]

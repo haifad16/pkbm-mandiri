@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Portal - PKBM Mandiri Mataraman</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="./assets/css/style.css">
+</head>
+<body class="bg-slate-900 text-slate-800 min-h-screen flex flex-col justify-center items-center p-4 antialiased relative">
+    
+    <!-- Background Decor -->
+    <div class="absolute -top-32 -left-32 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="w-full max-w-md bg-white rounded-3xl p-6 sm:p-8 shadow-2xl relative z-10 space-y-6">
+        
+        <!-- Header Brand -->
+        <div class="text-center space-y-2">
+            <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-700 to-indigo-600 text-white flex items-center justify-center text-3xl mx-auto shadow-md">
+                <i class="bi bi-mortarboard-fill"></i>
+            </div>
+            <h1 class="text-2xl font-black text-slate-900 tracking-tight">Portal PKBM Mandiri</h1>
+            <p class="text-xs text-slate-500">Pangkalan Database Murid &amp; Ujian Mandiri (CBT)</p>
+        </div>
+
+        <!-- Tab Navigasi -->
+        <div class="grid grid-cols-2 p-1 bg-slate-100 rounded-2xl text-xs font-bold text-center">
+            <button id="tab-btn-siswa" onclick="switchTab('siswa')" class="py-2.5 rounded-xl bg-white text-blue-700 shadow-sm transition">
+                <i class="bi bi-person-fill mr-1"></i> Murid / Siswa
+            </button>
+            <button id="tab-btn-staff" onclick="switchTab('staff')" class="py-2.5 rounded-xl text-slate-500 hover:text-slate-800 transition">
+                <i class="bi bi-shield-lock-fill mr-1"></i> Guru / Admin
+            </button>
+        </div>
+
+        <!-- Error Alert -->
+        <div id="login-error" class="hidden p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 font-medium flex items-center gap-2">
+            <i class="bi bi-exclamation-triangle-fill text-rose-500 text-base"></i>
+            <span id="login-error-msg">NIK tidak ditemukan dalam pangkalan data.</span>
+        </div>
+
+        <!-- Form 1: Login Siswa via NIK -->
+        <form id="form-siswa" class="space-y-4">
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Nomor Induk Kependudukan (NIK)</label>
+                <div class="relative">
+                    <i class="bi bi-person-vcard absolute left-3.5 top-3 text-slate-400 text-base"></i>
+                    <input type="text" id="nik-input" maxlength="16" required placeholder="Masukkan 16 digit NIK Anda" class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <div class="text-[11px] text-slate-400 mt-1.5 flex items-center gap-1">
+                    <i class="bi bi-info-circle"></i> Siswa cukup login menggunakan NIK resmi di KK
+                </div>
+            </div>
+
+            <button type="submit" id="btn-login-siswa" class="w-full py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-lg shadow-blue-500/25 transition flex items-center justify-center gap-2">
+                <i class="bi bi-box-arrow-in-right"></i>
+                <span>Masuk ke Akun Siswa</span>
+            </button>
+
+            <!-- Sample Hint -->
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 text-[11px] text-slate-500">
+                <span class="font-bold text-slate-700">Contoh NIK Siswa Aktif:</span>
+                <div class="flex items-center justify-between mt-1">
+                    <span><code>6303120801110002</code> (A. Rudiansyah)</span>
+                    <button type="button" onclick="document.getElementById('nik-input').value='6303120801110002'" class="text-blue-600 font-bold hover:underline">Gunakan</button>
+                </div>
+            </div>
+        </form>
+
+        <!-- Form 2: Login Staff (Guru & Admin) -->
+        <form id="form-staff" class="space-y-4 hidden">
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Username Petugas</label>
+                <input type="text" id="staff-user" required placeholder="admin atau guru" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Password</label>
+                <input type="password" id="staff-pass" required placeholder="••••••••" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+            </div>
+
+            <button type="submit" class="w-full py-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm shadow-lg transition flex items-center justify-center gap-2">
+                <i class="bi bi-shield-lock-fill text-amber-400"></i>
+                <span>Masuk Portal Pengajar / Admin</span>
+            </button>
+
+            <div class="text-[11px] text-slate-400 text-center space-y-0.5 pt-1">
+                <div>Admin: <code>admin</code> / <code>admin123</code></div>
+                <div>Guru: <code>guru</code> / <code>guru123</code></div>
+            </div>
+        </form>
+
+        <!-- Bottom Link -->
+        <div class="text-center pt-2 border-t border-slate-100 text-xs text-slate-500">
+            Belum terdaftar sebagai murid? <a href="./pendaftaran.html" class="text-emerald-600 font-bold hover:underline">Daftar Sekarang</a>
+        </div>
+    </div>
+
+    <script>
+        let allStudents = [];
+
+        // Load 556 students data
+        fetch('./data/students.json')
+            .then(res => res.json())
+            .then(data => {
+                allStudents = data;
+            })
+            .catch(e => console.log('Students loaded'));
+
+        function switchTab(role) {
+            const btnS = document.getElementById('tab-btn-siswa');
+            const btnT = document.getElementById('tab-btn-staff');
+            const formS = document.getElementById('form-siswa');
+            const formT = document.getElementById('form-staff');
+            const err = document.getElementById('login-error');
+            err.classList.add('hidden');
+
+            if (role === 'siswa') {
+                btnS.className = "py-2.5 rounded-xl bg-white text-blue-700 shadow-sm transition";
+                btnT.className = "py-2.5 rounded-xl text-slate-500 hover:text-slate-800 transition";
+                formS.classList.remove('hidden');
+                formT.classList.add('hidden');
+            } else {
+                btnT.className = "py-2.5 rounded-xl bg-white text-blue-700 shadow-sm transition";
+                btnS.className = "py-2.5 rounded-xl text-slate-500 hover:text-slate-800 transition";
+                formT.classList.remove('hidden');
+                formS.classList.add('hidden');
+            }
+        }
+
+        // Login Siswa
+        document.getElementById('form-siswa').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const nik = document.getElementById('nik-input').value.trim();
+            const err = document.getElementById('login-error');
+            const errMsg = document.getElementById('login-error-msg');
+
+            // Cek di allStudents atau localStorage pendaftar
+            let found = allStudents.find(s => s.nik === nik);
+            if (!found) {
+                let pendaftarList = JSON.parse(localStorage.getItem('pkbm_pendaftar') || '[]');
+                found = pendaftarList.find(s => s.nik === nik);
+            }
+
+            if (found) {
+                sessionStorage.setItem('current_user', JSON.stringify({
+                    role: 'siswa',
+                    nama: found.nama,
+                    nik: found.nik,
+                    rombel: found.rombel || found.paket,
+                    paket: found.paket,
+                    jk: found.jk,
+                    ttl: (found.tempat_lahir || 'Mataraman') + ', ' + (found.tanggal_lahir || '-'),
+                    alamat: found.alamat || 'Kec. Mataraman'
+                }));
+                window.location.href = './siswa.html';
+            } else {
+                err.classList.remove('hidden');
+                errMsg.innerText = "NIK " + nik + " tidak ditemukan dalam database. Pastikan NIK sudah sesuai.";
+            }
+        });
+
+        // Login Staff
+        document.getElementById('form-staff').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const u = document.getElementById('staff-user').value.trim();
+            const p = document.getElementById('staff-pass').value.trim();
+            const err = document.getElementById('login-error');
+            const errMsg = document.getElementById('login-error-msg');
+
+            if (u === 'admin' && p === 'admin123') {
+                sessionStorage.setItem('current_user', JSON.stringify({ role: 'admin', nama: 'Administrator PKBM Mandiri' }));
+                window.location.href = './admin.html';
+            } else if (u === 'guru' && p === 'guru123') {
+                sessionStorage.setItem('current_user', JSON.stringify({ role: 'guru', nama: 'Tutor / Guru Pengajar' }));
+                window.location.href = './admin.html';
+            } else {
+                err.classList.remove('hidden');
+                errMsg.innerText = "Username atau password petugas salah!";
+            }
+        });
+    </script>
+</body>
+</html>

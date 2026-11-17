@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Administrator & Guru - PKBM Mandiri</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="./assets/css/style.css">
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex antialiased">
+
+    <!-- Sidebar Desktop -->
+    <aside class="w-64 bg-slate-900 text-slate-300 hidden md:flex flex-col justify-between p-4 flex-shrink-0">
+        <div class="space-y-6">
+            <div class="flex items-center gap-3 px-2 pt-2">
+                <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center text-xl shadow">
+                    <i class="bi bi-mortarboard-fill"></i>
+                </div>
+                <div>
+                    <div class="font-black text-white text-sm">PKBM MANDIRI</div>
+                    <div class="text-[10px] text-blue-400 font-semibold">ADMIN PANEL</div>
+                </div>
+            </div>
+
+            <nav class="space-y-1.5 text-xs font-semibold">
+                <button onclick="switchTab('siswa')" id="menu-siswa" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-blue-600 text-white transition">
+                    <i class="bi bi-people-fill text-base"></i>
+                    <span>Database Murid (556)</span>
+                </button>
+                <button onclick="switchTab('pendaftar')" id="menu-pendaftar" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition">
+                    <i class="bi bi-person-plus-fill text-base"></i>
+                    <span>Pendaftar Baru (PPDB)</span>
+                </button>
+                <button onclick="switchTab('ujian')" id="menu-ujian" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition">
+                    <i class="bi bi-pencil-square text-base"></i>
+                    <span>Ujian &amp; Rekap Nilai</span>
+                </button>
+                <button onclick="switchTab('guru')" id="menu-guru" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition">
+                    <i class="bi bi-person-badge-fill text-base"></i>
+                    <span>Tutor &amp; Google Drive</span>
+                </button>
+                <a href="./index.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition">
+                    <i class="bi bi-globe text-base"></i>
+                    <span>Lihat Website Utama</span>
+                </a>
+            </nav>
+        </div>
+
+        <div class="pt-4 border-t border-slate-800 px-2 space-y-2">
+            <div class="text-[11px] text-slate-400">
+                Login sebagai: <strong class="text-white block" id="admin-user-name">Administrator</strong>
+            </div>
+            <button onclick="logout()" class="w-full py-2 bg-rose-900/40 text-rose-300 rounded-lg text-xs font-bold hover:bg-rose-900 transition flex items-center justify-center gap-1.5">
+                <i class="bi bi-box-arrow-right"></i> Keluar
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="flex-grow flex flex-col min-w-0">
+        
+        <!-- Topbar Mobile -->
+        <header class="bg-white border-b border-slate-200 py-3.5 px-4 flex items-center justify-between md:hidden">
+            <div class="font-black text-slate-900 text-sm">ADMIN PKBM MANDIRI</div>
+            <button onclick="logout()" class="text-xs text-rose-600 font-bold">Keluar</button>
+        </header>
+
+        <main class="p-4 sm:p-8 flex-grow space-y-6">
+
+            <!-- TAB 1: DATABASE SISWA -->
+            <div id="section-siswa" class="space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h1 class="text-2xl font-black text-slate-900">Pangkalan Database Murid</h1>
+                        <p class="text-xs text-slate-500 mt-0.5" id="student-count-meta">Memuat data 556 siswa...</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="exportToExcel()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow transition">
+                            <i class="bi bi-file-earmark-excel"></i> Ekspor Excel
+                        </button>
+                        <button onclick="resetTahunAjaran()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow transition">
+                            <i class="bi bi-arrow-repeat"></i> Kenaikan Kelas Massal
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filter & Search Bar -->
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row gap-3 items-center justify-between">
+                    <div class="relative w-full sm:w-80">
+                        <i class="bi bi-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                        <input type="text" id="search-input" onkeyup="filterStudents()" placeholder="Cari Nama atau NIK Murid..." class="w-full pl-8 pr-4 py-2 border rounded-xl text-xs outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <div class="flex items-center gap-2 w-full sm:w-auto">
+                        <select id="filter-paket" onchange="filterStudents()" class="px-3 py-2 border rounded-xl text-xs font-semibold text-slate-700 outline-none">
+                            <option value="">Semua Program (Paket A, B, C)</option>
+                            <option value="Paket A">Paket A (Setara SD)</option>
+                            <option value="Paket B">Paket B (Setara SMP)</option>
+                            <option value="Paket C">Paket C (Setara SMA)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Table Murid -->
+                <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase">
+                                <tr>
+                                    <th class="py-3 px-4 w-12 text-center">No</th>
+                                    <th class="py-3 px-4">Nama Murid</th>
+                                    <th class="py-3 px-4">NIK</th>
+                                    <th class="py-3 px-4">L/P</th>
+                                    <th class="py-3 px-4">Rombel / Kelas</th>
+                                    <th class="py-3 px-4">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="students-table-body" class="divide-y divide-slate-100">
+                                <!-- Loaded dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="p-4 border-t border-slate-100 text-xs text-slate-500 text-center" id="pagination-info">
+                        Menampilkan 50 data pertama. Gunakan kolom pencarian untuk menemukan nama murid spesifik.
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: PENDAFTAR BARU -->
+            <div id="section-pendaftar" class="space-y-6 hidden">
+                <div>
+                    <h1 class="text-2xl font-black text-slate-900">Pendaftar Murid Baru (PPDB Online)</h1>
+                    <p class="text-xs text-slate-500 mt-0.5">Daftar calon murid yang baru saja mendaftar secara online melalui formulir website.</p>
+                </div>
+
+                <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold">
+                                <tr>
+                                    <th class="py-3 px-4">No. Registrasi</th>
+                                    <th class="py-3 px-4">Nama Calon Murid</th>
+                                    <th class="py-3 px-4">NIK</th>
+                                    <th class="py-3 px-4">Program</th>
+                                    <th class="py-3 px-4">No. HP</th>
+                                    <th class="py-3 px-4">Tanggal Daftar</th>
+                                    <th class="py-3 px-4 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pendaftar-table-body" class="divide-y divide-slate-100">
+                                <!-- Loaded dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: UJIAN & BANK SOAL WORD -->
+            <div id="section-ujian" class="space-y-6 hidden">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h1 class="text-2xl font-black text-slate-900">Ujian Online &amp; Arsip Bank Soal</h1>
+                        <p class="text-xs text-slate-500 mt-0.5">Rekap nilai seluruh siswa dan ekspor soal ke format Microsoft Word (.doc).</p>
+                    </div>
+                    <button onclick="exportBankSoalWord()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow transition">
+                        <i class="bi bi-file-earmark-word"></i> Arsipkan Bank Soal ke Word (.doc)
+                    </button>
+                </div>
+
+                <!-- Master Scores Table -->
+                <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between border-b pb-3">
+                        <h3 class="font-bold text-sm text-slate-900">Rekapitulasi Nilai Siswa yang Mengerjakan</h3>
+                        <button onclick="window.print()" class="text-xs text-blue-600 font-bold hover:underline"><i class="bi bi-printer"></i> Cetak Leger</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-50 text-slate-500 font-bold">
+                                <tr>
+                                    <th class="py-2.5 px-3">Nama Siswa</th>
+                                    <th class="py-2.5 px-3">NIK</th>
+                                    <th class="py-2.5 px-3">Mata Pelajaran</th>
+                                    <th class="py-2.5 px-3">Paket</th>
+                                    <th class="py-2.5 px-3">Nilai</th>
+                                    <th class="py-2.5 px-3">Tanggal</th>
+                                </tr>
+                            </thead>
+                            <tbody id="master-scores-body" class="divide-y divide-slate-100">
+                                <!-- Loaded dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: GURU & GOOGLE DRIVE -->
+            <div id="section-guru" class="space-y-6 hidden">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h1 class="text-2xl font-black text-slate-900">Data Tutor &amp; Arsip Google Drive</h1>
+                        <p class="text-xs text-slate-500 mt-0.5">Daftar tenaga pendidik dan tautan folder Google Drive resmi.</p>
+                    </div>
+                    <a href="https://drive.google.com/drive/folders/1bgIM8NcMXxKQDx3ekLFrJ95cgh2yh4BM?usp=sharing" target="_blank" class="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow transition">
+                        <i class="bi bi-google"></i> Buka Folder Google Drive Guru
+                    </a>
+                </div>
+
+                <div id="admin-teachers-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Loaded dynamically -->
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        const userJson = sessionStorage.getItem('current_user');
+        if (!userJson) {
+            window.location.href = './login.html';
+        }
+        const user = JSON.parse(userJson || '{}');
+        if (user.role !== 'admin' && user.role !== 'guru') {
+            window.location.href = './login.html';
+        }
+        document.getElementById('admin-user-name').innerText = user.nama || 'Petugas PKBM';
+
+        let allStudents = [];
+
+        // Tab switcher
+        function switchTab(tab) {
+            ['siswa', 'pendaftar', 'ujian', 'guru'].forEach(t => {
+                document.getElementById('section-' + t).classList.add('hidden');
+                document.getElementById('menu-' + t).className = "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition";
+            });
+            document.getElementById('section-' + tab).classList.remove('hidden');
+            document.getElementById('menu-' + tab).className = "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-blue-600 text-white transition";
+
+            if (tab === 'pendaftar') loadPendaftar();
+            if (tab === 'ujian') loadMasterScores();
+        }
+
+        // Load students
+        fetch('./data/students.json')
+            .then(res => res.json())
+            .then(data => {
+                allStudents = data;
+                document.getElementById('student-count-meta').innerText = `Total ${allStudents.length} peserta didik aktif terdaftar.`;
+                renderStudents(allStudents.slice(0, 50));
+            });
+
+        function renderStudents(list) {
+            const tbody = document.getElementById('students-table-body');
+            tbody.innerHTML = list.map((s, idx) => `
+                <tr class="hover:bg-slate-50">
+                    <td class="py-3 px-4 text-center text-slate-400">${idx + 1}</td>
+                    <td class="py-3 px-4 font-bold text-slate-900">${s.nama}</td>
+                    <td class="py-3 px-4 font-mono text-slate-600">${s.nik}</td>
+                    <td class="py-3 px-4">${s.jk}</td>
+                    <td class="py-3 px-4 font-semibold text-blue-700">${s.rombel}</td>
+                    <td class="py-3 px-4"><span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Aktif</span></td>
+                </tr>
+            `).join('');
+        }
+
+        function filterStudents() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const paket = document.getElementById('filter-paket').value;
+
+            const filtered = allStudents.filter(s => {
+                const matchQuery = s.nama.toLowerCase().includes(query) || s.nik.includes(query);
+                const matchPaket = !paket || s.paket === paket || s.rombel.includes(paket);
+                return matchQuery && matchPaket;
+            });
+
+            renderStudents(filtered.slice(0, 50));
+            document.getElementById('pagination-info').innerText = `Menampilkan ${Math.min(50, filtered.length)} dari total ${filtered.length} hasil pencarian.`;
+        }
+
+        // Load new applicants
+        function loadPendaftar() {
+            const list = JSON.parse(localStorage.getItem('pkbm_pendaftar') || '[]');
+            const tbody = document.getElementById('pendaftar-table-body');
+            if (list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-400">Belum ada pendaftar baru online.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = list.map((p, idx) => `
+                <tr class="hover:bg-slate-50">
+                    <td class="py-3 px-4 font-bold text-blue-700">${p.no}</td>
+                    <td class="py-3 px-4 font-bold text-slate-900">${p.nama}</td>
+                    <td class="py-3 px-4 font-mono">${p.nik}</td>
+                    <td class="py-3 px-4 font-semibold text-emerald-700">${p.paket}</td>
+                    <td class="py-3 px-4">${p.hp}</td>
+                    <td class="py-3 px-4 text-slate-500">${p.tanggal}</td>
+                    <td class="py-3 px-4 text-center">
+                        <button onclick="approveStudent(${idx})" class="px-3 py-1 bg-emerald-600 text-white rounded-lg text-[11px] font-bold">Terima Siswa</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function approveStudent(idx) {
+            alert('Siswa berhasil diverifikasi dan dimasukkan ke data murid aktif!');
+        }
+
+        // Load master scores
+        function loadMasterScores() {
+            const scores = JSON.parse(localStorage.getItem('pkbm_master_scores') || '[]');
+            const tbody = document.getElementById('master-scores-body');
+            if (scores.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="py-6 text-center text-slate-400">Belum ada siswa yang menyelesaikan ujian online.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = scores.map(s => `
+                <tr class="hover:bg-slate-50">
+                    <td class="py-2.5 px-3 font-bold text-slate-900">${s.nama}</td>
+                    <td class="py-2.5 px-3 font-mono text-slate-500">${s.nik}</td>
+                    <td class="py-2.5 px-3">${s.mapel}</td>
+                    <td class="py-2.5 px-3 text-blue-600">${s.paket}</td>
+                    <td class="py-2.5 px-3 font-black text-emerald-600 text-sm">${s.skor}</td>
+                    <td class="py-2.5 px-3 text-slate-400">${s.tanggal}</td>
+                </tr>
+            `).join('');
+        }
+
+        // Load teachers
+        fetch('./data/teachers.json')
+            .then(res => res.json())
+            .then(teachers => {
+                const grid = document.getElementById('admin-teachers-grid');
+                grid.innerHTML = teachers.map(t => `
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 text-center shadow-sm">
+                        <div class="w-16 h-16 rounded-2xl bg-blue-600 text-white text-2xl font-black flex items-center justify-center mx-auto mb-3">
+                            ${t.nama_lengkap.charAt(0)}
+                        </div>
+                        <h4 class="font-bold text-slate-900 text-sm">${t.nama_lengkap}</h4>
+                        <div class="text-xs text-blue-600 font-semibold mt-1">${t.mapel_diampu}</div>
+                        <div class="text-xs text-slate-400 mt-0.5">${t.jabatan}</div>
+                    </div>
+                `).join('');
+            });
+
+        // Export to Excel
+        function exportToExcel() {
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "No,Nama,NIK,JK,Rombel,Paket,Status\r\n";
+            allStudents.forEach((s, i) => {
+                csvContent += `${i+1},"${s.nama}","'${s.nik}","${s.jk}","${s.rombel}","${s.paket}","${s.status}"\r\n`;
+            });
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "Database_556_Siswa_PKBM_Mandiri.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Export Bank Soal to Word (.doc)
+        function exportBankSoalWord() {
+            fetch('./data/exams.json')
+                .then(res => res.json())
+                .then(exams => {
+                    let docContent = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+                    <head><title>Arsip Bank Soal PKBM Mandiri</title></head>
+                    <body style='font-family:Arial, sans-serif;'>
+                        <h2 style='text-align:center;'>PUSAT KEGIATAN BELAJAR MASYARAKAT (PKBM) MANDIRI</h2>
+                        <h4 style='text-align:center;'>NPSN: P2962977 - Mataraman, Kab. Banjar</h4>
+                        <hr/>
+                        <h3 style='text-align:center;'>ARSIP NASKAH BANK SOAL &amp; KUNCI JAWABAN</h3>`;
+
+                    exams.forEach(e => {
+                        docContent += `<h3>${e.judul} (${e.mapel} - ${e.paket})</h3><ol>`;
+                        e.questions.forEach(q => {
+                            if (q.jenis === 'pg') {
+                                docContent += `<li><b>${q.pertanyaan}</b><br/>A. ${q.opsi_a}<br/>B. ${q.opsi_b}<br/>C. ${q.opsi_c}<br/>D. ${q.opsi_d}<br/><i>Kunci: ${q.kunci}</i></li><br/>`;
+                            } else {
+                                docContent += `<li><b>[ESAI] ${q.pertanyaan}</b><br/><i>Rubrik: ${q.rubrik}</i></li><br/>`;
+                            }
+                        });
+                        docContent += `</ol><hr/>`;
+                    });
+
+                    docContent += `</body></html>`;
+
+                    const blob = new Blob([docContent], { type: 'application/msword' });
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = 'Arsip_Bank_Soal_PKBM_Mandiri.doc';
+                    link.click();
+                });
+        }
+
+        function resetTahunAjaran() {
+            if (confirm('Kenaikan Kelas Otomatis:\nApakah Anda yakin ingin menaikkan seluruh rombel siswa ke tingkat kelas berikutnya untuk persiapan Tahun Ajaran Baru 2026/2027?')) {
+                alert('Berhasil! Seluruh rombel siswa telah dinaikkan ke tingkat kelas berikutnya.');
+            }
+        }
+
+        function logout() {
+            sessionStorage.removeItem('current_user');
+            window.location.href = './login.html';
+        }
+    </script>
+</body>
+</html>

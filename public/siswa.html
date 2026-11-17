@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Siswa - PKBM Mandiri</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="./assets/css/style.css">
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col antialiased">
+
+    <!-- Topbar -->
+    <header class="bg-white border-b border-slate-200 py-3.5 px-4 sm:px-8 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-6xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center text-xl shadow">
+                    <i class="bi bi-person-fill"></i>
+                </div>
+                <div>
+                    <h2 class="font-extrabold text-slate-900 text-sm sm:text-base leading-tight" id="user-display-name">Memuat Data Siswa...</h2>
+                    <span class="text-xs text-blue-600 font-semibold" id="user-display-rombel">Warga Belajar PKBM Mandiri</span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <a href="./index.html" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50">
+                    <i class="bi bi-house"></i> Beranda
+                </a>
+                <button onclick="logout()" class="px-3.5 py-1.5 rounded-lg bg-rose-50 text-rose-600 border border-rose-200 text-xs font-bold hover:bg-rose-100 flex items-center gap-1.5">
+                    <i class="bi bi-box-arrow-right"></i> Keluar
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-8 w-full flex-grow space-y-8">
+        
+        <!-- Grid Profil & Kartu Pelajar Digital -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            
+            <!-- Biodata Siswa -->
+            <div class="lg:col-span-7 bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+                <div class="flex items-center justify-between border-b pb-4 border-slate-100">
+                    <div class="flex items-center gap-2 text-slate-900 font-extrabold text-base">
+                        <i class="bi bi-person-lines-fill text-blue-600 text-xl"></i>
+                        <span>Biodata Lengkap Warga Belajar</span>
+                    </div>
+                    <span class="px-3 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-full">Siswa Aktif</span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                    <div>
+                        <span class="text-slate-400 block mb-0.5">Nama Lengkap</span>
+                        <div class="font-bold text-slate-900 text-sm" id="bio-nama">-</div>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block mb-0.5">NIK (Nomor Induk Kependudukan)</span>
+                        <div class="font-bold text-slate-900 text-sm font-mono" id="bio-nik">-</div>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block mb-0.5">Jenis Kelamin</span>
+                        <div class="font-semibold text-slate-800" id="bio-jk">-</div>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block mb-0.5">Tempat, Tanggal Lahir</span>
+                        <div class="font-semibold text-slate-800" id="bio-ttl">-</div>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block mb-0.5">Rombongan Belajar (Kelas)</span>
+                        <div class="font-bold text-blue-600 text-sm" id="bio-rombel">-</div>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block mb-0.5">Program Kesetaraan</span>
+                        <div class="font-semibold text-slate-800" id="bio-paket">-</div>
+                    </div>
+                    <div class="sm:col-span-2">
+                        <span class="text-slate-400 block mb-0.5">Alamat Domisili</span>
+                        <div class="font-semibold text-slate-800" id="bio-alamat">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kartu Pelajar Digital (KTP Pelajar) -->
+            <div class="lg:col-span-5 space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="font-bold text-sm text-slate-700 flex items-center gap-1.5">
+                        <i class="bi bi-card-heading text-blue-600"></i>
+                        <span>Kartu Tanda Pelajar Digital</span>
+                    </h3>
+                    <button onclick="window.print()" class="text-xs text-blue-600 font-bold hover:underline flex items-center gap-1">
+                        <i class="bi bi-printer"></i> Cetak Kartu
+                    </button>
+                </div>
+
+                <!-- Desain Kartu KTP Pelajar -->
+                <div class="bg-gradient-to-tr from-slate-900 via-blue-950 to-indigo-900 text-white p-6 rounded-3xl shadow-xl border border-slate-700 relative overflow-hidden">
+                    <div class="absolute -right-10 -bottom-10 w-44 h-44 rounded-full bg-blue-500/10 blur-2xl pointer-events-none"></div>
+
+                    <!-- Header Kartu -->
+                    <div class="flex items-center justify-between border-b border-slate-700 pb-3 mb-4">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white text-base">
+                                <i class="bi bi-mortarboard-fill"></i>
+                            </div>
+                            <div>
+                                <div class="font-black text-xs tracking-wider">PKBM MANDIRI</div>
+                                <div class="text-[9px] text-blue-300">NPSN: P2962977 &bull; Kalsel</div>
+                            </div>
+                        </div>
+                        <span class="px-2 py-0.5 rounded text-[9px] font-bold bg-amber-400 text-slate-900">KARTU PELAJAR</span>
+                    </div>
+
+                    <!-- Isi Kartu -->
+                    <div class="flex items-center gap-4">
+                        <div class="w-16 h-20 rounded-xl bg-slate-800 border border-slate-600 flex flex-col items-center justify-center text-white flex-shrink-0">
+                            <i class="bi bi-person-fill text-4xl text-blue-300"></i>
+                            <span class="text-[8px] text-slate-400 mt-1">RESMI</span>
+                        </div>
+                        <div class="space-y-1 text-xs">
+                            <div class="font-black text-white text-sm" id="card-nama">-</div>
+                            <div class="text-[11px] text-blue-300 font-mono" id="card-nik">-</div>
+                            <div class="text-[11px] text-slate-300" id="card-rombel">-</div>
+                            <div class="text-[10px] text-emerald-400 pt-1 font-bold"><i class="bi bi-check-circle-fill"></i> Warga Belajar Aktif</div>
+                        </div>
+                    </div>
+
+                    <!-- Footer Kartu -->
+                    <div class="mt-4 pt-3 border-t border-slate-800 text-[9px] text-slate-400 flex items-center justify-between">
+                        <span>Mataraman, Kab. Banjar</span>
+                        <span class="font-bold text-slate-300">T.A 2026/2027</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Section Ujian CBT & Nilai -->
+        <div class="space-y-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-xl font-extrabold text-slate-900 flex items-center gap-2">
+                        <i class="bi bi-pencil-square text-blue-600"></i>
+                        <span>Jadwal &amp; Ruang Ujian Online (CBT)</span>
+                    </h3>
+                    <p class="text-xs text-slate-500 mt-0.5">Silakan pilih mata pelajaran yang ingin Anda kerjakan hari ini.</p>
+                </div>
+            </div>
+
+            <!-- List Ujian -->
+            <div id="exams-container" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Dynamically loaded -->
+            </div>
+        </div>
+
+        <!-- Riwayat Nilai & Rapor Siswa -->
+        <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-4">
+            <div class="flex items-center justify-between border-b pb-4 border-slate-100">
+                <div class="flex items-center gap-2 text-slate-900 font-extrabold text-base">
+                    <i class="bi bi-award-fill text-amber-500 text-xl"></i>
+                    <span>Rekap Hasil Nilai Ujian Anda</span>
+                </div>
+                <button onclick="window.print()" class="text-xs text-blue-600 font-bold hover:underline flex items-center gap-1">
+                    <i class="bi bi-printer"></i> Cetak Lembar Nilai
+                </button>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                    <thead>
+                        <tr class="border-b border-slate-200 text-slate-500 font-semibold bg-slate-50">
+                            <th class="py-3 px-4">Mata Pelajaran</th>
+                            <th class="py-3 px-4">Paket / Kelas</th>
+                            <th class="py-3 px-4">Skor Pilihan Ganda</th>
+                            <th class="py-3 px-4">Status</th>
+                            <th class="py-3 px-4 text-right">Nilai Akhir</th>
+                        </tr>
+                    </thead>
+                    <tbody id="scores-table-body" class="divide-y divide-slate-100">
+                        <!-- Loaded dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        const userJson = sessionStorage.getItem('current_user');
+        if (!userJson) {
+            window.location.href = './login.html';
+        }
+        const user = JSON.parse(userJson || '{}');
+
+        // Populate biodata
+        document.getElementById('user-display-name').innerText = user.nama || 'Siswa PKBM';
+        document.getElementById('user-display-rombel').innerText = user.rombel || 'Paket Kesetaraan';
+        document.getElementById('bio-nama').innerText = user.nama || '-';
+        document.getElementById('bio-nik').innerText = user.nik || '-';
+        document.getElementById('bio-jk').innerText = (user.jk === 'P') ? 'Perempuan' : 'Laki-Laki';
+        document.getElementById('bio-ttl').innerText = user.ttl || 'Mataraman';
+        document.getElementById('bio-rombel').innerText = user.rombel || '-';
+        document.getElementById('bio-paket').innerText = user.paket || 'Paket A';
+        document.getElementById('bio-alamat').innerText = user.alamat || 'Kec. Mataraman, Kab. Banjar';
+
+        // Card
+        document.getElementById('card-nama').innerText = user.nama || '-';
+        document.getElementById('card-nik').innerText = user.nik || '-';
+        document.getElementById('card-rombel').innerText = user.rombel || '-';
+
+        // Load exams
+        fetch('./data/exams.json')
+            .then(res => res.json())
+            .then(exams => {
+                const container = document.getElementById('exams-container');
+                container.innerHTML = exams.map(e => `
+                    <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex flex-col justify-between hover:shadow-lg transition">
+                        <div>
+                            <div class="flex items-center justify-between text-xs mb-3">
+                                <span class="px-2.5 py-0.5 rounded-full font-bold bg-blue-50 text-blue-700">${e.paket}</span>
+                                <span class="text-slate-400">${e.tingkat_kelas}</span>
+                            </div>
+                            <h4 class="font-bold text-slate-900 text-base mb-1">${e.mapel}</h4>
+                            <p class="text-xs text-slate-500 mb-4">${e.judul}</p>
+                            <div class="text-[11px] text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-slate-100 flex items-center justify-between">
+                                <span><i class="bi bi-question-circle mr-1"></i> ${e.questions.length} Butir Soal</span>
+                                <span class="text-emerald-600 font-bold"><i class="bi bi-shield-check"></i> Fleksibel</span>
+                            </div>
+                        </div>
+                        <div class="pt-6">
+                            <a href="./ujian.html?exam_id=${e.id}" class="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow transition">
+                                <i class="bi bi-play-circle-fill"></i> Mulai Kerjakan Ujian
+                            </a>
+                        </div>
+                    </div>
+                `).join('');
+            });
+
+        // Load completed exam scores from local storage
+        function loadScores() {
+            const tbody = document.getElementById('scores-table-body');
+            const studentScores = JSON.parse(localStorage.getItem('pkbm_scores_' + user.nik) || '[]');
+            
+            if (studentScores.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="py-6 text-center text-slate-400">
+                            Belum ada riwayat ujian yang diselesaikan. Silakan kerjakan ujian di atas.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = studentScores.map(s => `
+                <tr class="hover:bg-slate-50">
+                    <td class="py-3 px-4 font-bold text-slate-900">${s.mapel}</td>
+                    <td class="py-3 px-4 text-slate-600">${s.paket}</td>
+                    <td class="py-3 px-4 font-bold text-blue-600">${s.skor_pg} / 100</td>
+                    <td class="py-3 px-4"><span class="px-2.5 py-0.5 rounded-full font-bold text-[10px] bg-emerald-100 text-emerald-800">Selesai</span></td>
+                    <td class="py-3 px-4 text-right font-black text-slate-900 text-sm">${s.skor_akhir}</td>
+                </tr>
+            `).join('');
+        }
+        loadScores();
+
+        function logout() {
+            sessionStorage.removeItem('current_user');
+            window.location.href = './login.html';
+        }
+    </script>
+</body>
+</html>

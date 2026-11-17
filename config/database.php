@@ -49,9 +49,13 @@ class Database {
                         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
                     ]);
                     
-                    // Enable WAL mode & foreign keys for performance
-                    self::$instance->exec("PRAGMA journal_mode = WAL;");
-                    self::$instance->exec("PRAGMA foreign_keys = ON;");
+                    // Konfigurasi performa database aman untuk hosting
+                    try {
+                        self::$instance->exec("PRAGMA journal_mode = WAL;");
+                    } catch (Throwable $t) {
+                        try { self::$instance->exec("PRAGMA journal_mode = DELETE;"); } catch (Throwable $e) {}
+                    }
+                    try { self::$instance->exec("PRAGMA foreign_keys = ON;"); } catch (Throwable $e) {}
 
                     if ($isNew) {
                         self::migrateAndSeed(self::$instance);
